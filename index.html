@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0e7490" />
-<title>SIAGA — Cirebon Setara Berkelanjutan</title>
+<title>SI PINTAR — Dinsos Kota Cirebon</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -16,46 +16,25 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html{-webkit-text-size-adjust:100%}
-  body{
-    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    background:var(--bg);color:var(--ink);line-height:1.5;
-    overflow-x:hidden;
-  }
-  img,table{max-width:100%}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;overflow-x:hidden}
   a{text-decoration:none;color:inherit}
-  button,input,select,textarea{font-family:inherit;font-size:16px} /* 16px cegah auto-zoom iOS */
+  button,input,select,textarea{font-family:inherit;font-size:16px}
 
-  /* ================= HEADER ================= */
-  header{
-    position:sticky;top:0;z-index:1000;
-    background:linear-gradient(120deg,#0f766e,#0e7490 45%,#0891b2);
-    color:#fff;padding:12px 16px;
-    box-shadow:0 4px 18px rgba(14,116,144,.35);
-  }
+  /* HEADER */
+  header{position:sticky;top:0;z-index:1000;background:linear-gradient(120deg,#0f766e,#0e7490 45%,#0891b2);color:#fff;padding:12px 16px;box-shadow:0 4px 18px rgba(14,116,144,.35)}
   .header-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .logo{
-    font-weight:800;font-size:20px;letter-spacing:2px;background:#fff;color:#0e7490;
-    padding:6px 12px;border-radius:12px;box-shadow:0 3px 0 rgba(0,0,0,.15);flex-shrink:0;
-  }
+  .logo{font-weight:800;font-size:18px;letter-spacing:1px;background:#fff;color:#0e7490;padding:6px 12px;border-radius:12px;box-shadow:0 3px 0 rgba(0,0,0,.15);flex-shrink:0}
   .brand-title{line-height:1.25;flex:1;min-width:0}
   .brand-title b{font-size:14.5px;display:block}
   .brand-title span{display:block;font-size:11px;opacity:.9}
-
-  nav{
-    display:flex;gap:6px;margin-top:12px;
-    overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
-    padding-bottom:2px;
-  }
+  nav{display:flex;gap:6px;margin-top:12px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
   nav::-webkit-scrollbar{display:none}
-  nav button{
-    background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
-    color:#fff;padding:9px 14px;border-radius:10px;cursor:pointer;
-    font-weight:600;font-size:13px;white-space:nowrap;flex-shrink:0;transition:.2s;
-  }
+  nav button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap;flex-shrink:0;transition:.2s}
   nav button:hover{background:rgba(255,255,255,.28)}
   nav button.active{background:#fff;color:#0e7490}
+  nav button.nav-admin{background:rgba(245,158,11,.25);border-color:rgba(245,158,11,.6)}
+  nav button.nav-admin.active{background:var(--accent);color:#451a03}
 
-  /* ================= MAIN ================= */
   main{padding:18px 16px;max-width:1400px;margin:0 auto;width:100%}
   .page{display:none;animation:fade .35s ease}
   .page.active{display:block}
@@ -64,58 +43,38 @@
   h2.section{font-size:18px;margin-bottom:4px;line-height:1.3}
   .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
 
-  /* ================= KPI ================= */
+  /* KPI */
   .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
-  .kpi{
-    background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--line);
-    box-shadow:0 6px 18px rgba(15,23,42,.05);position:relative;overflow:hidden;
-  }
+  .kpi{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--line);box-shadow:0 6px 18px rgba(15,23,42,.05);position:relative;overflow:hidden}
   .kpi::after{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--brand)}
   .kpi .v{font-size:24px;font-weight:800;color:var(--brand);line-height:1.1}
   .kpi .l{font-size:11.5px;color:var(--muted);margin-top:4px}
   .kpi.warn::after{background:var(--accent)} .kpi.warn .v{color:#b45309}
   .kpi.ok::after{background:var(--ok)} .kpi.ok .v{color:#047857}
+  .kpi.danger::after{background:#ef4444} .kpi.danger .v{color:#dc2626}
 
-  /* ================= LAYOUT ================= */
   .grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
   .gridTitik{display:grid;grid-template-columns:1.4fr .6fr;gap:16px}
-
-  .card{
-    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-    padding:16px;box-shadow:0 6px 18px rgba(15,23,42,.05);min-width:0;
-  }
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:0 6px 18px rgba(15,23,42,.05);min-width:0}
   .card h3{font-size:14.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
   .card h3::before{content:"";width:8px;height:8px;border-radius:3px;background:var(--brand2);flex-shrink:0}
 
-  /* ================= MAP ================= */
+  /* MAP */
   #map{height:360px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
   #mapFull{height:420px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
   .map-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
   .map-legend i{display:inline-block;width:13px;height:13px;border-radius:4px;margin-right:6px;vertical-align:-2px}
 
-  /* ================= SEARCH ================= */
+  /* SEARCH */
   .searchbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-  .searchbar input{
-    flex:1 1 200px;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
-    outline:none;transition:.2s;background:#fff;
-  }
+  .searchbar input{flex:1 1 200px;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--line);outline:none;transition:.2s;background:#fff}
   .searchbar input:focus{border-color:var(--brand2);box-shadow:0 0 0 4px rgba(8,145,178,.12)}
-  .searchbar select{
-    flex:1 1 140px;padding:12px;border-radius:12px;border:1px solid var(--line);
-    background:#fff;font-size:14px;
-  }
+  .searchbar select{flex:1 1 140px;padding:12px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:14px}
 
-  /* ================= TABLE ================= */
-  .tablewrap{
-    max-height:460px;overflow:auto;border-radius:12px;border:1px solid var(--line);
-    -webkit-overflow-scrolling:touch;
-  }
+  /* TABLE */
+  .tablewrap{max-height:460px;overflow:auto;border-radius:12px;border:1px solid var(--line);-webkit-overflow-scrolling:touch}
   table{width:100%;border-collapse:collapse;font-size:13px}
-  th{
-    text-align:left;padding:11px 10px;background:#f1f5f9;color:var(--muted);font-size:11px;
-    text-transform:uppercase;letter-spacing:.4px;font-weight:700;white-space:nowrap;
-    position:sticky;top:0;z-index:2;
-  }
+  th{text-align:left;padding:11px 10px;background:#f1f5f9;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;white-space:nowrap;position:sticky;top:0;z-index:2}
   td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
   tbody tr:hover{background:#f8fbfd}
   .pill{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap}
@@ -124,113 +83,91 @@
   .pill.high{background:#fee2e2;color:#991b1b}
   .empty{text-align:center;color:var(--muted);padding:30px;font-size:13px}
 
-  /* ================= FORM ================= */
+  /* FORM */
   form .field{margin-bottom:15px}
   form label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
   form label small{color:var(--muted);font-weight:500}
-  form input,form textarea,form select{
-    width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
-    outline:none;transition:.2s;background:#fff;font-size:16px;
-  }
+  form input,form textarea,form select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);outline:none;transition:.2s;background:#fff;font-size:16px}
   form textarea{min-height:90px;resize:vertical}
   form input:focus,form textarea:focus{border-color:var(--brand2);box-shadow:0 0 0 4px rgba(8,145,178,.12)}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 
-  .btn{
-    background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;border:none;padding:14px 24px;
-    border-radius:12px;font-weight:700;cursor:pointer;transition:.2s;
-    box-shadow:0 6px 16px rgba(8,145,178,.35);flex:1 1 auto;min-width:140px;
-  }
+  .btn{background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;border:none;padding:14px 24px;border-radius:12px;font-weight:700;cursor:pointer;transition:.2s;box-shadow:0 6px 16px rgba(8,145,178,.35);flex:1 1 auto;min-width:140px;font-size:14px}
   .btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(8,145,178,.45)}
   .btn:active{transform:translateY(0)}
   .btn.secondary{background:#e2e8f0;color:#0f172a;box-shadow:none}
+  .btn.green{background:linear-gradient(120deg,#047857,#10b981);box-shadow:0 6px 16px rgba(16,185,129,.35)}
+  .btn.orange{background:linear-gradient(120deg,#b45309,#f59e0b);box-shadow:0 6px 16px rgba(245,158,11,.35)}
+  .btn.red{background:linear-gradient(120deg,#b91c1c,#ef4444);box-shadow:0 6px 16px rgba(239,68,68,.35)}
+  .btn.sm{padding:9px 14px;min-width:0;font-size:12.5px;flex:0 0 auto}
 
-  .toast{
-    position:fixed;bottom:20px;left:16px;right:16px;background:#0f172a;color:#fff;
-    padding:14px 20px;border-radius:12px;font-size:13.5px;box-shadow:0 12px 30px rgba(0,0,0,.3);
-    opacity:0;transform:translateY(14px);transition:.3s;z-index:5000;pointer-events:none;
-  }
+  /* ADMIN */
+  .loginbox{max-width:400px;margin:40px auto}
+  .loginbox .icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 10px 24px rgba(8,145,178,.4)}
+  .loginbox h2{text-align:center;font-size:18px;margin-bottom:4px}
+  .loginbox .sub{text-align:center;margin-bottom:20px}
+  .login-err{background:#fee2e2;color:#991b1b;border-radius:10px;padding:10px 14px;font-size:12.5px;margin-bottom:14px;display:none}
+  .admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+  .admin-toolbar .spacer{flex:1}
+  .badge-login{font-size:12px;background:#ecfeff;color:#155e75;padding:6px 12px;border-radius:99px;font-weight:700}
+  .detail-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:4000;display:none;align-items:center;justify-content:center;padding:16px}
+  .detail-modal.show{display:flex}
+  .detail-box{background:#fff;border-radius:16px;max-width:560px;width:100%;max-height:86vh;overflow:auto;padding:22px;animation:fade .25s}
+  .detail-box h3{margin-bottom:14px;font-size:16px;color:var(--brand)}
+  .detail-row{display:grid;grid-template-columns:170px 1fr;gap:6px;font-size:13px;padding:8px 0;border-bottom:1px dashed var(--line)}
+  .detail-row b{color:var(--muted);font-weight:600}
+  @media(max-width:520px){.detail-row{grid-template-columns:1fr}}
+
+  .toast{position:fixed;bottom:20px;left:16px;right:16px;background:#0f172a;color:#fff;padding:14px 20px;border-radius:12px;font-size:13.5px;box-shadow:0 12px 30px rgba(0,0,0,.3);opacity:0;transform:translateY(14px);transition:.3s;z-index:5000;pointer-events:none}
   .toast.show{opacity:1;transform:none}
-
   footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;line-height:1.6}
-  .note{background:#ecfeff;border:1px solid #a5f3fc;color:#155e75;padding:12px 14px;
-    border-radius:12px;font-size:12.5px;margin-bottom:16px}
+  .note{background:#ecfeff;border:1px solid #a5f3fc;color:#155e75;padding:12px 14px;border-radius:12px;font-size:12.5px;margin-bottom:16px}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
 
-  /* ============================================
-     RESPONSIVE — TABLET
-  ============================================ */
   @media (max-width:1024px){
     .grid2{grid-template-columns:1fr}
     .gridTitik{grid-template-columns:1fr}
-    #map{height:340px}
-    #mapFull{height:400px}
+    #map{height:340px} #mapFull{height:400px}
   }
-
-  /* ============================================
-     RESPONSIVE — MOBILE
-  ============================================ */
   @media (max-width:640px){
     main{padding:14px 12px}
     .brand-title b{font-size:13px}
     .brand-title span{font-size:10px}
-    .logo{font-size:16px;padding:5px 10px;letter-spacing:1px}
-
+    .logo{font-size:15px;padding:5px 10px}
     nav{margin-top:10px;gap:5px}
     nav button{padding:8px 12px;font-size:12px}
-
     h2.section{font-size:16px}
-    .sub{font-size:12px}
     .kpi .v{font-size:21px}
-    .kpi .l{font-size:11px}
-
     .card{padding:14px;border-radius:14px}
-    .card h3{font-size:13.5px}
-
-    #map{height:300px}
-    #mapFull{height:340px}
-
-    .searchbar{gap:8px}
+    #map{height:300px} #mapFull{height:340px}
     .searchbar input,.searchbar select{flex:1 1 100%;font-size:14px}
-
-    /* tabel bisa scroll horizontal di HP */
     .tablewrap{max-height:420px;border-radius:10px}
-    table{font-size:12px;min-width:520px}
+    table{font-size:12px;min-width:560px}
     th,td{padding:9px 8px}
-
     .row2{grid-template-columns:1fr}
     .btn{width:100%;flex:1 1 100%;padding:14px;font-size:15px}
-    .btn.secondary{margin-left:0!important}
+    .admin-toolbar .btn{width:auto;flex:1 1 calc(50% - 4px)}
   }
-
-  /* MOBILE SANGAT KECIL */
   @media (max-width:360px){
     .brand-title span{display:none}
     .kpis{grid-template-columns:1fr}
   }
-
-  /* ============================================
-     LANDSCAPE HP / PETA PENUH
-  ============================================ */
   @media (max-height:500px) and (orientation:landscape){
-    #map{height:240px}
-    #mapFull{height:240px}
+    #map{height:240px} #mapFull{height:240px}
   }
-
-  /* Prefer reduced motion */
-  @media (prefers-reduced-motion:reduce){
-    *{animation:none!important;transition:none!important}
-  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
 <header>
   <div class="header-top">
-    <div class="logo">SIAGA</div>
+    <div class="logo">SI&nbsp;PINTAR</div>
     <div class="brand-title">
-      <b>Sistem Integrasi Asesmen, Pencegahan (SIAGA)</b>
-      <span>dan Gerakan Pembinaan Anak Terlantar Berbasis 4 Titik Binaan Menuju Cirebon Setara Berkelanjutan</span>
+      <b>SISTEM INFORMASI PENCEGAHAN DAN PENANGANAN ANAK TERLANTAR</b>
+      <span>Dinas Sosial Kota Cirebon · Peta Sebaran · Pelaporan Masyarakat · Tindak Lanjut Terpadu</span>
     </div>
   </div>
   <nav>
@@ -238,6 +175,7 @@
     <button data-page="titik">Lokasi Titik Binaan</button>
     <button data-page="data">Data Binaan</button>
     <button data-page="form">Form Penemuan Anak</button>
+    <button data-page="admin" class="nav-admin">🔐 Admin</button>
   </nav>
 </header>
 
@@ -246,13 +184,13 @@
   <!-- ================= DASHBOARD ================= -->
   <section id="page-dash" class="page active">
     <h2 class="section">Dashboard Monitoring</h2>
-    <p class="sub">Rekap data anak terlantar per kelurahan & kecamatan di Kota Cirebon — peta diwarnai sesuai jumlah anak.</p>
+    <p class="sub">Rekap data anak terlantar per kelurahan & kecamatan Kota Cirebon — warna peta sesuai jumlah anak.</p>
 
     <div class="kpis">
       <div class="kpi"><div class="v" id="kpiTotal">0</div><div class="l">Total Anak Terdata</div></div>
       <div class="kpi ok"><div class="v" id="kpiKel">0</div><div class="l">Kelurahan Titik Binaan</div></div>
       <div class="kpi warn"><div class="v" id="kpiKec">0</div><div class="l">Kecamatan Terjangkau</div></div>
-      <div class="kpi"><div class="v" id="kpiLapor">0</div><div class="l">Laporan Masyarakat</div></div>
+      <div class="kpi danger"><div class="v" id="kpiLapor">0</div><div class="l">Laporan Masyarakat</div></div>
     </div>
 
     <div class="grid2">
@@ -265,7 +203,6 @@
           <span><i style="background:#ef4444"></i>Banyak (&gt; 40)</span>
         </div>
       </div>
-
       <div class="card">
         <h3>Rekap Per Kecamatan</h3>
         <div class="tablewrap">
@@ -281,10 +218,18 @@
   <!-- ================= TITIK BINAAN ================= -->
   <section id="page-titik" class="page">
     <h2 class="section">Lokasi Titik Binaan</h2>
-    <p class="sub">Sebaran 4 titik binaan & jumlah data binaan setiap kelurahan/kecamatan. Ketuk wilayah untuk detail.</p>
+    <p class="sub">Sebaran per kelurahan dengan pewarnaan berdasar jumlah anak. Ketuk wilayah untuk detail.</p>
 
     <div class="gridTitik">
-      <div class="card"><div id="mapFull"></div></div>
+      <div class="card">
+        <div id="mapFull"></div>
+        <div class="map-legend">
+          <span><i style="background:#22c55e"></i>Sedikit</span>
+          <span><i style="background:#f59e0b"></i>Sedang</span>
+          <span><i style="background:#ef4444"></i>Banyak</span>
+          <span>★ Titik Binaan Utama</span>
+        </div>
+      </div>
       <div class="card">
         <h3>Ringkasan Wilayah</h3>
         <div class="searchbar">
@@ -320,10 +265,7 @@
       <div class="tablewrap" style="max-height:560px">
         <table>
           <thead>
-            <tr>
-              <th>Inisial</th><th>Umur</th><th>Kecamatan</th><th>Kelurahan</th>
-              <th>Titik</th><th>Masalah</th><th>Status</th>
-            </tr>
+            <tr><th>Inisial</th><th>Umur</th><th>Kecamatan</th><th>Kelurahan</th><th>Titik</th><th>Masalah</th><th>Status</th></tr>
           </thead>
           <tbody id="tblData"></tbody>
         </table>
@@ -334,11 +276,9 @@
   <!-- ================= FORM ================= -->
   <section id="page-form" class="page">
     <h2 class="section">Form Penemuan Anak</h2>
-    <p class="sub">Formulir pelaporan masyarakat atas anak terlantar yang ditemukan.</p>
+    <p class="sub">Formulir pelaporan masyarakat. Data tersimpan ke arsip Google Sheet Dinsos.</p>
 
-    <div class="note">
-      Data yang Anda laporkan akan diverifikasi petugas SIAGA. Mohon isi dengan sebenar-benarnya.
-    </div>
+    <div class="note">Data yang Anda laporkan akan diverifikasi petugas Dinsos Kota Cirebon. Mohon isi dengan sebenar-benarnya.</div>
 
     <div class="card" style="max-width:760px">
       <form id="formPenemuan">
@@ -346,7 +286,6 @@
           <label>1. Nama Anak <small>(gunakan inisial bila perlu)</small></label>
           <input required name="nama" placeholder="Contoh: A.B." />
         </div>
-
         <div class="row2">
           <div class="field">
             <label>2a. Tempat Lahir</label>
@@ -357,12 +296,10 @@
             <input required name="ttl" placeholder="Contoh: 12-05-2015 / 9 th" />
           </div>
         </div>
-
         <div class="field">
           <label>3. Alamat Lengkap Ditemukan</label>
           <textarea required name="alamat" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan, Kota Cirebon, patokan lokasi..."></textarea>
         </div>
-
         <div class="row2">
           <div class="field">
             <label>4. Nama Pelapor</label>
@@ -373,28 +310,101 @@
             <input required name="kontak" placeholder="No. HP / nama keluarga" />
           </div>
         </div>
-
         <div class="field">
           <label>6. Permasalahan Anak Saat Ditemukan</label>
           <textarea required name="masalah" placeholder="Deskripsikan kondisi & permasalahan anak saat ditemukan..."></textarea>
         </div>
-
         <div class="form-actions">
-          <button class="btn" type="submit">Kirim Laporan</button>
+          <button class="btn" type="submit" id="btnKirim">Kirim Laporan</button>
           <button class="btn secondary" type="reset">Reset</button>
         </div>
       </form>
     </div>
   </section>
 
+  <!-- ================= ADMIN ================= -->
+  <section id="page-admin" class="page">
+
+    <!-- Login -->
+    <div id="adminLogin" class="loginbox card">
+      <div class="icon">🔐</div>
+      <h2>Login Admin</h2>
+      <p class="sub">Khusus petugas Dinsos Kota Cirebon</p>
+      <div class="login-err" id="loginErr">Username atau password salah!</div>
+      <form id="formLogin">
+        <div class="field"><label>Username</label><input required id="loginUser" placeholder="Username" autocomplete="username" /></div>
+        <div class="field"><label>Password</label><input required id="loginPass" type="password" placeholder="Password" autocomplete="current-password" /></div>
+        <button class="btn" type="submit" style="width:100%">Masuk</button>
+      </form>
+    </div>
+
+    <!-- Panel Admin -->
+    <div id="adminPanel" style="display:none">
+      <div class="admin-toolbar">
+        <div>
+          <h2 class="section" style="margin:0">Arsip Laporan Masyarakat</h2>
+          <p class="sub" style="margin:0;font-size:12px">Data form penemuan anak untuk ditindaklanjuti.</p>
+        </div>
+        <div class="spacer"></div>
+        <span class="badge-login">👤 dinsos</span>
+        <button class="btn green sm" id="btnWord">⬇ Word</button>
+        <button class="btn orange sm" id="btnExcel">⬇ Excel</button>
+        <button class="btn red sm" id="btnLogout">Keluar</button>
+      </div>
+
+      <div class="searchbar">
+        <input id="searchArsip" type="text" placeholder="Cari nama anak, pelapor, alamat, masalah..." />
+        <select id="filterTL">
+          <option value="">Semua Tindak Lanjut</option>
+          <option>Menunggu</option>
+          <option>Diproses</option>
+          <option>Selesai</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <div class="tablewrap" style="max-height:560px">
+          <table>
+            <thead>
+              <tr><th>Waktu</th><th>Nama Anak</th><th>TTL/Umur</th><th>Alamat Ditemukan</th><th>Pelapor</th><th>Kontak</th><th>Permasalahan</th><th>Tindak Lanjut</th><th>Aksi</th></tr>
+            </thead>
+            <tbody id="tblArsip"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
-<footer>© SIAGA — Sistem Integrasi Asesmen, Pencegahan & Gerakan Pembinaan Anak Terlantar · Kota Cirebon</footer>
+<!-- MODAL DETAIL -->
+<div class="detail-modal" id="detailModal">
+  <div class="detail-box">
+    <h3>📋 Detail Laporan</h3>
+    <div id="detailBody"></div>
+    <div style="margin-top:16px;text-align:right">
+      <button class="btn secondary sm" onclick="closeDetail()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<footer>© SI PINTAR — Sistem Informasi Pencegahan dan Penanganan Anak Terlantar · Dinas Sosial Kota Cirebon</footer>
 <div id="toast" class="toast"></div>
 
 <script>
 /* ============================================================
-   1. DATA (ganti dengan fetch Google Sheet Anda)
+   0. KONFIGURASI — WAJIB DIISI
+   ------------------------------------------------------------
+   Isi APPS_SCRIPT_URL dengan URL Web App dari Google Apps Script
+   yang terhubung ke spreadsheet arsip Anda.
+   (Panduan setup ada di bawah kode ini.)
+============================================================ */
+const APPS_SCRIPT_URL = ""; // contoh: "https://script.google.com/macros/s/AKfyc.../exec"
+
+const ADMIN = { user:"dinsos", pass:"admin123" };
+
+/* ============================================================
+   1. DATA WILAYAH (per kelurahan)
 ============================================================ */
 const KECAMATAN = {
   "Harjamukti":   { lat:-6.7450, lng:108.5450, kelurahan:["Kalijaga","Harjamukti","Kecapi","Larangan","Argasunya"] },
@@ -431,20 +441,30 @@ function hitungPerKelurahan(){
 const JUMLAH_KEL = hitungPerKelurahan();
 
 /* ============================================================
-   2. PETA
+   2. ARSIP LAPORAN (localStorage + sinkron Google Sheet)
+============================================================ */
+function getArsip(){
+  return JSON.parse(localStorage.getItem("sipintar_laporan")||"[]");
+}
+function setArsip(arr){
+  localStorage.setItem("sipintar_laporan", JSON.stringify(arr));
+}
+
+/* ============================================================
+   3. PETA — warna per kelurahan
 ============================================================ */
 let map, mapFull, layerGroupDash, layerGroupFull;
 
 function warnaJumlah(n){
-  if(n <= 20) return {color:"#22c55e", level:"low",  label:"Sedikit"};
-  if(n <= 40) return {color:"#f59e0b", level:"mid",  label:"Sedang"};
-  return {color:"#ef4444", level:"high", label:"Banyak"};
+  if(n <= 20) return {color:"#16a34a", fill:"#22c55e", level:"low",  label:"Sedikit"};
+  if(n <= 40) return {color:"#d97706", fill:"#f59e0b", level:"mid",  label:"Sedang"};
+  return {color:"#dc2626", fill:"#ef4444", level:"high", label:"Banyak"};
 }
 
 function initMaps(){
   const center = [-6.7320, 108.5522];
   const tile = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-  const attr = '&copy; OpenStreetMap · SIAGA Kota Cirebon';
+  const attr = '&copy; OpenStreetMap · SI PINTAR Kota Cirebon';
 
   map = L.map("map",{scrollWheelZoom:false}).setView(center,12);
   L.tileLayer(tile,{attribution:attr}).addTo(map);
@@ -454,8 +474,16 @@ function initMaps(){
   L.tileLayer(tile,{attribution:attr}).addTo(mapFull);
   layerGroupFull = L.layerGroup().addTo(mapFull);
 
-  drawCircles(layerGroupDash);
-  drawCircles(layerGroupFull);
+  drawKelurahan(layerGroupDash);
+  drawKelurahan(layerGroupFull);
+
+  // Batas ringkas Kota Cirebon (outline)
+  const bounds = [
+    [-6.690,108.520],[-6.700,108.595],[-6.725,108.610],
+    [-6.760,108.575],[-6.775,108.535],[-6.745,108.510],[-6.705,108.505]
+  ];
+  L.polygon(bounds,{color:"#0e7490",weight:2,fillOpacity:0,dashArray:"6 6"})
+    .addTo(mapFull).bindTooltip("Wilayah Kota Cirebon");
 
   const TITIK_BINAAN = [
     {name:"Titik Binaan 1 — Harjamukti", lat:-6.7450, lng:108.5450},
@@ -472,37 +500,53 @@ function initMaps(){
   });
 }
 
-function drawCircles(group){
+/* Lingkaran per kelurahan, warna sesuai jumlah anak */
+function drawKelurahan(group){
   Object.entries(KECAMATAN).forEach(([kec, data])=>{
+    const total = data.kelurahan.length;
     data.kelurahan.forEach((kel,i)=>{
       const n = JUMLAH_KEL[kel] || 0;
       const w = warnaJumlah(n);
-      const angle = (i/data.kelurahan.length)*Math.PI*2;
-      const rad = 0.012;
+      const angle = (i/total)*Math.PI*2;
+      const rad = 0.011;
       const lat = data.lat + Math.sin(angle)*rad;
       const lng = data.lng + Math.cos(angle)*rad;
 
+      // area kelurahan
       L.circle([lat,lng],{
-        radius: 420 + n*6,
-        color: w.color, fillColor: w.color, fillOpacity:.35, weight:2
+        radius: 380 + n*7,
+        color: w.color, fillColor: w.fill, fillOpacity:.45, weight:2
       }).bindPopup(`
-        <b>${kel}</b><br>Kecamatan: ${kec}<br>
-        Jumlah anak: <b>${n}</b><br>Kategori: <b>${w.label}</b>
+        <div style="font-size:13px">
+          <b style="color:${w.color}">● ${kel}</b><br>
+          Kecamatan: <b>${kec}</b><br>
+          Jumlah anak: <b>${n}</b><br>
+          Kategori: <b>${w.label}</b>
+        </div>
       `).addTo(group);
+
+      // label kelurahan
+      L.marker([lat,lng],{
+        icon:L.divIcon({
+          className:"",
+          html:`<div style="font-size:10px;font-weight:700;color:#0f172a;background:rgba(255,255,255,.85);padding:1px 6px;border-radius:6px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.2)">${kel} (${n})</div>`,
+          iconSize:[0,0], iconAnchor:[0,0]
+        }),
+        interactive:false
+      }).addTo(group);
     });
   });
 }
 
 /* ============================================================
-   3. RENDER
+   4. RENDER
 ============================================================ */
 function renderKPI(){
   const total = Object.values(JUMLAH_KEL).reduce((a,b)=>a+b,0);
   document.getElementById("kpiTotal").textContent = total;
   document.getElementById("kpiKel").textContent = Object.keys(JUMLAH_KEL).length;
   document.getElementById("kpiKec").textContent = Object.keys(KECAMATAN).length;
-  const laporan = JSON.parse(localStorage.getItem("siaga_laporan")||"[]");
-  document.getElementById("kpiLapor").textContent = laporan.length;
+  document.getElementById("kpiLapor").textContent = getArsip().length;
 }
 
 function renderTabelKec(){
@@ -513,11 +557,8 @@ function renderTabelKec(){
     data.kelurahan.forEach(kel=> total += (JUMLAH_KEL[kel]||0));
     const w = warnaJumlah(Math.round(total/data.kelurahan.length));
     tbody.innerHTML += `<tr>
-      <td><b>${kec}</b></td>
-      <td>${data.kelurahan.length}</td>
-      <td>${total}</td>
-      <td><span class="pill ${w.level}">${w.label}</span></td>
-    </tr>`;
+      <td><b>${kec}</b></td><td>${data.kelurahan.length}</td><td>${total}</td>
+      <td><span class="pill ${w.level}">${w.label}</span></td></tr>`;
   });
 }
 
@@ -536,8 +577,7 @@ function renderTabelTitik(){
     const w = warnaJumlah(r.n);
     tbody.innerHTML += `<tr>
       <td><b>${r.kel}</b><br><small style="color:#64748b">${r.kec}</small></td>
-      <td><span class="pill ${w.level}">${r.n}</span></td>
-    </tr>`;
+      <td><span class="pill ${w.level}">${r.n}</span></td></tr>`;
   });
 }
 
@@ -556,14 +596,9 @@ function renderTabelData(){
   rows.forEach(d=>{
     const st = d.status==="Selesai"?"low":d.status==="Pendampingan"?"mid":"high";
     tbody.innerHTML += `<tr>
-      <td><b>${d.ini}</b></td>
-      <td>${d.umur} th</td>
-      <td>${d.kec}</td>
-      <td>${d.kel}</td>
-      <td>${d.titik}</td>
-      <td>${d.masalah}</td>
-      <td><span class="pill ${st}">${d.status}</span></td>
-    </tr>`;
+      <td><b>${d.ini}</b></td><td>${d.umur} th</td><td>${d.kec}</td><td>${d.kel}</td>
+      <td>${d.titik}</td><td>${d.masalah}</td>
+      <td><span class="pill ${st}">${d.status}</span></td></tr>`;
   });
 }
 
@@ -575,7 +610,216 @@ function isiFilterKec(){
 }
 
 /* ============================================================
-   4. NAVIGASI + EVENT
+   5. ADMIN — LOGIN & ARSIP
+============================================================ */
+let isAdmin = false;
+let qArsip = "", fTL = "";
+
+document.getElementById("formLogin").addEventListener("submit", e=>{
+  e.preventDefault();
+  const u = document.getElementById("loginUser").value.trim();
+  const p = document.getElementById("loginPass").value.trim();
+  if(u === ADMIN.user && p === ADMIN.pass){
+    isAdmin = true;
+    document.getElementById("adminLogin").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+    renderArsip();
+    showToast("✅ Login berhasil. Selamat datang, Admin Dinsos!");
+  } else {
+    document.getElementById("loginErr").style.display = "block";
+  }
+});
+
+document.getElementById("btnLogout").addEventListener("click", ()=>{
+  isAdmin = false;
+  document.getElementById("adminPanel").style.display = "none";
+  document.getElementById("adminLogin").style.display = "block";
+  document.getElementById("formLogin").reset();
+  document.getElementById("loginErr").style.display = "none";
+});
+
+document.getElementById("searchArsip").addEventListener("input", e=>{ qArsip=e.target.value; renderArsip(); });
+document.getElementById("filterTL").addEventListener("change", e=>{ fTL=e.target.value; renderArsip(); });
+
+function renderArsip(){
+  const tbody = document.getElementById("tblArsip");
+  tbody.innerHTML = "";
+  const arsip = getArsip().slice().reverse(); // terbaru di atas
+  const q = qArsip.toLowerCase();
+  const rows = arsip.filter(a=>{
+    const okQ = !q || [a.nama,a.pelapor,a.alamat,a.masalah,a.kontak].join(" ").toLowerCase().includes(q);
+    const okT = !fTL || (a.tl||"Menunggu") === fTL;
+    return okQ && okT;
+  });
+  if(!rows.length){ tbody.innerHTML = `<tr><td colspan="9" class="empty">Belum ada laporan masuk</td></tr>`; return; }
+
+  rows.forEach(a=>{
+    const idx = getArsip().indexOf(a);
+    const tl = a.tl || "Menunggu";
+    const tlCls = tl==="Selesai"?"low":tl==="Diproses"?"mid":"high";
+    const tgl = a.waktu ? new Date(a.waktu).toLocaleString("id-ID",{dateStyle:"short",timeStyle:"short"}) : "-";
+    tbody.innerHTML += `<tr>
+      <td>${tgl}</td>
+      <td><b>${esc(a.nama)}</b></td>
+      <td>${esc(a.tempatLahir)}, ${esc(a.ttl)}</td>
+      <td>${esc(a.alamat)}</td>
+      <td>${esc(a.pelapor)}</td>
+      <td>${esc(a.kontak)}</td>
+      <td>${esc(a.masalah)}</td>
+      <td>
+        <select onchange="ubahTL(${idx}, this.value)" style="padding:6px 8px;border-radius:8px;border:1px solid var(--line);font-size:12px">
+          <option ${tl==="Menunggu"?"selected":""}>Menunggu</option>
+          <option ${tl==="Diproses"?"selected":""}>Diproses</option>
+          <option ${tl==="Selesai"?"selected":""}>Selesai</option>
+        </select>
+        <span class="pill ${tlCls}" style="margin-left:4px">${tl}</span>
+      </td>
+      <td>
+        <button class="btn sm secondary" onclick="lihatDetail(${idx})">Detail</button>
+        <button class="btn sm red" onclick="hapusLaporan(${idx})">Hapus</button>
+      </td>
+    </tr>`;
+  });
+}
+
+function esc(s){ return (s||"").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+window.ubahTL = function(idx, val){
+  const arr = getArsip();
+  arr[idx].tl = val;
+  setArsip(arr);
+  renderArsip();
+  showToast("Status tindak lanjut diperbarui: " + val);
+};
+
+window.hapusLaporan = function(idx){
+  if(!confirm("Hapus laporan ini?")) return;
+  const arr = getArsip();
+  arr.splice(idx,1);
+  setArsip(arr);
+  renderArsip(); renderKPI();
+};
+
+window.lihatDetail = function(idx){
+  const a = getArsip()[idx];
+  const tgl = a.waktu ? new Date(a.waktu).toLocaleString("id-ID",{dateStyle:"full",timeStyle:"short"}) : "-";
+  document.getElementById("detailBody").innerHTML = `
+    <div class="detail-row"><b>Waktu Laporan</b><span>${tgl}</span></div>
+    <div class="detail-row"><b>1. Nama Anak</b><span>${esc(a.nama)}</span></div>
+    <div class="detail-row"><b>2. Tempat, Tgl Lahir/Umur</b><span>${esc(a.tempatLahir)}, ${esc(a.ttl)}</span></div>
+    <div class="detail-row"><b>3. Alamat Ditemukan</b><span>${esc(a.alamat)}</span></div>
+    <div class="detail-row"><b>4. Nama Pelapor</b><span>${esc(a.pelapor)}</span></div>
+    <div class="detail-row"><b>5. Kontak Keluarga</b><span>${esc(a.kontak)}</span></div>
+    <div class="detail-row"><b>6. Permasalahan</b><span>${esc(a.masalah)}</span></div>
+    <div class="detail-row"><b>Status Tindak Lanjut</b><span>${esc(a.tl||"Menunggu")}</span></div>
+  `;
+  document.getElementById("detailModal").classList.add("show");
+};
+window.closeDetail = function(){
+  document.getElementById("detailModal").classList.remove("show");
+};
+
+/* ============================================================
+   6. DOWNLOAD WORD & EXCEL
+============================================================ */
+function dataExport(){
+  return getArsip().map((a,i)=>({
+    "No": i+1,
+    "Waktu": a.waktu ? new Date(a.waktu).toLocaleString("id-ID") : "-",
+    "Nama Anak": a.nama,
+    "Tempat Lahir": a.tempatLahir,
+    "Tgl Lahir / Umur": a.ttl,
+    "Alamat Ditemukan": a.alamat,
+    "Nama Pelapor": a.pelapor,
+    "Kontak Keluarga": a.kontak,
+    "Permasalahan": a.masalah,
+    "Tindak Lanjut": a.tl || "Menunggu"
+  }));
+}
+
+document.getElementById("btnExcel").addEventListener("click", ()=>{
+  const rows = dataExport();
+  if(!rows.length){ showToast("Belum ada data untuk diunduh"); return; }
+  const headers = Object.keys(rows[0]);
+  let csv = "\uFEFF" + headers.join(";") + "\n"; // BOM agar Excel baca UTF-8
+  rows.forEach(r=>{
+    csv += headers.map(h=>`"${(r[h]||"").toString().replace(/"/g,'""')}"`).join(";") + "\n";
+  });
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  unduh(blob, "SI-PINTAR_Arsip_Laporan.csv");
+  showToast("⬇ File Excel (CSV) berhasil diunduh");
+});
+
+document.getElementById("btnWord").addEventListener("click", ()=>{
+  const rows = dataExport();
+  if(!rows.length){ showToast("Belum ada data untuk diunduh"); return; }
+  const headers = Object.keys(rows[0]);
+  let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
+  <head><meta charset="utf-8"><title>Arsip Laporan SI PINTAR</title></head>
+  <body style="font-family:Calibri">
+  <h2 style="color:#0e7490">SI PINTAR — Arsip Laporan Penemuan Anak</h2>
+  <p>Dinas Sosial Kota Cirebon · Diekspor: ${new Date().toLocaleString("id-ID")}</p>
+  <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-size:11pt">
+    <tr style="background:#0e7490;color:#fff">${headers.map(h=>`<th>${h}</th>`).join("")}</tr>
+    ${rows.map(r=>`<tr>${headers.map(h=>`<td>${esc(r[h])}</td>`).join("")}</tr>`).join("")}
+  </table></body></html>`;
+  const blob = new Blob(["\uFEFF"+html], {type:"application/msword"});
+  unduh(blob, "SI-PINTAR_Arsip_Laporan.doc");
+  showToast("⬇ File Word berhasil diunduh");
+});
+
+function unduh(blob, nama){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = nama;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ============================================================
+   7. FORM PENEMUAN → localStorage + Google Sheet
+============================================================ */
+document.getElementById("formPenemuan").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const btn = document.getElementById("btnKirim");
+  const fd = new FormData(e.target);
+  const data = Object.fromEntries(fd.entries());
+  data.waktu = new Date().toISOString();
+  data.tl = "Menunggu";
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Mengirim...';
+
+  // simpan lokal (arsip admin)
+  const arr = getArsip();
+  arr.push(data);
+  setArsip(arr);
+
+  // kirim ke Google Sheet via Apps Script
+  if(APPS_SCRIPT_URL){
+    try{
+      await fetch(APPS_SCRIPT_URL, {
+        method:"POST",
+        mode:"no-cors",
+        headers:{"Content-Type":"text/plain"},
+        body: JSON.stringify(data)
+      });
+      showToast("✅ Laporan terkirim & tersimpan di arsip Google Sheet Dinsos!");
+    }catch(err){
+      showToast("⚠️ Laporan tersimpan lokal, gagal sinkron ke Google Sheet.");
+    }
+  } else {
+    showToast("✅ Laporan tersimpan di arsip (mode lokal). Hubungkan Apps Script untuk arsip Google Sheet.");
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Kirim Laporan";
+  e.target.reset();
+  renderKPI();
+});
+
+/* ============================================================
+   8. NAVIGASI
 ============================================================ */
 document.querySelectorAll("nav button").forEach(btn=>{
   btn.addEventListener("click", ()=>{
@@ -584,6 +828,7 @@ document.querySelectorAll("nav button").forEach(btn=>{
     document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
     document.getElementById("page-"+btn.dataset.page).classList.add("active");
     window.scrollTo({top:0, behavior:"smooth"});
+    if(btn.dataset.page==="admin" && isAdmin) renderArsip();
     setTimeout(()=>{
       if(btn.dataset.page==="dash") map.invalidateSize();
       if(btn.dataset.page==="titik") mapFull.invalidateSize();
@@ -596,26 +841,12 @@ document.getElementById("searchData").addEventListener("input", e=>{ qData=e.tar
 document.getElementById("filterKec").addEventListener("change", e=>{ fKec=e.target.value; renderTabelData(); });
 document.getElementById("filterStatus").addEventListener("change", e=>{ fStatus=e.target.value; renderTabelData(); });
 
-document.getElementById("formPenemuan").addEventListener("submit", e=>{
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const data = Object.fromEntries(fd.entries());
-  data.waktu = new Date().toISOString();
-  const arr = JSON.parse(localStorage.getItem("siaga_laporan")||"[]");
-  arr.push(data);
-  localStorage.setItem("siaga_laporan", JSON.stringify(arr));
-  showToast("✅ Laporan berhasil dikirim. Terima kasih!");
-  e.target.reset();
-  renderKPI();
-});
-
 function showToast(msg){
   const t = document.getElementById("toast");
   t.textContent = msg; t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"), 3800);
+  setTimeout(()=>t.classList.remove("show"), 4200);
 }
 
-/* Resize peta saat orientasi berubah / resize window */
 let resizeTimer;
 window.addEventListener("resize", ()=>{
   clearTimeout(resizeTimer);
@@ -626,7 +857,7 @@ window.addEventListener("resize", ()=>{
 });
 
 /* ============================================================
-   5. INIT
+   9. INIT
 ============================================================ */
 initMaps();
 renderKPI();

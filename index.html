@@ -218,7 +218,7 @@
   <!-- ================= TITIK BINAAN ================= -->
   <section id="page-titik" class="page">
     <h2 class="section">Lokasi Titik Binaan</h2>
-    <p class="sub">Sebaran per kelurahan dengan pewarnaan berdasar jumlah anak. Ketuk wilayah untuk detail.</p>
+    <p class="sub">Sebaran per kelurahan dengan pewarnaan berdasar jumlah anak. Klik titik wilayah untuk detail.</p>
 
     <div class="gridTitik">
       <div class="card">
@@ -393,27 +393,60 @@
 
 <script>
 /* ============================================================
-   0. KONFIGURASI — WAJIB DIISI
+   0. KONFIGURASI
    ------------------------------------------------------------
-   Isi APPS_SCRIPT_URL dengan URL Web App dari Google Apps Script
-   yang terhubung ke spreadsheet arsip Anda.
-   (Panduan setup ada di bawah kode ini.)
+   Isi APPS_SCRIPT_URL dengan URL Web App Google Apps Script
+   yang terhubung ke spreadsheet arsip laporan Anda.
+   (Panduan setup ada di akhir percakapan)
 ============================================================ */
 const APPS_SCRIPT_URL = ""; // contoh: "https://script.google.com/macros/s/AKfyc.../exec"
-
 const ADMIN = { user:"dinsos", pass:"admin123" };
 
 /* ============================================================
-   1. DATA WILAYAH (per kelurahan)
+   1. DATA WILAYAH — koordinat akurat per kelurahan (daratan)
 ============================================================ */
-const KECAMATAN = {
-  "Harjamukti":   { lat:-6.7450, lng:108.5450, kelurahan:["Kalijaga","Harjamukti","Kecapi","Larangan","Argasunya"] },
-  "Lemahwungkuk": { lat:-6.7190, lng:108.5630, kelurahan:["Pegambiran","Lemahwungkuk","Kesepuhan","Panjunan"] },
-  "Pekalipan":    { lat:-6.7080, lng:108.5720, kelurahan:["Jagasatru","Pulasaren","Pekalipan","Pekalipan Utara"] },
-  "Kejaksan":     { lat:-6.7000, lng:108.5680, kelurahan:["Kejaksan","Kebonbaru","Sukapura","Kesenden"] },
-  "Kesambi":      { lat:-6.7250, lng:108.5380, kelurahan:["Kesambi","Sunyaragi","Drajat","Karyamulya","Pekiringan"] }
-};
+const KELURAHAN = [
+  // Kecamatan Harjamukti
+  {kel:"Harjamukti",      kec:"Harjamukti",   lat:-6.7482, lng:108.5489},
+  {kel:"Kalijaga",        kec:"Harjamukti",   lat:-6.7425, lng:108.5545},
+  {kel:"Kecapi",          kec:"Harjamukti",   lat:-6.7518, lng:108.5542},
+  {kel:"Larangan",        kec:"Harjamukti",   lat:-6.7545, lng:108.5400},
+  {kel:"Argasunya",       kec:"Harjamukti",   lat:-6.7445, lng:108.5365},
 
+  // Kecamatan Lemahwungkuk
+  {kel:"Lemahwungkuk",    kec:"Lemahwungkuk", lat:-6.7148, lng:108.5572},
+  {kel:"Pegambiran",      kec:"Lemahwungkuk", lat:-6.7115, lng:108.5545},
+  {kel:"Kesepuhan",       kec:"Lemahwungkuk", lat:-6.7238, lng:108.5622},
+  {kel:"Panjunan",        kec:"Lemahwungkuk", lat:-6.7182, lng:108.5558},
+
+  // Kecamatan Pekalipan
+  {kel:"Pekalipan",       kec:"Pekalipan",    lat:-6.7108, lng:108.5648},
+  {kel:"Jagasatru",       kec:"Pekalipan",    lat:-6.7145, lng:108.5672},
+  {kel:"Pulasaren",       kec:"Pekalipan",    lat:-6.7078, lng:108.5692},
+  {kel:"Pekalipan Utara", kec:"Pekalipan",    lat:-6.7122, lng:108.5715},
+
+  // Kecamatan Kejaksan
+  {kel:"Kejaksan",        kec:"Kejaksan",     lat:-6.7058, lng:108.5570},
+  {kel:"Kebonbaru",       kec:"Kejaksan",     lat:-6.7095, lng:108.5548},
+  {kel:"Sukapura",        kec:"Kejaksan",     lat:-6.7038, lng:108.5608},
+  {kel:"Kesenden",        kec:"Kejaksan",     lat:-6.7122, lng:108.5518},
+
+  // Kecamatan Kesambi
+  {kel:"Kesambi",         kec:"Kesambi",      lat:-6.7248, lng:108.5492},
+  {kel:"Sunyaragi",       kec:"Kesambi",      lat:-6.7308, lng:108.5418},
+  {kel:"Drajat",          kec:"Kesambi",      lat:-6.7272, lng:108.5345},
+  {kel:"Karyamulya",      kec:"Kesambi",      lat:-6.7192, lng:108.5428},
+  {kel:"Pekiringan",      kec:"Kesambi",      lat:-6.7158, lng:108.5495}
+];
+
+/* Rekap kecamatan otomatis dari data kelurahan di atas */
+const KECAMATAN = {};
+KELURAHAN.forEach(k=>{
+  if(!KECAMATAN[k.kec]) KECAMATAN[k.kec] = { kelurahan:[] };
+  KECAMATAN[k.kec].kelurahan.push(k.kel);
+});
+
+/* Data binaan contoh — nama berupa INISIAL. Ganti dengan fetch Google Sheet jika perlu */
 const DATA_BINAAN = [
   {ini:"A.R.", umur:10, kec:"Harjamukti", kel:"Kalijaga", titik:"Titik Binaan 1", masalah:"Kurang asuh", status:"Dalam Pembinaan"},
   {ini:"B.S.", umur:8,  kec:"Harjamukti", kel:"Kecapi", titik:"Titik Binaan 1", masalah:"Rawan putus sekolah", status:"Pendampingan"},
@@ -429,8 +462,9 @@ const DATA_BINAAN = [
 
 function hitungPerKelurahan(){
   const map = {};
-  Object.values(KECAMATAN).forEach(k=>k.kelurahan.forEach(kel=>{ map[kel]=0; }));
+  KELURAHAN.forEach(k=>{ map[k.kel]=0; });
   DATA_BINAAN.forEach(d=>{ if(map[d.kel]!==undefined) map[d.kel]++; });
+  // tambahan dummy deterministik agar variasi warna terlihat (hapus bila pakai data asli)
   let seed = 7;
   Object.keys(map).forEach(kel=>{
     seed = (seed*9301+49297)%233280;
@@ -441,17 +475,13 @@ function hitungPerKelurahan(){
 const JUMLAH_KEL = hitungPerKelurahan();
 
 /* ============================================================
-   2. ARSIP LAPORAN (localStorage + sinkron Google Sheet)
+   2. ARSIP LAPORAN (localStorage)
 ============================================================ */
-function getArsip(){
-  return JSON.parse(localStorage.getItem("sipintar_laporan")||"[]");
-}
-function setArsip(arr){
-  localStorage.setItem("sipintar_laporan", JSON.stringify(arr));
-}
+function getArsip(){ return JSON.parse(localStorage.getItem("sipintar_laporan")||"[]"); }
+function setArsip(arr){ localStorage.setItem("sipintar_laporan", JSON.stringify(arr)); }
 
 /* ============================================================
-   3. PETA — warna per kelurahan
+   3. PETA — warna tepat di koordinat kelurahan
 ============================================================ */
 let map, mapFull, layerGroupDash, layerGroupFull;
 
@@ -462,11 +492,11 @@ function warnaJumlah(n){
 }
 
 function initMaps(){
-  const center = [-6.7320, 108.5522];
+  const center = [-6.7250, 108.5520];
   const tile = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   const attr = '&copy; OpenStreetMap · SI PINTAR Kota Cirebon';
 
-  map = L.map("map",{scrollWheelZoom:false}).setView(center,12);
+  map = L.map("map",{scrollWheelZoom:false}).setView(center,13);
   L.tileLayer(tile,{attribution:attr}).addTo(map);
   layerGroupDash = L.layerGroup().addTo(map);
 
@@ -477,19 +507,22 @@ function initMaps(){
   drawKelurahan(layerGroupDash);
   drawKelurahan(layerGroupFull);
 
-  // Batas ringkas Kota Cirebon (outline)
+  // Outline daratan Kota Cirebon (mengikuti garis pantai utara)
   const bounds = [
-    [-6.690,108.520],[-6.700,108.595],[-6.725,108.610],
-    [-6.760,108.575],[-6.775,108.535],[-6.745,108.510],[-6.705,108.505]
+    [-6.6980,108.5350],[-6.7000,108.5650],[-6.7060,108.5780],
+    [-6.7130,108.5800],[-6.7200,108.5700],[-6.7280,108.5650],
+    [-6.7400,108.5680],[-6.7520,108.5580],[-6.7580,108.5450],
+    [-6.7500,108.5280],[-6.7350,108.5200],[-6.7150,108.5220],
+    [-6.7030,108.5250]
   ];
   L.polygon(bounds,{color:"#0e7490",weight:2,fillOpacity:0,dashArray:"6 6"})
     .addTo(mapFull).bindTooltip("Wilayah Kota Cirebon");
 
   const TITIK_BINAAN = [
-    {name:"Titik Binaan 1 — Harjamukti", lat:-6.7450, lng:108.5450},
-    {name:"Titik Binaan 2 — Lemahwungkuk", lat:-6.7190, lng:108.5630},
-    {name:"Titik Binaan 3 — Pekalipan", lat:-6.7080, lng:108.5720},
-    {name:"Titik Binaan 4 — Kejaksan", lat:-6.7000, lng:108.5680}
+    {name:"Titik Binaan 1 — Harjamukti",   lat:-6.7482, lng:108.5489},
+    {name:"Titik Binaan 2 — Lemahwungkuk", lat:-6.7182, lng:108.5558},
+    {name:"Titik Binaan 3 — Pekalipan",    lat:-6.7108, lng:108.5648},
+    {name:"Titik Binaan 4 — Kejaksan",     lat:-6.7058, lng:108.5570}
   ];
   const starIcon = L.divIcon({
     html:'<div style="background:#0e7490;width:26px;height:26px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800">★</div>',
@@ -500,51 +533,38 @@ function initMaps(){
   });
 }
 
-/* Lingkaran per kelurahan, warna sesuai jumlah anak */
+/* Lingkaran warna di koordinat kelurahan — tanpa label tulisan menumpuk di peta */
 function drawKelurahan(group){
-  Object.entries(KECAMATAN).forEach(([kec, data])=>{
-    const total = data.kelurahan.length;
-    data.kelurahan.forEach((kel,i)=>{
-      const n = JUMLAH_KEL[kel] || 0;
-      const w = warnaJumlah(n);
-      const angle = (i/total)*Math.PI*2;
-      const rad = 0.011;
-      const lat = data.lat + Math.sin(angle)*rad;
-      const lng = data.lng + Math.cos(angle)*rad;
+  KELURAHAN.forEach(k=>{
+    const n = JUMLAH_KEL[k.kel] || 0;
+    const w = warnaJumlah(n);
 
-      // area kelurahan
-      L.circle([lat,lng],{
-        radius: 380 + n*7,
-        color: w.color, fillColor: w.fill, fillOpacity:.45, weight:2
-      }).bindPopup(`
-        <div style="font-size:13px">
-          <b style="color:${w.color}">● ${kel}</b><br>
-          Kecamatan: <b>${kec}</b><br>
-          Jumlah anak: <b>${n}</b><br>
-          Kategori: <b>${w.label}</b>
-        </div>
-      `).addTo(group);
+    L.circle([k.lat, k.lng],{
+      radius: 320 + n*6,
+      color: w.color, fillColor: w.fill, fillOpacity:.4, weight:2
+    }).bindPopup(`
+      <div style="font-size:13px">
+        <b style="color:${w.color}">● ${k.kel}</b><br>
+        Kecamatan: <b>${k.kec}</b><br>
+        Jumlah anak: <b>${n}</b><br>
+        Kategori: <b>${w.label}</b>
+      </div>
+    `).addTo(group);
 
-      // label kelurahan
-      L.marker([lat,lng],{
-        icon:L.divIcon({
-          className:"",
-          html:`<div style="font-size:10px;font-weight:700;color:#0f172a;background:rgba(255,255,255,.85);padding:1px 6px;border-radius:6px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.2)">${kel} (${n})</div>`,
-          iconSize:[0,0], iconAnchor:[0,0]
-        }),
-        interactive:false
-      }).addTo(group);
-    });
+    L.circleMarker([k.lat, k.lng],{
+      radius: 5, color:"#fff", weight:2,
+      fillColor: w.color, fillOpacity:1
+    }).addTo(group);
   });
 }
 
 /* ============================================================
-   4. RENDER
+   4. RENDER DASHBOARD & TABEL
 ============================================================ */
 function renderKPI(){
   const total = Object.values(JUMLAH_KEL).reduce((a,b)=>a+b,0);
   document.getElementById("kpiTotal").textContent = total;
-  document.getElementById("kpiKel").textContent = Object.keys(JUMLAH_KEL).length;
+  document.getElementById("kpiKel").textContent = KELURAHAN.length;
   document.getElementById("kpiKec").textContent = Object.keys(KECAMATAN).length;
   document.getElementById("kpiLapor").textContent = getArsip().length;
 }
@@ -566,14 +586,11 @@ let filterTitik = "";
 function renderTabelTitik(){
   const tbody = document.getElementById("tblTitik");
   tbody.innerHTML = "";
-  const rows = [];
-  Object.entries(KECAMATAN).forEach(([kec,data])=>{
-    data.kelurahan.forEach(kel=> rows.push({kec,kel,n:JUMLAH_KEL[kel]||0}));
-  });
   const q = filterTitik.toLowerCase();
-  const filtered = rows.filter(r=> !q || r.kel.toLowerCase().includes(q) || r.kec.toLowerCase().includes(q));
-  if(!filtered.length){ tbody.innerHTML = `<tr><td colspan="2" class="empty">Tidak ada hasil</td></tr>`; return; }
-  filtered.sort((a,b)=> b.n-a.n).forEach(r=>{
+  const rows = KELURAHAN.map(k=>({kec:k.kec, kel:k.kel, n:JUMLAH_KEL[k.kel]||0}))
+    .filter(r=> !q || r.kel.toLowerCase().includes(q) || r.kec.toLowerCase().includes(q));
+  if(!rows.length){ tbody.innerHTML = `<tr><td colspan="2" class="empty">Tidak ada hasil</td></tr>`; return; }
+  rows.sort((a,b)=> b.n-a.n).forEach(r=>{
     const w = warnaJumlah(r.n);
     tbody.innerHTML += `<tr>
       <td><b>${r.kel}</b><br><small style="color:#64748b">${r.kec}</small></td>
@@ -644,7 +661,8 @@ document.getElementById("filterTL").addEventListener("change", e=>{ fTL=e.target
 function renderArsip(){
   const tbody = document.getElementById("tblArsip");
   tbody.innerHTML = "";
-  const arsip = getArsip().slice().reverse(); // terbaru di atas
+  const arsipAsli = getArsip();
+  const arsip = arsipAsli.map((a,i)=>({...a, _idx:i})).reverse(); // terbaru di atas, simpan index asli
   const q = qArsip.toLowerCase();
   const rows = arsip.filter(a=>{
     const okQ = !q || [a.nama,a.pelapor,a.alamat,a.masalah,a.kontak].join(" ").toLowerCase().includes(q);
@@ -654,7 +672,7 @@ function renderArsip(){
   if(!rows.length){ tbody.innerHTML = `<tr><td colspan="9" class="empty">Belum ada laporan masuk</td></tr>`; return; }
 
   rows.forEach(a=>{
-    const idx = getArsip().indexOf(a);
+    const idx = a._idx;
     const tl = a.tl || "Menunggu";
     const tlCls = tl==="Selesai"?"low":tl==="Diproses"?"mid":"high";
     const tgl = a.waktu ? new Date(a.waktu).toLocaleString("id-ID",{dateStyle:"short",timeStyle:"short"}) : "-";
@@ -682,7 +700,7 @@ function renderArsip(){
   });
 }
 
-function esc(s){ return (s||"").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function esc(s){ return (s||"").toString().replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 window.ubahTL = function(idx, val){
   const arr = getArsip();
@@ -693,178 +711,4 @@ window.ubahTL = function(idx, val){
 };
 
 window.hapusLaporan = function(idx){
-  if(!confirm("Hapus laporan ini?")) return;
-  const arr = getArsip();
-  arr.splice(idx,1);
-  setArsip(arr);
-  renderArsip(); renderKPI();
-};
-
-window.lihatDetail = function(idx){
-  const a = getArsip()[idx];
-  const tgl = a.waktu ? new Date(a.waktu).toLocaleString("id-ID",{dateStyle:"full",timeStyle:"short"}) : "-";
-  document.getElementById("detailBody").innerHTML = `
-    <div class="detail-row"><b>Waktu Laporan</b><span>${tgl}</span></div>
-    <div class="detail-row"><b>1. Nama Anak</b><span>${esc(a.nama)}</span></div>
-    <div class="detail-row"><b>2. Tempat, Tgl Lahir/Umur</b><span>${esc(a.tempatLahir)}, ${esc(a.ttl)}</span></div>
-    <div class="detail-row"><b>3. Alamat Ditemukan</b><span>${esc(a.alamat)}</span></div>
-    <div class="detail-row"><b>4. Nama Pelapor</b><span>${esc(a.pelapor)}</span></div>
-    <div class="detail-row"><b>5. Kontak Keluarga</b><span>${esc(a.kontak)}</span></div>
-    <div class="detail-row"><b>6. Permasalahan</b><span>${esc(a.masalah)}</span></div>
-    <div class="detail-row"><b>Status Tindak Lanjut</b><span>${esc(a.tl||"Menunggu")}</span></div>
-  `;
-  document.getElementById("detailModal").classList.add("show");
-};
-window.closeDetail = function(){
-  document.getElementById("detailModal").classList.remove("show");
-};
-
-/* ============================================================
-   6. DOWNLOAD WORD & EXCEL
-============================================================ */
-function dataExport(){
-  return getArsip().map((a,i)=>({
-    "No": i+1,
-    "Waktu": a.waktu ? new Date(a.waktu).toLocaleString("id-ID") : "-",
-    "Nama Anak": a.nama,
-    "Tempat Lahir": a.tempatLahir,
-    "Tgl Lahir / Umur": a.ttl,
-    "Alamat Ditemukan": a.alamat,
-    "Nama Pelapor": a.pelapor,
-    "Kontak Keluarga": a.kontak,
-    "Permasalahan": a.masalah,
-    "Tindak Lanjut": a.tl || "Menunggu"
-  }));
-}
-
-document.getElementById("btnExcel").addEventListener("click", ()=>{
-  const rows = dataExport();
-  if(!rows.length){ showToast("Belum ada data untuk diunduh"); return; }
-  const headers = Object.keys(rows[0]);
-  let csv = "\uFEFF" + headers.join(";") + "\n"; // BOM agar Excel baca UTF-8
-  rows.forEach(r=>{
-    csv += headers.map(h=>`"${(r[h]||"").toString().replace(/"/g,'""')}"`).join(";") + "\n";
-  });
-  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
-  unduh(blob, "SI-PINTAR_Arsip_Laporan.csv");
-  showToast("⬇ File Excel (CSV) berhasil diunduh");
-});
-
-document.getElementById("btnWord").addEventListener("click", ()=>{
-  const rows = dataExport();
-  if(!rows.length){ showToast("Belum ada data untuk diunduh"); return; }
-  const headers = Object.keys(rows[0]);
-  let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
-  <head><meta charset="utf-8"><title>Arsip Laporan SI PINTAR</title></head>
-  <body style="font-family:Calibri">
-  <h2 style="color:#0e7490">SI PINTAR — Arsip Laporan Penemuan Anak</h2>
-  <p>Dinas Sosial Kota Cirebon · Diekspor: ${new Date().toLocaleString("id-ID")}</p>
-  <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-size:11pt">
-    <tr style="background:#0e7490;color:#fff">${headers.map(h=>`<th>${h}</th>`).join("")}</tr>
-    ${rows.map(r=>`<tr>${headers.map(h=>`<td>${esc(r[h])}</td>`).join("")}</tr>`).join("")}
-  </table></body></html>`;
-  const blob = new Blob(["\uFEFF"+html], {type:"application/msword"});
-  unduh(blob, "SI-PINTAR_Arsip_Laporan.doc");
-  showToast("⬇ File Word berhasil diunduh");
-});
-
-function unduh(blob, nama){
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = nama;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
-/* ============================================================
-   7. FORM PENEMUAN → localStorage + Google Sheet
-============================================================ */
-document.getElementById("formPenemuan").addEventListener("submit", async e=>{
-  e.preventDefault();
-  const btn = document.getElementById("btnKirim");
-  const fd = new FormData(e.target);
-  const data = Object.fromEntries(fd.entries());
-  data.waktu = new Date().toISOString();
-  data.tl = "Menunggu";
-
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Mengirim...';
-
-  // simpan lokal (arsip admin)
-  const arr = getArsip();
-  arr.push(data);
-  setArsip(arr);
-
-  // kirim ke Google Sheet via Apps Script
-  if(APPS_SCRIPT_URL){
-    try{
-      await fetch(APPS_SCRIPT_URL, {
-        method:"POST",
-        mode:"no-cors",
-        headers:{"Content-Type":"text/plain"},
-        body: JSON.stringify(data)
-      });
-      showToast("✅ Laporan terkirim & tersimpan di arsip Google Sheet Dinsos!");
-    }catch(err){
-      showToast("⚠️ Laporan tersimpan lokal, gagal sinkron ke Google Sheet.");
-    }
-  } else {
-    showToast("✅ Laporan tersimpan di arsip (mode lokal). Hubungkan Apps Script untuk arsip Google Sheet.");
-  }
-
-  btn.disabled = false;
-  btn.textContent = "Kirim Laporan";
-  e.target.reset();
-  renderKPI();
-});
-
-/* ============================================================
-   8. NAVIGASI
-============================================================ */
-document.querySelectorAll("nav button").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    document.getElementById("page-"+btn.dataset.page).classList.add("active");
-    window.scrollTo({top:0, behavior:"smooth"});
-    if(btn.dataset.page==="admin" && isAdmin) renderArsip();
-    setTimeout(()=>{
-      if(btn.dataset.page==="dash") map.invalidateSize();
-      if(btn.dataset.page==="titik") mapFull.invalidateSize();
-    }, 150);
-  });
-});
-
-document.getElementById("searchTitik").addEventListener("input", e=>{ filterTitik=e.target.value; renderTabelTitik(); });
-document.getElementById("searchData").addEventListener("input", e=>{ qData=e.target.value; renderTabelData(); });
-document.getElementById("filterKec").addEventListener("change", e=>{ fKec=e.target.value; renderTabelData(); });
-document.getElementById("filterStatus").addEventListener("change", e=>{ fStatus=e.target.value; renderTabelData(); });
-
-function showToast(msg){
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"), 4200);
-}
-
-let resizeTimer;
-window.addEventListener("resize", ()=>{
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(()=>{
-    if(map) map.invalidateSize();
-    if(mapFull) mapFull.invalidateSize();
-  }, 200);
-});
-
-/* ============================================================
-   9. INIT
-============================================================ */
-initMaps();
-renderKPI();
-renderTabelKec();
-renderTabelTitik();
-renderTabelData();
-isiFilterKec();
-</script>
-</body>
-</html>
+  if(!confirm("Hapus laporan ini?

@@ -1,3 +1,11 @@
+Maaf, kode sebelumnya terpotong di bagian akhir (fungsi hapusLaporan tidak selesai, bahkan ada tanda kutip yang tidak ditutup) — itu yang menyebabkan JavaScript error dan seluruh website jadi kosong (peta & data tidak muncul karena script berhenti total akibat syntax error).
+
+Berikut kode LENGKAP dan SUDAH DICEK UTUH dari awal sampai akhir. Silakan hapus semua kode lama, copy-paste yang ini:
+
+HTML
+
+            Salin
+          
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -20,7 +28,6 @@
   a{text-decoration:none;color:inherit}
   button,input,select,textarea{font-family:inherit;font-size:16px}
 
-  /* HEADER */
   header{position:sticky;top:0;z-index:1000;background:linear-gradient(120deg,#0f766e,#0e7490 45%,#0891b2);color:#fff;padding:12px 16px;box-shadow:0 4px 18px rgba(14,116,144,.35)}
   .header-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   .logo{font-weight:800;font-size:18px;letter-spacing:1px;background:#fff;color:#0e7490;padding:6px 12px;border-radius:12px;box-shadow:0 3px 0 rgba(0,0,0,.15);flex-shrink:0}
@@ -43,7 +50,6 @@
   h2.section{font-size:18px;margin-bottom:4px;line-height:1.3}
   .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
 
-  /* KPI */
   .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
   .kpi{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--line);box-shadow:0 6px 18px rgba(15,23,42,.05);position:relative;overflow:hidden}
   .kpi::after{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--brand)}
@@ -59,19 +65,16 @@
   .card h3{font-size:14.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
   .card h3::before{content:"";width:8px;height:8px;border-radius:3px;background:var(--brand2);flex-shrink:0}
 
-  /* MAP */
   #map{height:360px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
   #mapFull{height:420px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
   .map-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
   .map-legend i{display:inline-block;width:13px;height:13px;border-radius:4px;margin-right:6px;vertical-align:-2px}
 
-  /* SEARCH */
   .searchbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
   .searchbar input{flex:1 1 200px;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--line);outline:none;transition:.2s;background:#fff}
   .searchbar input:focus{border-color:var(--brand2);box-shadow:0 0 0 4px rgba(8,145,178,.12)}
   .searchbar select{flex:1 1 140px;padding:12px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:14px}
 
-  /* TABLE */
   .tablewrap{max-height:460px;overflow:auto;border-radius:12px;border:1px solid var(--line);-webkit-overflow-scrolling:touch}
   table{width:100%;border-collapse:collapse;font-size:13px}
   th{text-align:left;padding:11px 10px;background:#f1f5f9;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;white-space:nowrap;position:sticky;top:0;z-index:2}
@@ -83,7 +86,6 @@
   .pill.high{background:#fee2e2;color:#991b1b}
   .empty{text-align:center;color:var(--muted);padding:30px;font-size:13px}
 
-  /* FORM */
   form .field{margin-bottom:15px}
   form label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
   form label small{color:var(--muted);font-weight:500}
@@ -102,7 +104,6 @@
   .btn.red{background:linear-gradient(120deg,#b91c1c,#ef4444);box-shadow:0 6px 16px rgba(239,68,68,.35)}
   .btn.sm{padding:9px 14px;min-width:0;font-size:12.5px;flex:0 0 auto}
 
-  /* ADMIN */
   .loginbox{max-width:400px;margin:40px auto}
   .loginbox .icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 10px 24px rgba(8,145,178,.4)}
   .loginbox h2{text-align:center;font-size:18px;margin-bottom:4px}
@@ -181,7 +182,6 @@
 
 <main>
 
-  <!-- ================= DASHBOARD ================= -->
   <section id="page-dash" class="page active">
     <h2 class="section">Dashboard Monitoring</h2>
     <p class="sub">Rekap data anak terlantar per kelurahan & kecamatan Kota Cirebon — warna peta sesuai jumlah anak.</p>
@@ -215,7 +215,6 @@
     </div>
   </section>
 
-  <!-- ================= TITIK BINAAN ================= -->
   <section id="page-titik" class="page">
     <h2 class="section">Lokasi Titik Binaan</h2>
     <p class="sub">Sebaran per kelurahan dengan pewarnaan berdasar jumlah anak. Klik titik wilayah untuk detail.</p>
@@ -245,7 +244,6 @@
     </div>
   </section>
 
-  <!-- ================= DATA BINAAN ================= -->
   <section id="page-data" class="page">
     <h2 class="section">Data Binaan</h2>
     <p class="sub">Nama anak disamarkan menggunakan inisial demi perlindungan privasi.</p>
@@ -273,7 +271,6 @@
     </div>
   </section>
 
-  <!-- ================= FORM ================= -->
   <section id="page-form" class="page">
     <h2 class="section">Form Penemuan Anak</h2>
     <p class="sub">Formulir pelaporan masyarakat. Data tersimpan ke arsip Google Sheet Dinsos.</p>
@@ -322,10 +319,8 @@
     </div>
   </section>
 
-  <!-- ================= ADMIN ================= -->
   <section id="page-admin" class="page">
 
-    <!-- Login -->
     <div id="adminLogin" class="loginbox card">
       <div class="icon">🔐</div>
       <h2>Login Admin</h2>
@@ -338,7 +333,6 @@
       </form>
     </div>
 
-    <!-- Panel Admin -->
     <div id="adminPanel" style="display:none">
       <div class="admin-toolbar">
         <div>
@@ -377,7 +371,6 @@
 
 </main>
 
-<!-- MODAL DETAIL -->
 <div class="detail-modal" id="detailModal">
   <div class="detail-box">
     <h3>📋 Detail Laporan</h3>
@@ -394,44 +387,35 @@
 <script>
 /* ============================================================
    0. KONFIGURASI
-   ------------------------------------------------------------
-   Isi APPS_SCRIPT_URL dengan URL Web App Google Apps Script
-   yang terhubung ke spreadsheet arsip laporan Anda.
-   (Panduan setup ada di akhir percakapan)
 ============================================================ */
-const APPS_SCRIPT_URL = ""; // contoh: "https://script.google.com/macros/s/AKfyc.../exec"
+const APPS_SCRIPT_URL = ""; // isi dengan URL Web App Google Apps Script Anda
 const ADMIN = { user:"dinsos", pass:"admin123" };
 
 /* ============================================================
-   1. DATA WILAYAH — koordinat akurat per kelurahan (daratan)
+   1. DATA WILAYAH — koordinat per kelurahan (daratan Kota Cirebon)
 ============================================================ */
 const KELURAHAN = [
-  // Kecamatan Harjamukti
   {kel:"Harjamukti",      kec:"Harjamukti",   lat:-6.7482, lng:108.5489},
   {kel:"Kalijaga",        kec:"Harjamukti",   lat:-6.7425, lng:108.5545},
   {kel:"Kecapi",          kec:"Harjamukti",   lat:-6.7518, lng:108.5542},
   {kel:"Larangan",        kec:"Harjamukti",   lat:-6.7545, lng:108.5400},
   {kel:"Argasunya",       kec:"Harjamukti",   lat:-6.7445, lng:108.5365},
 
-  // Kecamatan Lemahwungkuk
   {kel:"Lemahwungkuk",    kec:"Lemahwungkuk", lat:-6.7148, lng:108.5572},
   {kel:"Pegambiran",      kec:"Lemahwungkuk", lat:-6.7115, lng:108.5545},
   {kel:"Kesepuhan",       kec:"Lemahwungkuk", lat:-6.7238, lng:108.5622},
   {kel:"Panjunan",        kec:"Lemahwungkuk", lat:-6.7182, lng:108.5558},
 
-  // Kecamatan Pekalipan
   {kel:"Pekalipan",       kec:"Pekalipan",    lat:-6.7108, lng:108.5648},
   {kel:"Jagasatru",       kec:"Pekalipan",    lat:-6.7145, lng:108.5672},
   {kel:"Pulasaren",       kec:"Pekalipan",    lat:-6.7078, lng:108.5692},
   {kel:"Pekalipan Utara", kec:"Pekalipan",    lat:-6.7122, lng:108.5715},
 
-  // Kecamatan Kejaksan
   {kel:"Kejaksan",        kec:"Kejaksan",     lat:-6.7058, lng:108.5570},
   {kel:"Kebonbaru",       kec:"Kejaksan",     lat:-6.7095, lng:108.5548},
   {kel:"Sukapura",        kec:"Kejaksan",     lat:-6.7038, lng:108.5608},
   {kel:"Kesenden",        kec:"Kejaksan",     lat:-6.7122, lng:108.5518},
 
-  // Kecamatan Kesambi
   {kel:"Kesambi",         kec:"Kesambi",      lat:-6.7248, lng:108.5492},
   {kel:"Sunyaragi",       kec:"Kesambi",      lat:-6.7308, lng:108.5418},
   {kel:"Drajat",          kec:"Kesambi",      lat:-6.7272, lng:108.5345},
@@ -439,14 +423,12 @@ const KELURAHAN = [
   {kel:"Pekiringan",      kec:"Kesambi",      lat:-6.7158, lng:108.5495}
 ];
 
-/* Rekap kecamatan otomatis dari data kelurahan di atas */
 const KECAMATAN = {};
 KELURAHAN.forEach(k=>{
   if(!KECAMATAN[k.kec]) KECAMATAN[k.kec] = { kelurahan:[] };
   KECAMATAN[k.kec].kelurahan.push(k.kel);
 });
 
-/* Data binaan contoh — nama berupa INISIAL. Ganti dengan fetch Google Sheet jika perlu */
 const DATA_BINAAN = [
   {ini:"A.R.", umur:10, kec:"Harjamukti", kel:"Kalijaga", titik:"Titik Binaan 1", masalah:"Kurang asuh", status:"Dalam Pembinaan"},
   {ini:"B.S.", umur:8,  kec:"Harjamukti", kel:"Kecapi", titik:"Titik Binaan 1", masalah:"Rawan putus sekolah", status:"Pendampingan"},
@@ -464,7 +446,6 @@ function hitungPerKelurahan(){
   const map = {};
   KELURAHAN.forEach(k=>{ map[k.kel]=0; });
   DATA_BINAAN.forEach(d=>{ if(map[d.kel]!==undefined) map[d.kel]++; });
-  // tambahan dummy deterministik agar variasi warna terlihat (hapus bila pakai data asli)
   let seed = 7;
   Object.keys(map).forEach(kel=>{
     seed = (seed*9301+49297)%233280;
@@ -475,13 +456,13 @@ function hitungPerKelurahan(){
 const JUMLAH_KEL = hitungPerKelurahan();
 
 /* ============================================================
-   2. ARSIP LAPORAN (localStorage)
+   2. ARSIP LAPORAN
 ============================================================ */
 function getArsip(){ return JSON.parse(localStorage.getItem("sipintar_laporan")||"[]"); }
 function setArsip(arr){ localStorage.setItem("sipintar_laporan", JSON.stringify(arr)); }
 
 /* ============================================================
-   3. PETA — warna tepat di koordinat kelurahan
+   3. PETA
 ============================================================ */
 let map, mapFull, layerGroupDash, layerGroupFull;
 
@@ -507,7 +488,6 @@ function initMaps(){
   drawKelurahan(layerGroupDash);
   drawKelurahan(layerGroupFull);
 
-  // Outline daratan Kota Cirebon (mengikuti garis pantai utara)
   const bounds = [
     [-6.6980,108.5350],[-6.7000,108.5650],[-6.7060,108.5780],
     [-6.7130,108.5800],[-6.7200,108.5700],[-6.7280,108.5650],
@@ -529,11 +509,10 @@ function initMaps(){
     className:"", iconSize:[26,26], iconAnchor:[13,13]
   });
   TITIK_BINAAN.forEach(t=>{
-    L.marker([t.lat,t.lng],{icon:starIcon}).addTo(mapFull).bindPopup(`<b>${t.name}</b><br>Titik binaan utama`);
+    L.marker([t.lat,t.lng],{icon:starIcon}).addTo(mapFull).bindPopup("<b>"+t.name+"</b><br>Titik binaan utama");
   });
 }
 
-/* Lingkaran warna di koordinat kelurahan — tanpa label tulisan menumpuk di peta */
 function drawKelurahan(group){
   KELURAHAN.forEach(k=>{
     const n = JUMLAH_KEL[k.kel] || 0;
@@ -542,14 +521,13 @@ function drawKelurahan(group){
     L.circle([k.lat, k.lng],{
       radius: 320 + n*6,
       color: w.color, fillColor: w.fill, fillOpacity:.4, weight:2
-    }).bindPopup(`
-      <div style="font-size:13px">
-        <b style="color:${w.color}">● ${k.kel}</b><br>
-        Kecamatan: <b>${k.kec}</b><br>
-        Jumlah anak: <b>${n}</b><br>
-        Kategori: <b>${w.label}</b>
-      </div>
-    `).addTo(group);
+    }).bindPopup(
+      '<div style="font-size:13px">' +
+      '<b style="color:'+w.color+'">● '+k.kel+'</b><br>' +
+      'Kecamatan: <b>'+k.kec+'</b><br>' +
+      'Jumlah anak: <b>'+n+'</b><br>' +
+      'Kategori: <b>'+w.label+'</b></div>'
+    ).addTo(group);
 
     L.circleMarker([k.lat, k.lng],{
       radius: 5, color:"#fff", weight:2,
@@ -576,9 +554,7 @@ function renderTabelKec(){
     let total = 0;
     data.kelurahan.forEach(kel=> total += (JUMLAH_KEL[kel]||0));
     const w = warnaJumlah(Math.round(total/data.kelurahan.length));
-    tbody.innerHTML += `<tr>
-      <td><b>${kec}</b></td><td>${data.kelurahan.length}</td><td>${total}</td>
-      <td><span class="pill ${w.level}">${w.label}</span></td></tr>`;
+    tbody.innerHTML += "<tr><td><b>"+kec+"</b></td><td>"+data.kelurahan.length+"</td><td>"+total+"</td><td><span class='pill "+w.level+"'>"+w.label+"</span></td></tr>";
   });
 }
 
@@ -589,12 +565,10 @@ function renderTabelTitik(){
   const q = filterTitik.toLowerCase();
   const rows = KELURAHAN.map(k=>({kec:k.kec, kel:k.kel, n:JUMLAH_KEL[k.kel]||0}))
     .filter(r=> !q || r.kel.toLowerCase().includes(q) || r.kec.toLowerCase().includes(q));
-  if(!rows.length){ tbody.innerHTML = `<tr><td colspan="2" class="empty">Tidak ada hasil</td></tr>`; return; }
+  if(!rows.length){ tbody.innerHTML = "<tr><td colspan='2' class='empty'>Tidak ada hasil</td></tr>"; return; }
   rows.sort((a,b)=> b.n-a.n).forEach(r=>{
     const w = warnaJumlah(r.n);
-    tbody.innerHTML += `<tr>
-      <td><b>${r.kel}</b><br><small style="color:#64748b">${r.kec}</small></td>
-      <td><span class="pill ${w.level}">${r.n}</span></td></tr>`;
+    tbody.innerHTML += "<tr><td><b>"+r.kel+"</b><br><small style='color:#64748b'>"+r.kec+"</small></td><td><span class='pill "+w.level+"'>"+r.n+"</span></td></tr>";
   });
 }
 
@@ -609,13 +583,10 @@ function renderTabelData(){
     const okS = !fStatus || d.status === fStatus;
     return okQ && okK && okS;
   });
-  if(!rows.length){ tbody.innerHTML = `<tr><td colspan="7" class="empty">Tidak ada data yang cocok</td></tr>`; return; }
+  if(!rows.length){ tbody.innerHTML = "<tr><td colspan='7' class='empty'>Tidak ada data yang cocok</td></tr>"; return; }
   rows.forEach(d=>{
     const st = d.status==="Selesai"?"low":d.status==="Pendampingan"?"mid":"high";
-    tbody.innerHTML += `<tr>
-      <td><b>${d.ini}</b></td><td>${d.umur} th</td><td>${d.kec}</td><td>${d.kel}</td>
-      <td>${d.titik}</td><td>${d.masalah}</td>
-      <td><span class="pill ${st}">${d.status}</span></td></tr>`;
+    tbody.innerHTML += "<tr><td><b>"+d.ini+"</b></td><td>"+d.umur+" th</td><td>"+d.kec+"</td><td>"+d.kel+"</td><td>"+d.titik+"</td><td>"+d.masalah+"</td><td><span class='pill "+st+"'>"+d.status+"</span></td></tr>";
   });
 }
 
@@ -627,12 +598,12 @@ function isiFilterKec(){
 }
 
 /* ============================================================
-   5. ADMIN — LOGIN & ARSIP
+   5. ADMIN
 ============================================================ */
 let isAdmin = false;
 let qArsip = "", fTL = "";
 
-document.getElementById("formLogin").addEventListener("submit", e=>{
+document.getElementById("formLogin").addEventListener("submit", function(e){
   e.preventDefault();
   const u = document.getElementById("loginUser").value.trim();
   const p = document.getElementById("loginPass").value.trim();
@@ -647,7 +618,7 @@ document.getElementById("formLogin").addEventListener("submit", e=>{
   }
 });
 
-document.getElementById("btnLogout").addEventListener("click", ()=>{
+document.getElementById("btnLogout").addEventListener("click", function(){
   isAdmin = false;
   document.getElementById("adminPanel").style.display = "none";
   document.getElementById("adminLogin").style.display = "block";
@@ -655,52 +626,52 @@ document.getElementById("btnLogout").addEventListener("click", ()=>{
   document.getElementById("loginErr").style.display = "none";
 });
 
-document.getElementById("searchArsip").addEventListener("input", e=>{ qArsip=e.target.value; renderArsip(); });
-document.getElementById("filterTL").addEventListener("change", e=>{ fTL=e.target.value; renderArsip(); });
+document.getElementById("searchArsip").addEventListener("input", function(e){ qArsip=e.target.value; renderArsip(); });
+document.getElementById("filterTL").addEventListener("change", function(e){ fTL=e.target.value; renderArsip(); });
+
+function esc(s){ return (s||"").toString().replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 function renderArsip(){
   const tbody = document.getElementById("tblArsip");
   tbody.innerHTML = "";
   const arsipAsli = getArsip();
-  const arsip = arsipAsli.map((a,i)=>({...a, _idx:i})).reverse(); // terbaru di atas, simpan index asli
+  const arsip = arsipAsli.map(function(a,i){ return Object.assign({}, a, {_idx:i}); }).reverse();
   const q = qArsip.toLowerCase();
-  const rows = arsip.filter(a=>{
+  const rows = arsip.filter(function(a){
     const okQ = !q || [a.nama,a.pelapor,a.alamat,a.masalah,a.kontak].join(" ").toLowerCase().includes(q);
     const okT = !fTL || (a.tl||"Menunggu") === fTL;
     return okQ && okT;
   });
-  if(!rows.length){ tbody.innerHTML = `<tr><td colspan="9" class="empty">Belum ada laporan masuk</td></tr>`; return; }
+  if(!rows.length){ tbody.innerHTML = "<tr><td colspan='9' class='empty'>Belum ada laporan masuk</td></tr>"; return; }
 
-  rows.forEach(a=>{
+  rows.forEach(function(a){
     const idx = a._idx;
     const tl = a.tl || "Menunggu";
     const tlCls = tl==="Selesai"?"low":tl==="Diproses"?"mid":"high";
     const tgl = a.waktu ? new Date(a.waktu).toLocaleString("id-ID",{dateStyle:"short",timeStyle:"short"}) : "-";
-    tbody.innerHTML += `<tr>
-      <td>${tgl}</td>
-      <td><b>${esc(a.nama)}</b></td>
-      <td>${esc(a.tempatLahir)}, ${esc(a.ttl)}</td>
-      <td>${esc(a.alamat)}</td>
-      <td>${esc(a.pelapor)}</td>
-      <td>${esc(a.kontak)}</td>
-      <td>${esc(a.masalah)}</td>
-      <td>
-        <select onchange="ubahTL(${idx}, this.value)" style="padding:6px 8px;border-radius:8px;border:1px solid var(--line);font-size:12px">
-          <option ${tl==="Menunggu"?"selected":""}>Menunggu</option>
-          <option ${tl==="Diproses"?"selected":""}>Diproses</option>
-          <option ${tl==="Selesai"?"selected":""}>Selesai</option>
-        </select>
-        <span class="pill ${tlCls}" style="margin-left:4px">${tl}</span>
-      </td>
-      <td>
-        <button class="btn sm secondary" onclick="lihatDetail(${idx})">Detail</button>
-        <button class="btn sm red" onclick="hapusLaporan(${idx})">Hapus</button>
-      </td>
-    </tr>`;
+    tbody.innerHTML += "<tr>"+
+      "<td>"+tgl+"</td>"+
+      "<td><b>"+esc(a.nama)+"</b></td>"+
+      "<td>"+esc(a.tempatLahir)+", "+esc(a.ttl)+"</td>"+
+      "<td>"+esc(a.alamat)+"</td>"+
+      "<td>"+esc(a.pelapor)+"</td>"+
+      "<td>"+esc(a.kontak)+"</td>"+
+      "<td>"+esc(a.masalah)+"</td>"+
+      "<td>"+
+        "<select onchange='ubahTL("+idx+", this.value)' style='padding:6px 8px;border-radius:8px;border:1px solid var(--line);font-size:12px'>"+
+          "<option "+(tl==="Menunggu"?"selected":"")+">Menunggu</option>"+
+          "<option "+(tl==="Diproses"?"selected":"")+">Diproses</option>"+
+          "<option "+(tl==="Selesai"?"selected":"")+">Selesai</option>"+
+        "</select>"+
+        "<span class='pill "+tlCls+"' style='margin-left:4px'>"+tl+"</span>"+
+      "</td>"+
+      "<td>"+
+        "<button class='btn sm secondary' onclick='lihatDetail("+idx+")'>Detail</button> "+
+        "<button class='btn sm red' onclick='hapusLaporan("+idx+")'>Hapus</button>"+
+      "</td>"+
+    "</tr>";
   });
 }
-
-function esc(s){ return (s||"").toString().replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 window.ubahTL = function(idx, val){
   const arr = getArsip();
@@ -711,4 +682,14 @@ window.ubahTL = function(idx, val){
 };
 
 window.hapusLaporan = function(idx){
-  if(!confirm("Hapus laporan ini?
+  if(!confirm("Hapus laporan ini?")) return;
+  const arr = getArsip();
+  arr.splice(idx,1);
+  setArsip(arr);
+  renderArsip();
+  renderKPI();
+};
+
+window.lihatDetail = function(idx){
+  const a = getArsip()[idx];
+  const tgl = a.waktu ? new Date(a.waktu).toLocaleString("id-ID

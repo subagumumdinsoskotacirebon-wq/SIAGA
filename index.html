@@ -110,6 +110,15 @@ form input:focus,form textarea:focus{border-color:var(--brand2);box-shadow:0 0 0
 .admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
 .admin-toolbar .spacer{flex:1}
 .badge-login{font-size:12px;background:#ecfeff;color:#155e75;padding:6px 12px;border-radius:99px;font-weight:700}
+
+/* ADMIN TABS */
+.admin-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;align-items:center;border-bottom:2px solid var(--line);padding-bottom:12px}
+.admin-tab{background:transparent;border:none;padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;color:var(--muted);transition:.2s;flex:0 0 auto;min-width:0;box-shadow:none;font-family:inherit}
+.admin-tab:hover{background:#f1f5f9}
+.admin-tab.active{background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;box-shadow:0 4px 12px rgba(8,145,178,.35)}
+.admin-tab-content{display:none}
+.admin-tab-content.active{display:block;animation:fade .3s}
+
 .detail-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:4000;display:none;align-items:center;justify-content:center;padding:16px}
 .detail-modal.show{display:flex}
 .detail-box{background:#fff;border-radius:16px;max-width:560px;width:100%;max-height:86vh;overflow:auto;padding:22px;animation:fade .25s}
@@ -125,11 +134,15 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* SYNC INDICATOR */
+/* SYNC BADGE */
 .sync-badge{display:none;position:fixed;bottom:80px;right:16px;padding:8px 14px;border-radius:99px;font-size:11px;font-weight:700;z-index:4999;box-shadow:0 4px 12px rgba(0,0,0,.15);pointer-events:none;transition:.3s}
 .sync-badge.show{display:block}
 .sync-badge.ok{background:#dcfce7;color:#166534}
 .sync-badge.err{background:#fee2e2;color:#991b1b}
+
+/* SELECT TINDAK LANJUT */
+.tl-select{appearance:none;-webkit-appearance:none;padding:5px 22px 5px 10px !important;border:none;cursor:pointer;font-weight:700;font-size:11px;border-radius:99px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23334155' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;width:auto !important}
+.tl-select:disabled{opacity:.6;cursor:wait}
 
 @media (max-width:1024px){
   .grid2{grid-template-columns:1fr}
@@ -154,6 +167,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
   .row2{grid-template-columns:1fr}
   .btn{width:100%;flex:1 1 100%;padding:14px;font-size:15px}
   .admin-toolbar .btn{width:auto;flex:1 1 calc(50% - 4px)}
+  .admin-tab{padding:8px 12px;font-size:12px}
 }
 @media (max-width:360px){
   .brand-title span{display:none}
@@ -220,7 +234,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
   <!-- TITIK BINAAN -->
   <section id="page-titik" class="page">
     <h2 class="section">Lokasi Titik Binaan</h2>
-    <p class="sub">Sebaran per kelurahan dengan pewarnaan berdasar jumlah anak. Ketuk wilayah untuk detail.</p>
+    <p class="sub">Sebaran per kelurahan dengan pewarnaan berdasar jumlah anak. Arahkan kursor untuk detail.</p>
     <div class="gridTitik">
       <div class="card">
         <div id="mapFull"></div>
@@ -333,34 +347,112 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
     </div>
 
     <div id="adminPanel" style="display:none">
-      <div class="admin-toolbar">
-        <div>
-          <h2 class="section" style="margin:0">Arsip Laporan Masyarakat</h2>
-          <p class="sub" style="margin:0;font-size:12px">Data form penemuan anak untuk ditindaklanjuti.</p>
-        </div>
-        <div class="spacer"></div>
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="arsip">📋 Arsip Laporan</button>
+        <button class="admin-tab" data-tab="anak">👦 Kelola Data Anak</button>
+        <span style="flex:1"></span>
         <span class="badge-login">👤 dinsos</span>
-        <button class="btn green sm" id="btnWord">⬇ Word</button>
-        <button class="btn orange sm" id="btnExcel">⬇ Excel</button>
         <button class="btn red sm" id="btnLogout">Keluar</button>
       </div>
-      <div class="searchbar">
-        <input id="searchArsip" type="text" placeholder="Cari nama anak, pelapor, alamat, masalah..." />
-        <select id="filterTL">
-          <option value="">Semua Tindak Lanjut</option>
-          <option>Menunggu</option>
-          <option>Diproses</option>
-          <option>Selesai</option>
-        </select>
+
+      <!-- TAB 1: ARSIP -->
+      <div id="tab-arsip" class="admin-tab-content active">
+        <div class="admin-toolbar">
+          <div>
+            <h2 class="section" style="margin:0">Arsip Laporan Masyarakat</h2>
+            <p class="sub" style="margin:0;font-size:12px">Ubah tindak lanjut lewat dropdown kolom Tindak Lanjut.</p>
+          </div>
+          <div class="spacer"></div>
+          <button class="btn green sm" id="btnWord">⬇ Word</button>
+          <button class="btn orange sm" id="btnExcel">⬇ Excel</button>
+        </div>
+        <div class="searchbar">
+          <input id="searchArsip" type="text" placeholder="Cari nama anak, pelapor, alamat, masalah..." />
+          <select id="filterTL">
+            <option value="">Semua Tindak Lanjut</option>
+            <option>Menunggu</option>
+            <option>Diproses</option>
+            <option>Selesai</option>
+          </select>
+        </div>
+        <div class="card">
+          <div class="tablewrap" style="max-height:560px">
+            <table>
+              <thead>
+                <tr><th>Waktu</th><th>Nama Anak</th><th>TTL/Umur</th><th>Alamat</th><th>Pelapor</th><th>Kontak</th><th>Permasalahan</th><th>Tindak Lanjut</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="tblArsip"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <div class="tablewrap" style="max-height:560px">
-          <table>
-            <thead>
-              <tr><th>Waktu</th><th>Nama Anak</th><th>TTL/Umur</th><th>Alamat Ditemukan</th><th>Pelapor</th><th>Kontak</th><th>Permasalahan</th><th>Tindak Lanjut</th><th>Aksi</th></tr>
-            </thead>
-            <tbody id="tblArsip"></tbody>
-          </table>
+
+      <!-- TAB 2: DATA ANAK -->
+      <div id="tab-anak" class="admin-tab-content">
+        <div class="note">Data anak binaan yang diinput di sini akan <b>langsung muncul di dashboard</b> semua browser dalam ≤10 detik.</div>
+
+        <div class="card" style="margin-bottom:16px">
+          <h3 id="formAnakTitle">➕ Tambah / Edit Data Anak Binaan</h3>
+          <form id="formAnak">
+            <input type="hidden" id="anakEditId" value="" />
+            <div class="row2">
+              <div class="field">
+                <label>Inisial Anak *</label>
+                <input required name="ini" placeholder="Contoh: A.B." maxlength="20" />
+              </div>
+              <div class="field">
+                <label>Umur (tahun) *</label>
+                <input required type="number" name="umur" min="0" max="18" placeholder="Contoh: 10" />
+              </div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label>Kecamatan *</label>
+                <select required name="kec" id="anakKec"></select>
+              </div>
+              <div class="field">
+                <label>Kelurahan *</label>
+                <select required name="kel" id="anakKel"></select>
+              </div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label>Titik Binaan</label>
+                <input name="titik" placeholder="Contoh: Titik Binaan 1" />
+              </div>
+              <div class="field">
+                <label>Status</label>
+                <select name="status">
+                  <option>Dalam Pembinaan</option>
+                  <option>Pendampingan</option>
+                  <option>Selesai</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Masalah / Permasalahan</label>
+              <input name="masalah" placeholder="Contoh: Kurang asuh, anak jalanan, rawan putus sekolah" />
+            </div>
+            <div class="form-actions">
+              <button class="btn" type="submit" id="btnSimpanAnak">Simpan Data Anak</button>
+              <button class="btn secondary" type="button" id="btnResetAnak">Batal / Reset</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Daftar Data Anak Binaan</h3>
+          <div class="searchbar">
+            <input id="searchAnak" type="text" placeholder="Cari inisial, kelurahan, kecamatan..." />
+          </div>
+          <div class="tablewrap" style="max-height:460px">
+            <table>
+              <thead>
+                <tr><th>Inisial</th><th>Umur</th><th>Kecamatan</th><th>Kelurahan</th><th>Titik</th><th>Masalah</th><th>Status</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="tblAnak"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -386,84 +478,60 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
 /* ════════════════════════════════════════════════════════════════════
    0. KONFIGURASI — WAJIB DIISI
    ════════════════════════════════════════════════════════════════════
-   ⬇⬇⬇ ISI URL APPS SCRIPT DI SINI ⬇⬇⬇
-   Cara dapat URL:
-   1. Buka script.google.com → buat project baru
-   2. Tempel Code.gs di bawah (bagian B)
-   3. Deploy → New deployment → Web app
-   4. Execute as: Me · Who has access: Anyone
-   5. Copy URL yang diakhiri /exec
+   ⬇⬇⬇ ISI URL APPS SCRIPT ANDA DI SINI ⬇⬇⬇
+   Contoh: "https://script.google.com/macros/s/AKfycb.../exec"
    ════════════════════════════════════════════════════════════════════ */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxyu8-LpHa6gnMT4Bc6WJGxobdVdgoutBsQMzadhs67UsV7SyBH29BxxwSZR9IAmw-Q_w/exec"; // ← ISI URL /exec DI SINI
-// Contoh: "https://script.google.com/macros/s/AKfycb.../exec"
+const APPS_SCRIPT_URL = " https://script.google.com/macros/s/AKfycbxyu8-LpHa6gnMT4Bc6WJGxobdVdgoutBsQMzadhs67UsV7SyBH29BxxwSZR9IAmw-Q_w/exec";   // ← ISI DI SINI
 
-const ADMIN = { user: "dinsos", pass: "admin123" };
+const ADMIN = { user:"dinsos", pass:"admin123" };
 
 /* ════════ 1. DATA WILAYAH ════════ */
 const KECAMATAN = {
-  "Harjamukti":   { lat: -6.7450, lng:108.5450, kelurahan:["Kalijaga","Harjamukti","Kecapi","Larangan","Argasunya"] },
-  "Lemahwungkuk": { lat: -6.7190, lng:108.5630, kelurahan:["Pegambiran","Lemahwungkuk","Kesepuhan","Panjunan"] },
-  "Pekalipan":    { lat: -6.7080, lng:108.5720, kelurahan:["Jagasatru","Pulasaren","Pekalipan","Pekalipan Utara"] },
-  "Kejaksan":     { lat: -6.7000, lng:108.5680, kelurahan:["Kejaksan","Kebonbaru","Sukapura","Kesenden"] },
-  "Kesambi":      { lat: -6.7250, lng:108.5380, kelurahan:["Kesambi","Sunyaragi","Drajat","Karyamulya","Pekiringan"] }
+  "Harjamukti":   { lat:-6.7450, lng:108.5450, kelurahan:["Kalijaga","Harjamukti","Kecapi","Larangan","Argasunya"] },
+  "Lemahwungkuk": { lat:-6.7190, lng:108.5630, kelurahan:["Pegambiran","Lemahwungkuk","Kesepuhan","Panjunan"] },
+  "Pekalipan":    { lat:-6.7080, lng:108.5720, kelurahan:["Jagasatru","Pulasaren","Pekalipan","Pekalipan Utara"] },
+  "Kejaksan":     { lat:-6.7000, lng:108.5680, kelurahan:["Kejaksan","Kebonbaru","Sukapura","Kesenden"] },
+  "Kesambi":      { lat:-6.7250, lng:108.5380, kelurahan:["Kesambi","Sunyaragi","Drajat","Karyamulya","Pekiringan"] }
 };
 
-const DATA_BINAAN = [
-  {ini:"A.R.", umur:10, kec:"Harjamukti",   kel:"Kalijaga",    titik:"Titik Binaan 1", masalah:"Kurang asuh",          status:"Dalam Pembinaan"},
-  {ini:"B.S.", umur:8,  kec:"Harjamukti",   kel:"Kecapi",      titik:"Titik Binaan 1", masalah:"Rawan putus sekolah",  status:"Pendampingan"},
-  {ini:"C.N.", umur:12, kec:"Lemahwungkuk", kel:"Panjunan",    titik:"Titik Binaan 2", masalah:"Ekonomi keluarga",     status:"Dalam Pembinaan"},
-  {ini:"D.F.", umur:9,  kec:"Lemahwungkuk", kel:"Kesepuhan",   titik:"Titik Binaan 2", masalah:"Anak jalanan",         status:"Pendampingan"},
-  {ini:"E.P.", umur:11, kec:"Pekalipan",    kel:"Jagasatru",   titik:"Titik Binaan 3", masalah:"Kurang asuh",          status:"Selesai"},
-  {ini:"F.H.", umur:7,  kec:"Kejaksan",     kel:"Kebonbaru",   titik:"Titik Binaan 4", masalah:"Rawan putus sekolah",  status:"Dalam Pembinaan"},
-  {ini:"G.M.", umur:13, kec:"Kesambi",      kel:"Sunyaragi",   titik:"Titik Binaan 4", masalah:"Ekonomi keluarga",     status:"Pendampingan"},
-  {ini:"H.T.", umur:10, kec:"Kesambi",      kel:"Drajat",      titik:"Titik Binaan 4", masalah:"Kurang asuh",          status:"Dalam Pembinaan"},
-  {ini:"I.K.", umur:6,  kec:"Harjamukti",   kel:"Argasunya",   titik:"Titik Binaan 1", masalah:"Anak jalanan",         status:"Pendampingan"},
-  {ini:"J.L.", umur:14, kec:"Pekalipan",    kel:"Pulasaren",   titik:"Titik Binaan 3", masalah:"Rawan putus sekolah",  status:"Selesai"}
-];
-
-// Hitung jumlah per kelurahan — HANYA dari data asli, tanpa pseudo-random
-function hitungPerKelurahan() {
-  const map = {};
-  Object.values(KECAMATAN).forEach(k => k.kelurahan.forEach(kel => { map[kel] = 0; }));
-  DATA_BINAAN.forEach(d => { if (map[d.kel] !== undefined) map[d.kel]++; });
-  return map;
-}
-const JUMLAH_KEL = hitungPerKelurahan();
-
-/* ════════════════════════════════════════════════════════════════════
-   2. STATE GLOBAL & API (Sumber kebenaran = Google Sheets)
-   ════════════════════════════════════════════════════════════════════ */
-let ARSIP = [];            // data live dari server (BUKAN per-browser)
-let isFetching = false;    // guard anti request-stacking
+/* ════════ 2. STATE GLOBAL ════════ */
+let ARSIP = [];          // laporan masyarakat (dari Sheets)
+let ANAK  = [];          // data anak binaan (dari Sheets)
+let isFetching = false;
 let pollTimer = null;
-const POLL_MS = 10000;     // refresh tiap 10 detik
+const POLL_MS = 10000;
 let map = null, mapFull = null;
 
+/* ════════ 3. API ════════ */
 const API = {
-  async list() {
+  async list(type = 'arsip') {
     if (!APPS_SCRIPT_URL) throw new Error('APPS_SCRIPT_URL belum diisi');
-    const url = `${APPS_SCRIPT_URL}?action=list&t=${Date.now()}`;
-    const r = await fetch(url, { cache: 'no-store' });
+    const url = `${APPS_SCRIPT_URL}?action=list&type=${type}&t=${Date.now()}`;
+    const r = await fetch(url, { cache:'no-store' });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const j = await r.json();
     if (!j.ok) throw new Error(j.error || 'Server error');
     return j.data;
   },
-  async submit(payload) {
+  async post(payload) {
     if (!APPS_SCRIPT_URL) throw new Error('APPS_SCRIPT_URL belum diisi');
-    // text/plain → hindari CORS preflight yang tidak didukung Apps Script
     const r = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
     const j = await r.json();
     if (!j.ok) throw new Error(j.error || 'Server error');
     return j;
-  }
+  },
+  submit(p)           { return this.post({ type:'arsip', action:'create', ...p }); },
+  updateTL(id, tl)    { return this.post({ type:'arsip', action:'update', id, tindakLanjut: tl }); },
+  createAnak(p)       { return this.post({ type:'anak',  action:'create', ...p }); },
+  updateAnak(id, p)   { return this.post({ type:'anak',  action:'update', id, ...p }); },
+  deleteAnak(id)      { return this.post({ type:'anak',  action:'delete', id }); }
 };
 
-/* ════════ 3. UTIL ════════ */
+/* ════════ 4. UTIL ════════ */
 function toast(msg, timeout = 3500) {
   const el = document.getElementById('toast');
   if (!el) return;
@@ -472,23 +540,20 @@ function toast(msg, timeout = 3500) {
   clearTimeout(el._t);
   el._t = setTimeout(() => el.classList.remove('show'), timeout);
 }
-
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[c]));
 }
-
 function formatWaktu(iso) {
   if (!iso) return '-';
   try {
     return new Date(iso).toLocaleString('id-ID', {
-      day: '2-digit', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
+      day:'2-digit', month:'short', year:'numeric',
+      hour:'2-digit', minute:'2-digit'
     });
   } catch { return '-'; }
 }
-
 function showSyncBadge(status, msg) {
   const b = document.getElementById('syncBadge');
   if (!b) return;
@@ -497,50 +562,55 @@ function showSyncBadge(status, msg) {
   clearTimeout(b._t);
   b._t = setTimeout(() => b.classList.remove('show'), 2500);
 }
-
 function debounce(fn, ms = 300) {
-  let t;
-  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
 }
 
-/* ════════ 4. SYNC LAYER (KUNCI MULTI-BROWSER) ════════ */
+/* ════════ 5. HITUNG JUMLAH PER KELURAHAN (dari ANAK) ════════ */
+function getJumlahKel() {
+  const map = {};
+  Object.values(KECAMATAN).forEach(k => k.kelurahan.forEach(kel => { map[kel] = 0; }));
+  ANAK.forEach(d => { if (map[d.kel] !== undefined) map[d.kel]++; });
+  return map;
+}
+
+/* ════════ 6. SYNC LAYER ════════ */
 async function refreshSemua({ silent = false } = {}) {
-  if (isFetching) return;      // request masih jalan
+  if (isFetching) return;
   if (!APPS_SCRIPT_URL) {
     if (!silent) toast('⚠ APPS_SCRIPT_URL belum diisi. Edit file HTML.');
     return;
   }
   isFetching = true;
-
   try {
-    const data = await API.list();
-    ARSIP = data;
+    const [arsip, anak] = await Promise.all([ API.list('arsip'), API.list('anak') ]);
+    ARSIP = arsip;
+    ANAK  = anak;
+    try {
+      localStorage.setItem('sipintar_laporan', JSON.stringify(ARSIP));
+      localStorage.setItem('sipintar_anak',    JSON.stringify(ANAK));
+    } catch(_) {}
 
-    // cache offline
-    try { localStorage.setItem('sipintar_laporan', JSON.stringify(data)); } catch (_) {}
-
-    // render ulang semua view
     renderKpi();
     renderTblKec();
     renderTblTitik();
     renderTblData();
     renderArsip();
+    renderAnak();
     renderMapAll();
 
     if (!silent) {
-      console.log(`✅ Sync OK — ${data.length} laporan`);
-      showSyncBadge('ok', `✓ ${data.length} laporan`);
+      console.log(`✅ Sync OK — ${ARSIP.length} laporan, ${ANAK.length} anak`);
+      showSyncBadge('ok', `✓ ${ARSIP.length} laporan`);
     }
-    return data;
+    return { arsip, anak };
   } catch (err) {
-    // fallback ke cache offline
     if (!ARSIP.length) {
       try {
-        const cached = JSON.parse(localStorage.getItem('sipintar_laporan') || '[]');
-        ARSIP = cached;
-      } catch (_) {}
+        ARSIP = JSON.parse(localStorage.getItem('sipintar_laporan')||'[]');
+        ANAK  = JSON.parse(localStorage.getItem('sipintar_anak')   ||'[]');
+      } catch(_) {}
     }
-
     if (!silent) {
       console.warn('❌ Sync gagal:', err.message);
       showSyncBadge('err', '⚠ Offline');
@@ -550,110 +620,83 @@ async function refreshSemua({ silent = false } = {}) {
     isFetching = false;
   }
 }
-
 function startPolling() {
   stopPolling();
   pollTimer = setInterval(() => {
     if (document.visibilityState === 'visible' && navigator.onLine) {
-      refreshSemua({ silent: true }).catch(() => {});
+      refreshSemua({ silent:true }).catch(()=>{});
     }
   }, POLL_MS);
 }
+function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
 
-function stopPolling() {
-  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-}
-
-/* ════════ 5. RENDER: KPI & TABLE ════════ */
+/* ════════ 7. RENDER: KPI & TABEL ════════ */
 function renderKpi() {
-  const totalBinaan = DATA_BINAAN.length;
-  const totalLapor  = ARSIP.length;
-  const kelCount    = new Set(Object.values(KECAMATAN).flatMap(k => k.kelurahan)).size;
-  const kecCount    = Object.keys(KECAMATAN).length;
-
   const el = id => document.getElementById(id);
-  if (el('kpiTotal')) el('kpiTotal').textContent = totalBinaan + totalLapor;
-  if (el('kpiKel'))   el('kpiKel').textContent   = kelCount;
-  if (el('kpiKec'))   el('kpiKec').textContent   = kecCount;
-  if (el('kpiLapor')) el('kpiLapor').textContent = totalLapor;
+  if (el('kpiTotal')) el('kpiTotal').textContent = ANAK.length + ARSIP.length;
+  if (el('kpiKel'))   el('kpiKel').textContent   = new Set(Object.values(KECAMATAN).flatMap(k=>k.kelurahan)).size;
+  if (el('kpiKec'))   el('kpiKec').textContent   = Object.keys(KECAMATAN).length;
+  if (el('kpiLapor')) el('kpiLapor').textContent = ARSIP.length;
 }
 
 function renderTblKec() {
-  const tb = document.getElementById('tblKec');
-  if (!tb) return;
-  const rows = Object.entries(KECAMATAN).map(([kec, info]) => {
-    const total = info.kelurahan.reduce((s, kel) => s + (JUMLAH_KEL[kel] || 0), 0);
+  const tb = document.getElementById('tblKec'); if (!tb) return;
+  const jk = getJumlahKel();
+  tb.innerHTML = Object.entries(KECAMATAN).map(([kec, info]) => {
+    const total  = info.kelurahan.reduce((s,kel)=> s + (jk[kel]||0), 0);
     const status = total > 40 ? 'high' : total > 20 ? 'mid' : 'low';
     const label  = total > 40 ? 'Banyak' : total > 20 ? 'Sedang' : 'Sedikit';
-    return `<tr>
-      <td><b>${esc(kec)}</b></td>
-      <td>${info.kelurahan.length}</td>
-      <td>${total}</td>
-      <td><span class="pill ${status}">${label}</span></td>
-    </tr>`;
+    return `<tr><td><b>${esc(kec)}</b></td><td>${info.kelurahan.length}</td><td>${total}</td><td><span class="pill ${status}">${label}</span></td></tr>`;
   }).join('');
-  tb.innerHTML = rows;
 }
 
 function renderTblTitik() {
-  const tb = document.getElementById('tblTitik');
-  if (!tb) return;
-  const q = (document.getElementById('searchTitik')?.value || '').toLowerCase();
-
+  const tb = document.getElementById('tblTitik'); if (!tb) return;
+  const q  = (document.getElementById('searchTitik')?.value || '').toLowerCase();
+  const jk = getJumlahKel();
   const rows = [];
   Object.entries(KECAMATAN).forEach(([kec, info]) => {
     info.kelurahan.forEach(kel => {
-      const jml = JUMLAH_KEL[kel] || 0;
       if (q && !(kel.toLowerCase().includes(q) || kec.toLowerCase().includes(q))) return;
-      rows.push(`<tr><td>${esc(kel)} <small style="color:var(--muted)">· ${esc(kec)}</small></td><td><b>${jml}</b></td></tr>`);
+      rows.push(`<tr><td>${esc(kel)} <small style="color:var(--muted)">· ${esc(kec)}</small></td><td><b>${jk[kel]||0}</b></td></tr>`);
     });
   });
-
-  tb.innerHTML = rows.length
-    ? rows.join('')
-    : '<tr><td colspan="2" class="empty">Tidak ada hasil.</td></tr>';
+  tb.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="2" class="empty">Tidak ada hasil.</td></tr>';
 }
 
 function renderTblData() {
-  const tb = document.getElementById('tblData');
-  if (!tb) return;
+  const tb = document.getElementById('tblData'); if (!tb) return;
   const q  = (document.getElementById('searchData')?.value || '').toLowerCase();
   const fk = document.getElementById('filterKec')?.value || '';
   const fs = document.getElementById('filterStatus')?.value || '';
 
-  const rows = DATA_BINAAN.filter(d => {
+  const rows = ANAK.filter(d => {
     const hitQ = !q || [d.ini, d.kel, d.kec, d.masalah].some(v => String(v).toLowerCase().includes(q));
     return hitQ && (!fk || d.kec === fk) && (!fs || d.status === fs);
   });
 
   if (!rows.length) {
-    tb.innerHTML = '<tr><td colspan="7" class="empty">Tidak ada data.</td></tr>';
+    tb.innerHTML = '<tr><td colspan="7" class="empty">Belum ada data. Tambahkan lewat menu Admin.</td></tr>';
     return;
   }
-
   tb.innerHTML = rows.map(d => {
     const pill = d.status === 'Selesai' ? 'low' : d.status === 'Pendampingan' ? 'mid' : 'high';
     return `<tr>
-      <td><b>${esc(d.ini)}</b></td>
-      <td>${d.umur}</td>
-      <td>${esc(d.kec)}</td>
-      <td>${esc(d.kel)}</td>
-      <td>${esc(d.titik)}</td>
-      <td>${esc(d.masalah)}</td>
+      <td><b>${esc(d.ini)}</b></td><td>${d.umur}</td>
+      <td>${esc(d.kec)}</td><td>${esc(d.kel)}</td>
+      <td>${esc(d.titik)}</td><td>${esc(d.masalah)}</td>
       <td><span class="pill ${pill}">${esc(d.status)}</span></td>
     </tr>`;
   }).join('');
 }
 
 function renderArsip() {
-  const tb = document.getElementById('tblArsip');
-  if (!tb) return;
+  const tb = document.getElementById('tblArsip'); if (!tb) return;
   const q  = (document.getElementById('searchArsip')?.value || '').toLowerCase();
   const fl = document.getElementById('filterTL')?.value || '';
 
   const rows = ARSIP.filter(a => {
-    const hitQ = !q || [a.nama, a.pelapor, a.alamat, a.masalah, a.kontak]
-      .some(v => String(v || '').toLowerCase().includes(q));
+    const hitQ = !q || [a.nama, a.pelapor, a.alamat, a.masalah, a.kontak].some(v => String(v||'').toLowerCase().includes(q));
     return hitQ && (!fl || a.tindakLanjut === fl);
   });
 
@@ -661,7 +704,6 @@ function renderArsip() {
     tb.innerHTML = '<tr><td colspan="9" class="empty">Belum ada laporan.</td></tr>';
     return;
   }
-
   tb.innerHTML = rows.map(a => {
     const pill = a.tindakLanjut === 'Selesai' ? 'low' : a.tindakLanjut === 'Diproses' ? 'mid' : 'high';
     return `<tr>
@@ -672,78 +714,187 @@ function renderArsip() {
       <td>${esc(a.pelapor)}</td>
       <td>${esc(a.kontak)}</td>
       <td>${esc(a.masalah)}</td>
-      <td><span class="pill ${pill}">${esc(a.tindakLanjut)}</span></td>
+      <td>
+        <select class="tl-select pill ${pill}" data-id="${esc(a.id)}" onchange="ubahTindakLanjut(this)">
+          <option value="Menunggu" ${a.tindakLanjut==='Menunggu'?'selected':''}>Menunggu</option>
+          <option value="Diproses" ${a.tindakLanjut==='Diproses'?'selected':''}>Diproses</option>
+          <option value="Selesai"  ${a.tindakLanjut==='Selesai' ?'selected':''}>Selesai</option>
+        </select>
+      </td>
       <td><button class="btn sm secondary" onclick="openDetail('${esc(a.id)}')">Detail</button></td>
     </tr>`;
   }).join('');
 }
 
-/* ════════ 6. MAP (TANPA LABEL NAMA KELURAHAN) ════════ */
+function renderAnak() {
+  const tb = document.getElementById('tblAnak'); if (!tb) return;
+  const q = (document.getElementById('searchAnak')?.value || '').toLowerCase();
+  const rows = ANAK.filter(d => !q || [d.ini, d.kel, d.kec, d.masalah, d.status].some(v => String(v||'').toLowerCase().includes(q)));
+
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="8" class="empty">Belum ada data anak. Tambahkan lewat form di atas.</td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(d => {
+    const pill = d.status === 'Selesai' ? 'low' : d.status === 'Pendampingan' ? 'mid' : 'high';
+    return `<tr>
+      <td><b>${esc(d.ini)}</b></td><td>${d.umur}</td>
+      <td>${esc(d.kec)}</td><td>${esc(d.kel)}</td>
+      <td>${esc(d.titik)}</td><td>${esc(d.masalah)}</td>
+      <td><span class="pill ${pill}">${esc(d.status)}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn sm orange" onclick="editAnak('${esc(d.id)}')">Edit</button>
+        <button class="btn sm red" onclick="hapusAnak('${esc(d.id)}')">Hapus</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ════════ 8. UBAH TINDAK LANJUT ════════ */
+async function ubahTindakLanjut(sel) {
+  const id = sel.dataset.id;
+  const newVal = sel.value;
+  sel.disabled = true;
+  try {
+    await API.updateTL(id, newVal);
+    const row = ARSIP.find(a => a.id === id);
+    if (row) row.tindakLanjut = newVal;
+    sel.classList.remove('low','mid','high');
+    sel.classList.add(newVal === 'Selesai' ? 'low' : newVal === 'Diproses' ? 'mid' : 'high');
+    toast(`✅ Status diubah ke: ${newVal}`);
+  } catch (err) {
+    toast('❌ Gagal update: ' + err.message);
+    sel.value = ARSIP.find(a => a.id === id)?.tindakLanjut || 'Menunggu';
+  } finally {
+    sel.disabled = false;
+  }
+}
+
+/* ════════ 9. FORM DATA ANAK ════════ */
+async function simpanAnak(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form).entries());
+  const editId = document.getElementById('anakEditId').value;
+
+  if (!data.ini || !data.kec || !data.kel) {
+    toast('⚠ Minimal isi: Inisial, Kecamatan, Kelurahan');
+    return;
+  }
+  if (!data.umur || Number(data.umur) < 0) { toast('⚠ Umur tidak valid'); return; }
+
+  const btn = document.getElementById('btnSimpanAnak');
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Menyimpan...';
+
+  try {
+    if (editId) {
+      await API.updateAnak(editId, data);
+      toast('✅ Data anak diperbarui');
+    } else {
+      await API.createAnak(data);
+      toast('✅ Data anak ditambahkan');
+    }
+    form.reset();
+    document.getElementById('anakEditId').value = '';
+    document.getElementById('anakKel').innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+    await refreshSemua({ silent:true });
+  } catch (err) {
+    toast('❌ Gagal simpan: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText || 'Simpan Data Anak';
+  }
+}
+
+function editAnak(id) {
+  const d = ANAK.find(a => a.id === id); if (!d) return;
+  const f = document.getElementById('formAnak');
+  f.ini.value     = d.ini || '';
+  f.umur.value    = d.umur || '';
+  f.kec.value     = d.kec || '';
+  // populate kelurahan dulu
+  const selKel = document.getElementById('anakKel');
+  selKel.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+  (KECAMATAN[d.kec]?.kelurahan || []).forEach(kel => {
+    const o = document.createElement('option'); o.value = kel; o.textContent = kel;
+    selKel.appendChild(o);
+  });
+  f.kel.value     = d.kel || '';
+  f.titik.value   = d.titik || '';
+  f.masalah.value = d.masalah || '';
+  f.status.value  = d.status || 'Dalam Pembinaan';
+  document.getElementById('anakEditId').value = id;
+  document.getElementById('btnSimpanAnak').textContent = 'Update Data Anak';
+  document.getElementById('formAnak').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+async function hapusAnak(id) {
+  const d = ANAK.find(a => a.id === id); if (!d) return;
+  if (!confirm(`Hapus data anak "${d.ini}"?`)) return;
+  try {
+    await API.deleteAnak(id);
+    toast('✅ Data anak dihapus');
+    await refreshSemua({ silent:true });
+  } catch (err) {
+    toast('❌ Gagal hapus: ' + err.message);
+  }
+}
+
+/* ════════ 10. MAP (TANPA NAMA KELURAHAN) ════════ */
 function warnaJumlah(n) {
   if (n <= 20) return '#22c55e';
   if (n <= 40) return '#f59e0b';
   return '#ef4444';
 }
-
 function renderMapAll() {
   if (!window.L) return;
-
+  const jk = getJumlahKel();
   [map, mapFull].forEach(m => {
     if (!m) return;
-    m.eachLayer(layer => {
-      if (layer instanceof L.CircleMarker) m.removeLayer(layer);
-    });
+    m.eachLayer(layer => { if (layer instanceof L.CircleMarker) m.removeLayer(layer); });
   });
-
   Object.values(KECAMATAN).forEach(info => {
     const n = info.kelurahan.length;
     info.kelurahan.forEach((kel, i) => {
-      const jumlah = JUMLAH_KEL[kel] || 0;
+      const jumlah = jk[kel] || 0;
       const angle  = (2 * Math.PI * i) / n;
       const lat = info.lat + 0.008 * Math.sin(angle);
       const lng = info.lng + 0.008 * Math.cos(angle);
-
       const opts = {
         radius: 8 + Math.min(jumlah / 5, 14),
         fillColor: warnaJumlah(jumlah),
-        color: '#fff',
-        weight: 2,
-        fillOpacity: 0.9
+        color: '#fff', weight: 2, fillOpacity: 0.9
       };
-
-      // PENTING: tooltip hanya muncul saat hover, TANPA nama kelurahan
-      const tooltipOpt = { direction: 'top', opacity: 0.95, permanent: false };
-      const tooltipText = `${jumlah} anak`;
-
-      if (map)     L.circleMarker([lat, lng], opts).bindTooltip(tooltipText, tooltipOpt).addTo(map);
-      if (mapFull) L.circleMarker([lat, lng], opts).bindTooltip(tooltipText, tooltipOpt).addTo(mapFull);
+      const tOpt = { direction:'top', opacity:.95, permanent:false };
+      const tTxt = `${jumlah} anak`;
+      if (map)     L.circleMarker([lat,lng], opts).bindTooltip(tTxt, tOpt).addTo(map);
+      if (mapFull) L.circleMarker([lat,lng], opts).bindTooltip(tTxt, tOpt).addTo(mapFull);
     });
   });
 }
-
 function initMaps() {
   if (!window.L) return;
   if (!map) {
-    map = L.map('map', { preferCanvas: true }).setView([-6.7200, 108.5550], 13);
+    map = L.map('map', { preferCanvas:true }).setView([-6.7200, 108.5550], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap', maxZoom: 18
+      attribution:'© OpenStreetMap', maxZoom:18
     }).addTo(map);
   }
   if (!mapFull) {
-    mapFull = L.map('mapFull', { preferCanvas: true }).setView([-6.7200, 108.5550], 13);
+    mapFull = L.map('mapFull', { preferCanvas:true }).setView([-6.7200, 108.5550], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap', maxZoom: 18
+      attribution:'© OpenStreetMap', maxZoom:18
     }).addTo(mapFull);
   }
 }
 
-/* ════════ 7. DETAIL MODAL ════════ */
+/* ════════ 11. DETAIL MODAL ════════ */
 function openDetail(id) {
-  const a = ARSIP.find(x => x.id === id);
-  if (!a) return;
-  const el = document.getElementById('detailBody');
-  el.innerHTML = `
-    <div class="detail-row"><b>Waktu Laporan</b><span>${formatWaktu(a.waktu)}</span></div>
+  const a = ARSIP.find(x => x.id === id); if (!a) return;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-row"><b>Waktu</b><span>${formatWaktu(a.waktu)}</span></div>
     <div class="detail-row"><b>Nama Anak</b><span>${esc(a.nama)}</span></div>
     <div class="detail-row"><b>Tempat / TTL</b><span>${esc(a.tempatLahir)} · ${esc(a.ttl)}</span></div>
     <div class="detail-row"><b>Alamat</b><span>${esc(a.alamat)}</span></div>
@@ -754,23 +905,15 @@ function openDetail(id) {
   `;
   document.getElementById('detailModal').classList.add('show');
 }
+function closeDetail() { document.getElementById('detailModal').classList.remove('show'); }
 
-function closeDetail() {
-  document.getElementById('detailModal').classList.remove('show');
-}
-
-/* ════════ 8. NAVIGASI ════════ */
+/* ════════ 12. NAVIGASI ════════ */
 function switchPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-
-  const page = document.getElementById('page-' + name);
-  if (page) page.classList.add('active');
-  const btn = document.querySelector(`nav button[data-page="${name}"]`);
-  if (btn) btn.classList.add('active');
-
-  // refresh peta saat pindah ke halaman ber-peta
-  if ((name === 'dash' || name === 'titik')) {
+  document.getElementById('page-' + name)?.classList.add('active');
+  document.querySelector(`nav button[data-page="${name}"]`)?.classList.add('active');
+  if (name === 'dash' || name === 'titik') {
     setTimeout(() => {
       if (map) map.invalidateSize();
       if (mapFull) mapFull.invalidateSize();
@@ -778,38 +921,33 @@ function switchPage(name) {
   }
 }
 
-/* ════════ 9. EVENT HANDLERS ════════ */
+/* ════════ 13. EVENT HANDLERS ════════ */
 // Nav
 document.querySelectorAll('nav button[data-page]').forEach(b => {
   b.addEventListener('click', () => switchPage(b.dataset.page));
 });
 
-// Form Login
+// Login
 document.getElementById('formLogin').addEventListener('submit', (e) => {
   e.preventDefault();
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
   const err = document.getElementById('loginErr');
-
   if (u === ADMIN.user && p === ADMIN.pass) {
     err.style.display = 'none';
     document.getElementById('adminLogin').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
     sessionStorage.setItem('sipintar_admin', '1');
-    refreshSemua({ silent: true }).catch(() => {});
+    refreshSemua({ silent:true }).catch(()=>{});
     toast('✅ Login berhasil');
   } else {
     err.style.display = 'block';
   }
 });
-
-// Auto login jika session ada
 if (sessionStorage.getItem('sipintar_admin') === '1') {
   document.getElementById('adminLogin').style.display = 'none';
   document.getElementById('adminPanel').style.display = 'block';
 }
-
-// Logout
 document.getElementById('btnLogout').addEventListener('click', () => {
   sessionStorage.removeItem('sipintar_admin');
   document.getElementById('adminLogin').style.display = 'block';
@@ -818,56 +956,83 @@ document.getElementById('btnLogout').addEventListener('click', () => {
   toast('Anda telah keluar');
 });
 
-// Filter & search (dengan debounce)
+// Tab admin
+document.querySelectorAll('.admin-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Filter & search
 document.getElementById('searchTitik')?.addEventListener('input', debounce(renderTblTitik, 250));
 document.getElementById('searchData')?.addEventListener('input', debounce(renderTblData, 250));
 document.getElementById('searchArsip')?.addEventListener('input', debounce(renderArsip, 250));
+document.getElementById('searchAnak')?.addEventListener('input', debounce(renderAnak, 250));
 document.getElementById('filterKec')?.addEventListener('change', renderTblData);
 document.getElementById('filterStatus')?.addEventListener('change', renderTblData);
 document.getElementById('filterTL')?.addEventListener('change', renderArsip);
 
 // Populate filter kecamatan
-(function populateFilterKec() {
+(function () {
   const sel = document.getElementById('filterKec');
   if (!sel) return;
   Object.keys(KECAMATAN).forEach(kec => {
-    const opt = document.createElement('option');
-    opt.value = kec;
-    opt.textContent = kec;
-    sel.appendChild(opt);
+    const o = document.createElement('option'); o.value = kec; o.textContent = kec;
+    sel.appendChild(o);
   });
 })();
 
-// ════════ SUBMIT FORM (KUNCI: kirim ke server) ════════
+// Populate form anak: kecamatan → kelurahan
+(function () {
+  const selKec = document.getElementById('anakKec');
+  const selKel = document.getElementById('anakKel');
+  if (!selKec || !selKel) return;
+  selKec.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+  selKel.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+  Object.keys(KECAMATAN).forEach(kec => {
+    const o = document.createElement('option'); o.value = kec; o.textContent = kec;
+    selKec.appendChild(o);
+  });
+  selKec.addEventListener('change', () => {
+    selKel.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+    (KECAMATAN[selKec.value]?.kelurahan || []).forEach(kel => {
+      const o = document.createElement('option'); o.value = kel; o.textContent = kel;
+      selKel.appendChild(o);
+    });
+  });
+})();
+
+document.getElementById('formAnak')?.addEventListener('submit', simpanAnak);
+document.getElementById('btnResetAnak')?.addEventListener('click', () => {
+  document.getElementById('formAnak').reset();
+  document.getElementById('anakEditId').value = '';
+  document.getElementById('anakKel').innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+  document.getElementById('btnSimpanAnak').textContent = 'Simpan Data Anak';
+});
+
+// SUBMIT FORM LAPORAN MASYARAKAT
 document.getElementById('formPenemuan').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = e.target;
   const btn = document.getElementById('btnKirim');
   const data = Object.fromEntries(new FormData(form).entries());
 
-  // 1) Validasi
   const wajib = ['nama','tempatLahir','ttl','alamat','pelapor','kontak','masalah'];
   const kosong = wajib.filter(k => !String(data[k] || '').trim());
-  if (kosong.length) {
-    toast('⚠ Belum diisi: ' + kosong.join(', '));
-    return;
-  }
+  if (kosong.length) { toast('⚠ Belum diisi: ' + kosong.join(', ')); return; }
 
-  // 2) Cegah double submit
   const oldText = btn.textContent;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Mengirim...';
 
   try {
-    // 3) KIRIM KE SERVER — SEMUA USER AKAN LIHAT
-    await API.submit({ ...data, createdBy: 'publik' });
+    await API.submit({ ...data, createdBy:'publik' });
     toast('✅ Laporan terkirim. Menunggu verifikasi petugas.');
     form.reset();
-
-    // 4) Refresh data (semua browser lihat ini dalam ≤10 dtk)
-    await refreshSemua({ silent: true });
-
-    // 5) Pindah ke dashboard
+    await refreshSemua({ silent:true });
     switchPage('dash');
   } catch (err) {
     toast('❌ Gagal kirim: ' + err.message, 6000);
@@ -885,36 +1050,33 @@ document.getElementById('btnWord').addEventListener('click', () => {
     html += `<tr><td>${formatWaktu(a.waktu)}</td><td>${esc(a.nama)}</td><td>${esc(a.ttl)}</td><td>${esc(a.alamat)}</td><td>${esc(a.pelapor)}</td><td>${esc(a.kontak)}</td><td>${esc(a.masalah)}</td><td>${esc(a.tindakLanjut)}</td></tr>`;
   });
   html += '</table></body></html>';
-  const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+  const blob = new Blob(['\ufeff', html], { type:'application/msword' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `Arsip_SIPINTAR_${Date.now()}.doc`; a.click();
+  const a = document.createElement('a'); a.href = url;
+  a.download = `Arsip_SIPINTAR_${Date.now()}.doc`; a.click();
   URL.revokeObjectURL(url);
 });
 
-// Export Excel
+// Export Excel (CSV)
 document.getElementById('btnExcel').addEventListener('click', () => {
   if (!ARSIP.length) return toast('Belum ada data');
   let csv = 'Waktu,Nama,TTL,Alamat,Pelapor,Kontak,Masalah,Status\n';
   ARSIP.forEach(a => {
-    const row = [a.waktu, a.nama, a.ttl, a.alamat, a.pelapor, a.kontak, a.masalah, a.tindakLanjut]
-      .map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',');
-    csv += row + '\n';
+    csv += [a.waktu, a.nama, a.ttl, a.alamat, a.pelapor, a.kontak, a.masalah, a.tindakLanjut]
+      .map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',') + '\n';
   });
-  const blob = new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob(['\ufeff', csv], { type:'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `Arsip_SIPINTAR_${Date.now()}.csv`; a.click();
+  const a = document.createElement('a'); a.href = url;
+  a.download = `Arsip_SIPINTAR_${Date.now()}.csv`; a.click();
   URL.revokeObjectURL(url);
 });
 
-/* ════════ 10. LIFECYCLE ════════ */
+/* ════════ 14. LIFECYCLE ════════ */
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
-    refreshSemua({ silent: true }).catch(() => {});
-  }
+  if (document.visibilityState === 'visible') refreshSemua({ silent:true }).catch(()=>{});
 });
-window.addEventListener('online', () => refreshSemua().catch(() => {}));
+window.addEventListener('online',  () => refreshSemua().catch(()=>{}));
 window.addEventListener('beforeunload', stopPolling);
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -924,16 +1086,18 @@ document.addEventListener('DOMContentLoaded', () => {
   renderTblTitik();
   renderTblData();
   renderArsip();
-
-  // SYNC: tarik data dari server + mulai polling
-  refreshSemua().catch(() => {});
+  renderAnak();
+  refreshSemua().catch(()=>{});
   startPolling();
 });
 
-// expose untuk inline onclick
-window.openDetail = openDetail;
-window.closeDetail = closeDetail;
-window.switchPage = switchPage;
+// expose
+window.openDetail        = openDetail;
+window.closeDetail       = closeDetail;
+window.switchPage        = switchPage;
+window.ubahTindakLanjut  = ubahTindakLanjut;
+window.editAnak          = editAnak;
+window.hapusAnak         = hapusAnak;
 </script>
 </body>
 </html>

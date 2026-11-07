@@ -800,43 +800,43 @@ function unduh(blob, nama){
 /* ============================================================
    7. FORM PENEMUAN → localStorage + Google Sheet
 ============================================================ */
-document.getElementById("formPenemuan").addEventListener("submit", async e=>{
-  e.preventDefault();
-  const btn = document.getElementById("btnKirim");
-  const fd = new FormData(e.target);
-  const data = Object.fromEntries(fd.entries());
-  data.waktu = new Date().toISOString();
-  data.tl = "Menunggu";
+document.getElementById('formPenemuan').addEventListener('submit', async (e) => {
+  e.preventDefault();                          // jangan reload halaman
 
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Mengirim...';
+  const btn  = document.getElementById('btnKirim');
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form).entries());
 
-  // simpan lokal (arsip admin)
-  const arr = getArsip();
-  arr.push(data);
-  setArsip(arr);
-
-  // kirim ke Google Sheet via Apps Script
-  if(APPS_SCRIPT_URL){
-    try{
-      await fetch(APPS_SCRIPT_URL, {
-        method:"POST",
-        mode:"no-cors",
-        headers:{"Content-Type":"text/plain"},
-        body: JSON.stringify(data)
-      });
-      showToast("✅ Laporan terkirim & tersimpan di arsip Google Sheet Dinsos!");
-    }catch(err){
-      showToast("⚠️ Laporan tersimpan lokal, gagal sinkron ke Google Sheet.");
-    }
-  } else {
-    showToast("✅ Laporan tersimpan di arsip (mode lokal). Hubungkan Apps Script untuk arsip Google Sheet.");
+  // 1) Validasi cepat di browser
+  const wajib = ['nama','tempatLahir','ttl','alamat','pelapor','kontak','masalah'];
+  const kosong = wajib.filter(k => !String(data[k] || '').trim());
+  if (kosong.length) {
+    alert(`Belum diisi: ${kosong.join(', ')}`);
+    return;
   }
 
-  btn.disabled = false;
-  btn.textContent = "Kirim Laporan";
-  e.target.reset();
-  renderKPI();
+  // 2) Nonaktifkan tombol + spinner (cegah double-click)
+  btn.disabled = true;
+  btn.textContent = 'Mengirim...';
+
+  try {
+    // 3) KIRIM ke Google Sheets (SEMUA user bisa lihat)
+    await API.submit({ ...data, createdBy: 'publik' });
+
+    alert('✅ Laporan terkirim. Menunggu verifikasi petugas.');
+
+    form.reset();
+
+    // 4) Tarik data terbaru supaya dashboard + peta langsung update
+    await refreshSemua();           // fungsi dari PATCH C
+    switchPage('dash');             // pindah halaman ke Dashboard
+
+  } catch (err) {
+    alert('❌ Gagal kirim: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Kirim Laporan';
+  }
 });
 
 /* ============================================================

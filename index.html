@@ -399,7 +399,28 @@
    yang terhubung ke spreadsheet arsip Anda.
    (Panduan setup ada di bawah kode ini.)
 ============================================================ */
-const APPS_SCRIPT_URL = ""; // contoh: "https://script.google.com/macros/s/AKfyc.../exec"
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqQmXyA51FhLQEqmg5uIRgkmQ4z_qjlnUuAXuSY3T0WUty3F1M5S8KJStng3LlMViN/exec";
+
+// Helper terpusat
+const API = {
+  async list() {
+    const r = await fetch(`${APPS_SCRIPT_URL}?action=list&t=${Date.now()}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Gagal ambil data');
+    return j.data;
+  },
+  async submit(payload) {
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Gagal kirim');
+    return j;
+  }
+};
 
 const ADMIN = { user:"dinsos", pass:"admin123" };
 

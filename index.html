@@ -8,156 +8,161 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-  :root{
-    --brand:#0e7490; --brand2:#0891b2; --accent:#f59e0b;
-    --bg:#f4f7fa; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
-    --line:#e2e8f0; --ok:#10b981;
-    --radius:16px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html{-webkit-text-size-adjust:100%}
-  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;overflow-x:hidden}
-  a{text-decoration:none;color:inherit}
-  button,input,select,textarea{font-family:inherit;font-size:16px}
+:root{
+  --brand:#0e7490; --brand2:#0891b2; --accent:#f59e0b;
+  --bg:#f4f7fa; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
+  --line:#e2e8f0; --ok:#10b981; --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button,input,select,textarea{font-family:inherit;font-size:16px}
 
-  /* HEADER */
-  header{position:sticky;top:0;z-index:1000;background:linear-gradient(120deg,#0f766e,#0e7490 45%,#0891b2);color:#fff;padding:12px 16px;box-shadow:0 4px 18px rgba(14,116,144,.35)}
-  .header-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .logo{font-weight:800;font-size:18px;letter-spacing:1px;background:#fff;color:#0e7490;padding:6px 12px;border-radius:12px;box-shadow:0 3px 0 rgba(0,0,0,.15);flex-shrink:0}
-  .brand-title{line-height:1.25;flex:1;min-width:0}
-  .brand-title b{font-size:14.5px;display:block}
-  .brand-title span{display:block;font-size:11px;opacity:.9}
-  nav{display:flex;gap:6px;margin-top:12px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
-  nav::-webkit-scrollbar{display:none}
-  nav button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap;flex-shrink:0;transition:.2s}
-  nav button:hover{background:rgba(255,255,255,.28)}
-  nav button.active{background:#fff;color:#0e7490}
-  nav button.nav-admin{background:rgba(245,158,11,.25);border-color:rgba(245,158,11,.6)}
-  nav button.nav-admin.active{background:var(--accent);color:#451a03}
+/* HEADER */
+header{position:sticky;top:0;z-index:1000;background:linear-gradient(120deg,#0f766e,#0e7490 45%,#0891b2);color:#fff;padding:12px 16px;box-shadow:0 4px 18px rgba(14,116,144,.35)}
+.header-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:18px;letter-spacing:1px;background:#fff;color:#0e7490;padding:6px 12px;border-radius:12px;box-shadow:0 3px 0 rgba(0,0,0,.15);flex-shrink:0}
+.brand-title{line-height:1.25;flex:1;min-width:0}
+.brand-title b{font-size:14.5px;display:block}
+.brand-title span{display:block;font-size:11px;opacity:.9}
+nav{display:flex;gap:6px;margin-top:12px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+nav::-webkit-scrollbar{display:none}
+nav button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap;flex-shrink:0;transition:.2s}
+nav button:hover{background:rgba(255,255,255,.28)}
+nav button.active{background:#fff;color:#0e7490}
+nav button.nav-admin{background:rgba(245,158,11,.25);border-color:rgba(245,158,11,.6)}
+nav button.nav-admin.active{background:var(--accent);color:#451a03}
 
-  main{padding:18px 16px;max-width:1400px;margin:0 auto;width:100%}
-  .page{display:none;animation:fade .35s ease}
-  .page.active{display:block}
-  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+main{padding:18px 16px;max-width:1400px;margin:0 auto;width:100%}
+.page{display:none;animation:fade .35s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h2.section{font-size:18px;margin-bottom:4px;line-height:1.3}
+.sub{color:var(--muted);font-size:13px;margin-bottom:16px}
 
-  h2.section{font-size:18px;margin-bottom:4px;line-height:1.3}
-  .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--line);box-shadow:0 6px 18px rgba(15,23,42,.05);position:relative;overflow:hidden}
+.kpi::after{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--brand)}
+.kpi .v{font-size:24px;font-weight:800;color:var(--brand);line-height:1.1}
+.kpi .l{font-size:11.5px;color:var(--muted);margin-top:4px}
+.kpi.warn::after{background:var(--accent)} .kpi.warn .v{color:#b45309}
+.kpi.ok::after{background:var(--ok)} .kpi.ok .v{color:#047857}
+.kpi.danger::after{background:#ef4444} .kpi.danger .v{color:#dc2626}
 
-  /* KPI */
-  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
-  .kpi{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--line);box-shadow:0 6px 18px rgba(15,23,42,.05);position:relative;overflow:hidden}
-  .kpi::after{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--brand)}
-  .kpi .v{font-size:24px;font-weight:800;color:var(--brand);line-height:1.1}
-  .kpi .l{font-size:11.5px;color:var(--muted);margin-top:4px}
-  .kpi.warn::after{background:var(--accent)} .kpi.warn .v{color:#b45309}
-  .kpi.ok::after{background:var(--ok)} .kpi.ok .v{color:#047857}
-  .kpi.danger::after{background:#ef4444} .kpi.danger .v{color:#dc2626}
+.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+.gridTitik{display:grid;grid-template-columns:1.4fr .6fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:0 6px 18px rgba(15,23,42,.05);min-width:0}
+.card h3{font-size:14.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card h3::before{content:"";width:8px;height:8px;border-radius:3px;background:var(--brand2);flex-shrink:0}
 
-  .grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
-  .gridTitik{display:grid;grid-template-columns:1.4fr .6fr;gap:16px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:0 6px 18px rgba(15,23,42,.05);min-width:0}
-  .card h3{font-size:14.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-  .card h3::before{content:"";width:8px;height:8px;border-radius:3px;background:var(--brand2);flex-shrink:0}
+/* MAP */
+#map{height:360px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+#mapFull{height:420px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.map-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+.map-legend i{display:inline-block;width:13px;height:13px;border-radius:4px;margin-right:6px;vertical-align:-2px}
 
-  /* MAP */
-  #map{height:360px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
-  #mapFull{height:420px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
-  .map-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
-  .map-legend i{display:inline-block;width:13px;height:13px;border-radius:4px;margin-right:6px;vertical-align:-2px}
+/* SEARCH */
+.searchbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.searchbar input{flex:1 1 200px;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--line);outline:none;transition:.2s;background:#fff}
+.searchbar input:focus{border-color:var(--brand2);box-shadow:0 0 0 4px rgba(8,145,178,.12)}
+.searchbar select{flex:1 1 140px;padding:12px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:14px}
 
-  /* SEARCH */
-  .searchbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-  .searchbar input{flex:1 1 200px;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--line);outline:none;transition:.2s;background:#fff}
-  .searchbar input:focus{border-color:var(--brand2);box-shadow:0 0 0 4px rgba(8,145,178,.12)}
-  .searchbar select{flex:1 1 140px;padding:12px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:14px}
+/* TABLE */
+.tablewrap{max-height:460px;overflow:auto;border-radius:12px;border:1px solid var(--line);-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:11px 10px;background:#f1f5f9;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;white-space:nowrap;position:sticky;top:0;z-index:2}
+td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:hover{background:#f8fbfd}
+.pill{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap}
+.pill.low{background:#dcfce7;color:#166534}
+.pill.mid{background:#fef3c7;color:#92400e}
+.pill.high{background:#fee2e2;color:#991b1b}
+.empty{text-align:center;color:var(--muted);padding:30px;font-size:13px}
 
-  /* TABLE */
-  .tablewrap{max-height:460px;overflow:auto;border-radius:12px;border:1px solid var(--line);-webkit-overflow-scrolling:touch}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;padding:11px 10px;background:#f1f5f9;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;white-space:nowrap;position:sticky;top:0;z-index:2}
-  td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-  tbody tr:hover{background:#f8fbfd}
-  .pill{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap}
-  .pill.low{background:#dcfce7;color:#166534}
-  .pill.mid{background:#fef3c7;color:#92400e}
-  .pill.high{background:#fee2e2;color:#991b1b}
-  .empty{text-align:center;color:var(--muted);padding:30px;font-size:13px}
+/* FORM */
+form .field{margin-bottom:15px}
+form label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+form label small{color:var(--muted);font-weight:500}
+form input,form textarea,form select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);outline:none;transition:.2s;background:#fff;font-size:16px}
+form textarea{min-height:90px;resize:vertical}
+form input:focus,form textarea:focus{border-color:var(--brand2);box-shadow:0 0 0 4px rgba(8,145,178,.12)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 
-  /* FORM */
-  form .field{margin-bottom:15px}
-  form label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
-  form label small{color:var(--muted);font-weight:500}
-  form input,form textarea,form select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);outline:none;transition:.2s;background:#fff;font-size:16px}
-  form textarea{min-height:90px;resize:vertical}
-  form input:focus,form textarea:focus{border-color:var(--brand2);box-shadow:0 0 0 4px rgba(8,145,178,.12)}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.btn{background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;border:none;padding:14px 24px;border-radius:12px;font-weight:700;cursor:pointer;transition:.2s;box-shadow:0 6px 16px rgba(8,145,178,.35);flex:1 1 auto;min-width:140px;font-size:14px}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(8,145,178,.45)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn.secondary{background:#e2e8f0;color:#0f172a;box-shadow:none}
+.btn.green{background:linear-gradient(120deg,#047857,#10b981);box-shadow:0 6px 16px rgba(16,185,129,.35)}
+.btn.orange{background:linear-gradient(120deg,#b45309,#f59e0b);box-shadow:0 6px 16px rgba(245,158,11,.35)}
+.btn.red{background:linear-gradient(120deg,#b91c1c,#ef4444);box-shadow:0 6px 16px rgba(239,68,68,.35)}
+.btn.sm{padding:9px 14px;min-width:0;font-size:12.5px;flex:0 0 auto}
 
-  .btn{background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;border:none;padding:14px 24px;border-radius:12px;font-weight:700;cursor:pointer;transition:.2s;box-shadow:0 6px 16px rgba(8,145,178,.35);flex:1 1 auto;min-width:140px;font-size:14px}
-  .btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(8,145,178,.45)}
-  .btn:active{transform:translateY(0)}
-  .btn.secondary{background:#e2e8f0;color:#0f172a;box-shadow:none}
-  .btn.green{background:linear-gradient(120deg,#047857,#10b981);box-shadow:0 6px 16px rgba(16,185,129,.35)}
-  .btn.orange{background:linear-gradient(120deg,#b45309,#f59e0b);box-shadow:0 6px 16px rgba(245,158,11,.35)}
-  .btn.red{background:linear-gradient(120deg,#b91c1c,#ef4444);box-shadow:0 6px 16px rgba(239,68,68,.35)}
-  .btn.sm{padding:9px 14px;min-width:0;font-size:12.5px;flex:0 0 auto}
+/* ADMIN */
+.loginbox{max-width:400px;margin:40px auto}
+.loginbox .icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 10px 24px rgba(8,145,178,.4)}
+.loginbox h2{text-align:center;font-size:18px;margin-bottom:4px}
+.loginbox .sub{text-align:center;margin-bottom:20px}
+.login-err{background:#fee2e2;color:#991b1b;border-radius:10px;padding:10px 14px;font-size:12.5px;margin-bottom:14px;display:none}
+.admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.admin-toolbar .spacer{flex:1}
+.badge-login{font-size:12px;background:#ecfeff;color:#155e75;padding:6px 12px;border-radius:99px;font-weight:700}
+.detail-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:4000;display:none;align-items:center;justify-content:center;padding:16px}
+.detail-modal.show{display:flex}
+.detail-box{background:#fff;border-radius:16px;max-width:560px;width:100%;max-height:86vh;overflow:auto;padding:22px;animation:fade .25s}
+.detail-box h3{margin-bottom:14px;font-size:16px;color:var(--brand)}
+.detail-row{display:grid;grid-template-columns:170px 1fr;gap:6px;font-size:13px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.detail-row b{color:var(--muted);font-weight:600}
+@media(max-width:520px){.detail-row{grid-template-columns:1fr}}
 
-  /* ADMIN */
-  .loginbox{max-width:400px;margin:40px auto}
-  .loginbox .icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 10px 24px rgba(8,145,178,.4)}
-  .loginbox h2{text-align:center;font-size:18px;margin-bottom:4px}
-  .loginbox .sub{text-align:center;margin-bottom:20px}
-  .login-err{background:#fee2e2;color:#991b1b;border-radius:10px;padding:10px 14px;font-size:12.5px;margin-bottom:14px;display:none}
-  .admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
-  .admin-toolbar .spacer{flex:1}
-  .badge-login{font-size:12px;background:#ecfeff;color:#155e75;padding:6px 12px;border-radius:99px;font-weight:700}
-  .detail-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:4000;display:none;align-items:center;justify-content:center;padding:16px}
-  .detail-modal.show{display:flex}
-  .detail-box{background:#fff;border-radius:16px;max-width:560px;width:100%;max-height:86vh;overflow:auto;padding:22px;animation:fade .25s}
-  .detail-box h3{margin-bottom:14px;font-size:16px;color:var(--brand)}
-  .detail-row{display:grid;grid-template-columns:170px 1fr;gap:6px;font-size:13px;padding:8px 0;border-bottom:1px dashed var(--line)}
-  .detail-row b{color:var(--muted);font-weight:600}
-  @media(max-width:520px){.detail-row{grid-template-columns:1fr}}
+.toast{position:fixed;bottom:20px;left:16px;right:16px;background:#0f172a;color:#fff;padding:14px 20px;border-radius:12px;font-size:13.5px;box-shadow:0 12px 30px rgba(0,0,0,.3);opacity:0;transform:translateY(14px);transition:.3s;z-index:5000;pointer-events:none}
+.toast.show{opacity:1;transform:none}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;line-height:1.6}
+.note{background:#ecfeff;border:1px solid #a5f3fc;color:#155e75;padding:12px 14px;border-radius:12px;font-size:12.5px;margin-bottom:16px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  .toast{position:fixed;bottom:20px;left:16px;right:16px;background:#0f172a;color:#fff;padding:14px 20px;border-radius:12px;font-size:13.5px;box-shadow:0 12px 30px rgba(0,0,0,.3);opacity:0;transform:translateY(14px);transition:.3s;z-index:5000;pointer-events:none}
-  .toast.show{opacity:1;transform:none}
-  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;line-height:1.6}
-  .note{background:#ecfeff;border:1px solid #a5f3fc;color:#155e75;padding:12px 14px;border-radius:12px;font-size:12.5px;margin-bottom:16px}
-  .spinner{display:inline-block;width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:6px}
-  @keyframes spin{to{transform:rotate(360deg)}}
+/* SYNC INDICATOR */
+.sync-badge{display:none;position:fixed;bottom:80px;right:16px;padding:8px 14px;border-radius:99px;font-size:11px;font-weight:700;z-index:4999;box-shadow:0 4px 12px rgba(0,0,0,.15);pointer-events:none;transition:.3s}
+.sync-badge.show{display:block}
+.sync-badge.ok{background:#dcfce7;color:#166534}
+.sync-badge.err{background:#fee2e2;color:#991b1b}
 
-  @media (max-width:1024px){
-    .grid2{grid-template-columns:1fr}
-    .gridTitik{grid-template-columns:1fr}
-    #map{height:340px} #mapFull{height:400px}
-  }
-  @media (max-width:640px){
-    main{padding:14px 12px}
-    .brand-title b{font-size:13px}
-    .brand-title span{font-size:10px}
-    .logo{font-size:15px;padding:5px 10px}
-    nav{margin-top:10px;gap:5px}
-    nav button{padding:8px 12px;font-size:12px}
-    h2.section{font-size:16px}
-    .kpi .v{font-size:21px}
-    .card{padding:14px;border-radius:14px}
-    #map{height:300px} #mapFull{height:340px}
-    .searchbar input,.searchbar select{flex:1 1 100%;font-size:14px}
-    .tablewrap{max-height:420px;border-radius:10px}
-    table{font-size:12px;min-width:560px}
-    th,td{padding:9px 8px}
-    .row2{grid-template-columns:1fr}
-    .btn{width:100%;flex:1 1 100%;padding:14px;font-size:15px}
-    .admin-toolbar .btn{width:auto;flex:1 1 calc(50% - 4px)}
-  }
-  @media (max-width:360px){
-    .brand-title span{display:none}
-    .kpis{grid-template-columns:1fr}
-  }
-  @media (max-height:500px) and (orientation:landscape){
-    #map{height:240px} #mapFull{height:240px}
-  }
-  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:1024px){
+  .grid2{grid-template-columns:1fr}
+  .gridTitik{grid-template-columns:1fr}
+  #map{height:340px} #mapFull{height:400px}
+}
+@media (max-width:640px){
+  main{padding:14px 12px}
+  .brand-title b{font-size:13px}
+  .brand-title span{font-size:10px}
+  .logo{font-size:15px;padding:5px 10px}
+  nav{margin-top:10px;gap:5px}
+  nav button{padding:8px 12px;font-size:12px}
+  h2.section{font-size:16px}
+  .kpi .v{font-size:21px}
+  .card{padding:14px;border-radius:14px}
+  #map{height:300px} #mapFull{height:340px}
+  .searchbar input,.searchbar select{flex:1 1 100%;font-size:14px}
+  .tablewrap{max-height:420px;border-radius:10px}
+  table{font-size:12px;min-width:560px}
+  th,td{padding:9px 8px}
+  .row2{grid-template-columns:1fr}
+  .btn{width:100%;flex:1 1 100%;padding:14px;font-size:15px}
+  .admin-toolbar .btn{width:auto;flex:1 1 calc(50% - 4px)}
+}
+@media (max-width:360px){
+  .brand-title span{display:none}
+  .kpis{grid-template-columns:1fr}
+}
+@media (max-height:500px) and (orientation:landscape){
+  #map{height:240px} #mapFull{height:240px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -175,31 +180,28 @@
     <button data-page="titik">Lokasi Titik Binaan</button>
     <button data-page="data">Data Binaan</button>
     <button data-page="form">Form Penemuan Anak</button>
-    <button data-page="admin" class="nav-admin">🔐 Admin</button>
+    <button data-page="admin" class="nav-admin">Admin</button>
   </nav>
 </header>
 
 <main>
-
-  <!-- ================= DASHBOARD ================= -->
+  <!-- DASHBOARD -->
   <section id="page-dash" class="page active">
     <h2 class="section">Dashboard Monitoring</h2>
     <p class="sub">Rekap data anak terlantar per kelurahan & kecamatan Kota Cirebon — warna peta sesuai jumlah anak.</p>
-
     <div class="kpis">
       <div class="kpi"><div class="v" id="kpiTotal">0</div><div class="l">Total Anak Terdata</div></div>
       <div class="kpi ok"><div class="v" id="kpiKel">0</div><div class="l">Kelurahan Titik Binaan</div></div>
       <div class="kpi warn"><div class="v" id="kpiKec">0</div><div class="l">Kecamatan Terjangkau</div></div>
       <div class="kpi danger"><div class="v" id="kpiLapor">0</div><div class="l">Laporan Masyarakat</div></div>
     </div>
-
     <div class="grid2">
       <div class="card">
         <h3>Peta Sebaran Kota Cirebon</h3>
         <div id="map"></div>
         <div class="map-legend">
           <span><i style="background:#22c55e"></i>Sedikit (≤ 20)</span>
-          <span><i style="background:#f59e0b"></i>Sedang (21–40)</span>
+          <span><i style="background:#f59e0b"></i>Sedang (21 – 40)</span>
           <span><i style="background:#ef4444"></i>Banyak (&gt; 40)</span>
         </div>
       </div>
@@ -215,11 +217,10 @@
     </div>
   </section>
 
-  <!-- ================= TITIK BINAAN ================= -->
+  <!-- TITIK BINAAN -->
   <section id="page-titik" class="page">
     <h2 class="section">Lokasi Titik Binaan</h2>
     <p class="sub">Sebaran per kelurahan dengan pewarnaan berdasar jumlah anak. Ketuk wilayah untuk detail.</p>
-
     <div class="gridTitik">
       <div class="card">
         <div id="mapFull"></div>
@@ -227,7 +228,6 @@
           <span><i style="background:#22c55e"></i>Sedikit</span>
           <span><i style="background:#f59e0b"></i>Sedang</span>
           <span><i style="background:#ef4444"></i>Banyak</span>
-          <span>★ Titik Binaan Utama</span>
         </div>
       </div>
       <div class="card">
@@ -245,11 +245,10 @@
     </div>
   </section>
 
-  <!-- ================= DATA BINAAN ================= -->
+  <!-- DATA BINAAN -->
   <section id="page-data" class="page">
     <h2 class="section">Data Binaan</h2>
     <p class="sub">Nama anak disamarkan menggunakan inisial demi perlindungan privasi.</p>
-
     <div class="searchbar">
       <input id="searchData" type="text" placeholder="Cari inisial, kelurahan, masalah..." />
       <select id="filterKec"><option value="">Semua Kecamatan</option></select>
@@ -260,7 +259,6 @@
         <option>Selesai</option>
       </select>
     </div>
-
     <div class="card">
       <div class="tablewrap" style="max-height:560px">
         <table>
@@ -273,13 +271,11 @@
     </div>
   </section>
 
-  <!-- ================= FORM ================= -->
+  <!-- FORM -->
   <section id="page-form" class="page">
     <h2 class="section">Form Penemuan Anak</h2>
     <p class="sub">Formulir pelaporan masyarakat. Data tersimpan ke arsip Google Sheet Dinsos.</p>
-
     <div class="note">Data yang Anda laporkan akan diverifikasi petugas Dinsos Kota Cirebon. Mohon isi dengan sebenar-benarnya.</div>
-
     <div class="card" style="max-width:760px">
       <form id="formPenemuan">
         <div class="field">
@@ -322,10 +318,8 @@
     </div>
   </section>
 
-  <!-- ================= ADMIN ================= -->
+  <!-- ADMIN -->
   <section id="page-admin" class="page">
-
-    <!-- Login -->
     <div id="adminLogin" class="loginbox card">
       <div class="icon">🔐</div>
       <h2>Login Admin</h2>
@@ -338,7 +332,6 @@
       </form>
     </div>
 
-    <!-- Panel Admin -->
     <div id="adminPanel" style="display:none">
       <div class="admin-toolbar">
         <div>
@@ -351,7 +344,6 @@
         <button class="btn orange sm" id="btnExcel">⬇ Excel</button>
         <button class="btn red sm" id="btnLogout">Keluar</button>
       </div>
-
       <div class="searchbar">
         <input id="searchArsip" type="text" placeholder="Cari nama anak, pelapor, alamat, masalah..." />
         <select id="filterTL">
@@ -361,7 +353,6 @@
           <option>Selesai</option>
         </select>
       </div>
-
       <div class="card">
         <div class="tablewrap" style="max-height:560px">
           <table>
@@ -374,7 +365,6 @@
       </div>
     </div>
   </section>
-
 </main>
 
 <!-- MODAL DETAIL -->
@@ -390,502 +380,560 @@
 
 <footer>© SI PINTAR — Sistem Informasi Pencegahan dan Penanganan Anak Terlantar · Dinas Sosial Kota Cirebon</footer>
 <div id="toast" class="toast"></div>
+<div id="syncBadge" class="sync-badge"></div>
 
 <script>
-/* ============================================================
+/* ════════════════════════════════════════════════════════════════════
    0. KONFIGURASI — WAJIB DIISI
-   ------------------------------------------------------------
-   Isi APPS_SCRIPT_URL dengan URL Web App dari Google Apps Script
-   yang terhubung ke spreadsheet arsip Anda.
-   (Panduan setup ada di bawah kode ini.)
-============================================================ */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqQmXyA51FhLQEqmg5uIRgkmQ4z_qjlnUuAXuSY3T0WUty3F1M5S8KJStng3LlMViN/exec";
+   ════════════════════════════════════════════════════════════════════
+   ⬇⬇⬇ ISI URL APPS SCRIPT DI SINI ⬇⬇⬇
+   Cara dapat URL:
+   1. Buka script.google.com → buat project baru
+   2. Tempel Code.gs di bawah (bagian B)
+   3. Deploy → New deployment → Web app
+   4. Execute as: Me · Who has access: Anyone
+   5. Copy URL yang diakhiri /exec
+   ════════════════════════════════════════════════════════════════════ */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxyu8-LpHa6gnMT4Bc6WJGxobdVdgoutBsQMzadhs67UsV7SyBH29BxxwSZR9IAmw-Q_w/exec"; // ← ISI URL /exec DI SINI
+// Contoh: "https://script.google.com/macros/s/AKfycb.../exec"
 
-// Helper terpusat
+const ADMIN = { user: "dinsos", pass: "admin123" };
+
+/* ════════ 1. DATA WILAYAH ════════ */
+const KECAMATAN = {
+  "Harjamukti":   { lat: -6.7450, lng:108.5450, kelurahan:["Kalijaga","Harjamukti","Kecapi","Larangan","Argasunya"] },
+  "Lemahwungkuk": { lat: -6.7190, lng:108.5630, kelurahan:["Pegambiran","Lemahwungkuk","Kesepuhan","Panjunan"] },
+  "Pekalipan":    { lat: -6.7080, lng:108.5720, kelurahan:["Jagasatru","Pulasaren","Pekalipan","Pekalipan Utara"] },
+  "Kejaksan":     { lat: -6.7000, lng:108.5680, kelurahan:["Kejaksan","Kebonbaru","Sukapura","Kesenden"] },
+  "Kesambi":      { lat: -6.7250, lng:108.5380, kelurahan:["Kesambi","Sunyaragi","Drajat","Karyamulya","Pekiringan"] }
+};
+
+const DATA_BINAAN = [
+  {ini:"A.R.", umur:10, kec:"Harjamukti",   kel:"Kalijaga",    titik:"Titik Binaan 1", masalah:"Kurang asuh",          status:"Dalam Pembinaan"},
+  {ini:"B.S.", umur:8,  kec:"Harjamukti",   kel:"Kecapi",      titik:"Titik Binaan 1", masalah:"Rawan putus sekolah",  status:"Pendampingan"},
+  {ini:"C.N.", umur:12, kec:"Lemahwungkuk", kel:"Panjunan",    titik:"Titik Binaan 2", masalah:"Ekonomi keluarga",     status:"Dalam Pembinaan"},
+  {ini:"D.F.", umur:9,  kec:"Lemahwungkuk", kel:"Kesepuhan",   titik:"Titik Binaan 2", masalah:"Anak jalanan",         status:"Pendampingan"},
+  {ini:"E.P.", umur:11, kec:"Pekalipan",    kel:"Jagasatru",   titik:"Titik Binaan 3", masalah:"Kurang asuh",          status:"Selesai"},
+  {ini:"F.H.", umur:7,  kec:"Kejaksan",     kel:"Kebonbaru",   titik:"Titik Binaan 4", masalah:"Rawan putus sekolah",  status:"Dalam Pembinaan"},
+  {ini:"G.M.", umur:13, kec:"Kesambi",      kel:"Sunyaragi",   titik:"Titik Binaan 4", masalah:"Ekonomi keluarga",     status:"Pendampingan"},
+  {ini:"H.T.", umur:10, kec:"Kesambi",      kel:"Drajat",      titik:"Titik Binaan 4", masalah:"Kurang asuh",          status:"Dalam Pembinaan"},
+  {ini:"I.K.", umur:6,  kec:"Harjamukti",   kel:"Argasunya",   titik:"Titik Binaan 1", masalah:"Anak jalanan",         status:"Pendampingan"},
+  {ini:"J.L.", umur:14, kec:"Pekalipan",    kel:"Pulasaren",   titik:"Titik Binaan 3", masalah:"Rawan putus sekolah",  status:"Selesai"}
+];
+
+// Hitung jumlah per kelurahan — HANYA dari data asli, tanpa pseudo-random
+function hitungPerKelurahan() {
+  const map = {};
+  Object.values(KECAMATAN).forEach(k => k.kelurahan.forEach(kel => { map[kel] = 0; }));
+  DATA_BINAAN.forEach(d => { if (map[d.kel] !== undefined) map[d.kel]++; });
+  return map;
+}
+const JUMLAH_KEL = hitungPerKelurahan();
+
+/* ════════════════════════════════════════════════════════════════════
+   2. STATE GLOBAL & API (Sumber kebenaran = Google Sheets)
+   ════════════════════════════════════════════════════════════════════ */
+let ARSIP = [];            // data live dari server (BUKAN per-browser)
+let isFetching = false;    // guard anti request-stacking
+let pollTimer = null;
+const POLL_MS = 10000;     // refresh tiap 10 detik
+let map = null, mapFull = null;
+
 const API = {
   async list() {
-    const r = await fetch(`${APPS_SCRIPT_URL}?action=list&t=${Date.now()}`);
+    if (!APPS_SCRIPT_URL) throw new Error('APPS_SCRIPT_URL belum diisi');
+    const url = `${APPS_SCRIPT_URL}?action=list&t=${Date.now()}`;
+    const r = await fetch(url, { cache: 'no-store' });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const j = await r.json();
-    if (!j.ok) throw new Error(j.error || 'Gagal ambil data');
+    if (!j.ok) throw new Error(j.error || 'Server error');
     return j.data;
   },
   async submit(payload) {
+    if (!APPS_SCRIPT_URL) throw new Error('APPS_SCRIPT_URL belum diisi');
+    // text/plain → hindari CORS preflight yang tidak didukung Apps Script
     const r = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
     const j = await r.json();
-    if (!j.ok) throw new Error(j.error || 'Gagal kirim');
+    if (!j.ok) throw new Error(j.error || 'Server error');
     return j;
   }
 };
 
-const ADMIN = { user:"dinsos", pass:"admin123" };
-
-/* ============================================================
-   1. DATA WILAYAH (per kelurahan)
-============================================================ */
-const KECAMATAN = {
-  "Harjamukti":   { lat:-6.7450, lng:108.5450, kelurahan:["Kalijaga","Harjamukti","Kecapi","Larangan","Argasunya"] },
-  "Lemahwungkuk": { lat:-6.7190, lng:108.5630, kelurahan:["Pegambiran","Lemahwungkuk","Kesepuhan","Panjunan"] },
-  "Pekalipan":    { lat:-6.7080, lng:108.5720, kelurahan:["Jagasatru","Pulasaren","Pekalipan","Pekalipan Utara"] },
-  "Kejaksan":     { lat:-6.7000, lng:108.5680, kelurahan:["Kejaksan","Kebonbaru","Sukapura","Kesenden"] },
-  "Kesambi":      { lat:-6.7250, lng:108.5380, kelurahan:["Kesambi","Sunyaragi","Drajat","Karyamulya","Pekiringan"] }
-};
-
-const DATA_BINAAN = [
-  {ini:"A.R.", umur:10, kec:"Harjamukti", kel:"Kalijaga", titik:"Titik Binaan 1", masalah:"Kurang asuh", status:"Dalam Pembinaan"},
-  {ini:"B.S.", umur:8,  kec:"Harjamukti", kel:"Kecapi", titik:"Titik Binaan 1", masalah:"Rawan putus sekolah", status:"Pendampingan"},
-  {ini:"C.N.", umur:12, kec:"Lemahwungkuk", kel:"Panjunan", titik:"Titik Binaan 2", masalah:"Ekonomi keluarga", status:"Dalam Pembinaan"},
-  {ini:"D.F.", umur:9,  kec:"Lemahwungkuk", kel:"Kesepuhan", titik:"Titik Binaan 2", masalah:"Anak jalanan", status:"Pendampingan"},
-  {ini:"E.P.", umur:11, kec:"Pekalipan", kel:"Jagasatru", titik:"Titik Binaan 3", masalah:"Kurang asuh", status:"Selesai"},
-  {ini:"F.H.", umur:7,  kec:"Kejaksan", kel:"Kebonbaru", titik:"Titik Binaan 4", masalah:"Rawan putus sekolah", status:"Dalam Pembinaan"},
-  {ini:"G.M.", umur:13, kec:"Kesambi", kel:"Sunyaragi", titik:"Titik Binaan 4", masalah:"Ekonomi keluarga", status:"Pendampingan"},
-  {ini:"H.T.", umur:10, kec:"Kesambi", kel:"Drajat", titik:"Titik Binaan 4", masalah:"Kurang asuh", status:"Dalam Pembinaan"},
-  {ini:"I.K.", umur:6,  kec:"Harjamukti", kel:"Argasunya", titik:"Titik Binaan 1", masalah:"Anak jalanan", status:"Pendampingan"},
-  {ini:"J.L.", umur:14, kec:"Pekalipan", kel:"Pulasaren", titik:"Titik Binaan 3", masalah:"Rawan putus sekolah", status:"Selesai"}
-];
-
-function hitungPerKelurahan(){
-  const map = {};
-  Object.values(KECAMATAN).forEach(k=>k.kelurahan.forEach(kel=>{ map[kel]=0; }));
-  DATA_BINAAN.forEach(d=>{ if(map[d.kel]!==undefined) map[d.kel]++; });
-  let seed = 7;
-  Object.keys(map).forEach(kel=>{
-    seed = (seed*9301+49297)%233280;
-    map[kel] += 8 + (seed % 45);
-  });
-  return map;
-}
-const JUMLAH_KEL = hitungPerKelurahan();
-
-/* ============================================================
-   2. ARSIP LAPORAN (localStorage + sinkron Google Sheet)
-============================================================ */
-function getArsip(){
-  return JSON.parse(localStorage.getItem("sipintar_laporan")||"[]");
-}
-function setArsip(arr){
-  localStorage.setItem("sipintar_laporan", JSON.stringify(arr));
+/* ════════ 3. UTIL ════════ */
+function toast(msg, timeout = 3500) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), timeout);
 }
 
-/* ============================================================
-   3. PETA — warna per kelurahan
-============================================================ */
-let map, mapFull, layerGroupDash, layerGroupFull;
-
-function warnaJumlah(n){
-  if(n <= 20) return {color:"#16a34a", fill:"#22c55e", level:"low",  label:"Sedikit"};
-  if(n <= 40) return {color:"#d97706", fill:"#f59e0b", level:"mid",  label:"Sedang"};
-  return {color:"#dc2626", fill:"#ef4444", level:"high", label:"Banyak"};
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
 }
 
-function initMaps(){
-  const center = [-6.7320, 108.5522];
-  const tile = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-  const attr = '&copy; OpenStreetMap · SI PINTAR Kota Cirebon';
-
-  map = L.map("map",{scrollWheelZoom:false}).setView(center,12);
-  L.tileLayer(tile,{attribution:attr}).addTo(map);
-  layerGroupDash = L.layerGroup().addTo(map);
-
-  mapFull = L.map("mapFull").setView(center,13);
-  L.tileLayer(tile,{attribution:attr}).addTo(mapFull);
-  layerGroupFull = L.layerGroup().addTo(mapFull);
-
-  drawKelurahan(layerGroupDash);
-  drawKelurahan(layerGroupFull);
-
-  // Batas ringkas Kota Cirebon (outline)
-  const bounds = [
-    [-6.690,108.520],[-6.700,108.595],[-6.725,108.610],
-    [-6.760,108.575],[-6.775,108.535],[-6.745,108.510],[-6.705,108.505]
-  ];
-  L.polygon(bounds,{color:"#0e7490",weight:2,fillOpacity:0,dashArray:"6 6"})
-    .addTo(mapFull).bindTooltip("Wilayah Kota Cirebon");
-
-  const TITIK_BINAAN = [
-    {name:"Titik Binaan 1 — Harjamukti", lat:-6.7450, lng:108.5450},
-    {name:"Titik Binaan 2 — Lemahwungkuk", lat:-6.7190, lng:108.5630},
-    {name:"Titik Binaan 3 — Pekalipan", lat:-6.7080, lng:108.5720},
-    {name:"Titik Binaan 4 — Kejaksan", lat:-6.7000, lng:108.5680}
-  ];
-  const starIcon = L.divIcon({
-    html:'<div style="background:#0e7490;width:26px;height:26px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800">★</div>',
-    className:"", iconSize:[26,26], iconAnchor:[13,13]
-  });
-  TITIK_BINAAN.forEach(t=>{
-    L.marker([t.lat,t.lng],{icon:starIcon}).addTo(mapFull).bindPopup(`<b>${t.name}</b><br>Titik binaan utama`);
-  });
+function formatWaktu(iso) {
+  if (!iso) return '-';
+  try {
+    return new Date(iso).toLocaleString('id-ID', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  } catch { return '-'; }
 }
 
-/* Lingkaran per kelurahan, warna sesuai jumlah anak */
-function drawKelurahan(group){
-  Object.entries(KECAMATAN).forEach(([kec, data])=>{
-    const total = data.kelurahan.length;
-    data.kelurahan.forEach((kel,i)=>{
-      const n = JUMLAH_KEL[kel] || 0;
-      const w = warnaJumlah(n);
-      const angle = (i/total)*Math.PI*2;
-      const rad = 0.011;
-      const lat = data.lat + Math.sin(angle)*rad;
-      const lng = data.lng + Math.cos(angle)*rad;
+function showSyncBadge(status, msg) {
+  const b = document.getElementById('syncBadge');
+  if (!b) return;
+  b.textContent = msg;
+  b.className = 'sync-badge show ' + status;
+  clearTimeout(b._t);
+  b._t = setTimeout(() => b.classList.remove('show'), 2500);
+}
 
-      // area kelurahan
-      L.circle([lat,lng],{
-        radius: 380 + n*7,
-        color: w.color, fillColor: w.fill, fillOpacity:.45, weight:2
-      }).bindPopup(`
-        <div style="font-size:13px">
-          <b style="color:${w.color}">● ${kel}</b><br>
-          Kecamatan: <b>${kec}</b><br>
-          Jumlah anak: <b>${n}</b><br>
-          Kategori: <b>${w.label}</b>
-        </div>
-      `).addTo(group);
+function debounce(fn, ms = 300) {
+  let t;
+  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
 
-      // label kelurahan
-      L.marker([lat,lng],{
-        icon:L.divIcon({
-          className:"",
-          html:`<div style="font-size:10px;font-weight:700;color:#0f172a;background:rgba(255,255,255,.85);padding:1px 6px;border-radius:6px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.2)">${kel} (${n})</div>`,
-          iconSize:[0,0], iconAnchor:[0,0]
-        }),
-        interactive:false
-      }).addTo(group);
+/* ════════ 4. SYNC LAYER (KUNCI MULTI-BROWSER) ════════ */
+async function refreshSemua({ silent = false } = {}) {
+  if (isFetching) return;      // request masih jalan
+  if (!APPS_SCRIPT_URL) {
+    if (!silent) toast('⚠ APPS_SCRIPT_URL belum diisi. Edit file HTML.');
+    return;
+  }
+  isFetching = true;
+
+  try {
+    const data = await API.list();
+    ARSIP = data;
+
+    // cache offline
+    try { localStorage.setItem('sipintar_laporan', JSON.stringify(data)); } catch (_) {}
+
+    // render ulang semua view
+    renderKpi();
+    renderTblKec();
+    renderTblTitik();
+    renderTblData();
+    renderArsip();
+    renderMapAll();
+
+    if (!silent) {
+      console.log(`✅ Sync OK — ${data.length} laporan`);
+      showSyncBadge('ok', `✓ ${data.length} laporan`);
+    }
+    return data;
+  } catch (err) {
+    // fallback ke cache offline
+    if (!ARSIP.length) {
+      try {
+        const cached = JSON.parse(localStorage.getItem('sipintar_laporan') || '[]');
+        ARSIP = cached;
+      } catch (_) {}
+    }
+
+    if (!silent) {
+      console.warn('❌ Sync gagal:', err.message);
+      showSyncBadge('err', '⚠ Offline');
+    }
+    throw err;
+  } finally {
+    isFetching = false;
+  }
+}
+
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(() => {
+    if (document.visibilityState === 'visible' && navigator.onLine) {
+      refreshSemua({ silent: true }).catch(() => {});
+    }
+  }, POLL_MS);
+}
+
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+/* ════════ 5. RENDER: KPI & TABLE ════════ */
+function renderKpi() {
+  const totalBinaan = DATA_BINAAN.length;
+  const totalLapor  = ARSIP.length;
+  const kelCount    = new Set(Object.values(KECAMATAN).flatMap(k => k.kelurahan)).size;
+  const kecCount    = Object.keys(KECAMATAN).length;
+
+  const el = id => document.getElementById(id);
+  if (el('kpiTotal')) el('kpiTotal').textContent = totalBinaan + totalLapor;
+  if (el('kpiKel'))   el('kpiKel').textContent   = kelCount;
+  if (el('kpiKec'))   el('kpiKec').textContent   = kecCount;
+  if (el('kpiLapor')) el('kpiLapor').textContent = totalLapor;
+}
+
+function renderTblKec() {
+  const tb = document.getElementById('tblKec');
+  if (!tb) return;
+  const rows = Object.entries(KECAMATAN).map(([kec, info]) => {
+    const total = info.kelurahan.reduce((s, kel) => s + (JUMLAH_KEL[kel] || 0), 0);
+    const status = total > 40 ? 'high' : total > 20 ? 'mid' : 'low';
+    const label  = total > 40 ? 'Banyak' : total > 20 ? 'Sedang' : 'Sedikit';
+    return `<tr>
+      <td><b>${esc(kec)}</b></td>
+      <td>${info.kelurahan.length}</td>
+      <td>${total}</td>
+      <td><span class="pill ${status}">${label}</span></td>
+    </tr>`;
+  }).join('');
+  tb.innerHTML = rows;
+}
+
+function renderTblTitik() {
+  const tb = document.getElementById('tblTitik');
+  if (!tb) return;
+  const q = (document.getElementById('searchTitik')?.value || '').toLowerCase();
+
+  const rows = [];
+  Object.entries(KECAMATAN).forEach(([kec, info]) => {
+    info.kelurahan.forEach(kel => {
+      const jml = JUMLAH_KEL[kel] || 0;
+      if (q && !(kel.toLowerCase().includes(q) || kec.toLowerCase().includes(q))) return;
+      rows.push(`<tr><td>${esc(kel)} <small style="color:var(--muted)">· ${esc(kec)}</small></td><td><b>${jml}</b></td></tr>`);
     });
   });
+
+  tb.innerHTML = rows.length
+    ? rows.join('')
+    : '<tr><td colspan="2" class="empty">Tidak ada hasil.</td></tr>';
 }
 
-/* ============================================================
-   4. RENDER
-============================================================ */
-function renderKPI(){
-  const total = Object.values(JUMLAH_KEL).reduce((a,b)=>a+b,0);
-  document.getElementById("kpiTotal").textContent = total;
-  document.getElementById("kpiKel").textContent = Object.keys(JUMLAH_KEL).length;
-  document.getElementById("kpiKec").textContent = Object.keys(KECAMATAN).length;
-  document.getElementById("kpiLapor").textContent = getArsip().length;
-}
+function renderTblData() {
+  const tb = document.getElementById('tblData');
+  if (!tb) return;
+  const q  = (document.getElementById('searchData')?.value || '').toLowerCase();
+  const fk = document.getElementById('filterKec')?.value || '';
+  const fs = document.getElementById('filterStatus')?.value || '';
 
-function renderTabelKec(){
-  const tbody = document.getElementById("tblKec");
-  tbody.innerHTML = "";
-  Object.entries(KECAMATAN).forEach(([kec, data])=>{
-    let total = 0;
-    data.kelurahan.forEach(kel=> total += (JUMLAH_KEL[kel]||0));
-    const w = warnaJumlah(Math.round(total/data.kelurahan.length));
-    tbody.innerHTML += `<tr>
-      <td><b>${kec}</b></td><td>${data.kelurahan.length}</td><td>${total}</td>
-      <td><span class="pill ${w.level}">${w.label}</span></td></tr>`;
+  const rows = DATA_BINAAN.filter(d => {
+    const hitQ = !q || [d.ini, d.kel, d.kec, d.masalah].some(v => String(v).toLowerCase().includes(q));
+    return hitQ && (!fk || d.kec === fk) && (!fs || d.status === fs);
   });
-}
 
-let filterTitik = "";
-function renderTabelTitik(){
-  const tbody = document.getElementById("tblTitik");
-  tbody.innerHTML = "";
-  const rows = [];
-  Object.entries(KECAMATAN).forEach(([kec,data])=>{
-    data.kelurahan.forEach(kel=> rows.push({kec,kel,n:JUMLAH_KEL[kel]||0}));
-  });
-  const q = filterTitik.toLowerCase();
-  const filtered = rows.filter(r=> !q || r.kel.toLowerCase().includes(q) || r.kec.toLowerCase().includes(q));
-  if(!filtered.length){ tbody.innerHTML = `<tr><td colspan="2" class="empty">Tidak ada hasil</td></tr>`; return; }
-  filtered.sort((a,b)=> b.n-a.n).forEach(r=>{
-    const w = warnaJumlah(r.n);
-    tbody.innerHTML += `<tr>
-      <td><b>${r.kel}</b><br><small style="color:#64748b">${r.kec}</small></td>
-      <td><span class="pill ${w.level}">${r.n}</span></td></tr>`;
-  });
-}
-
-let qData = "", fKec = "", fStatus = "";
-function renderTabelData(){
-  const tbody = document.getElementById("tblData");
-  tbody.innerHTML = "";
-  const q = qData.toLowerCase();
-  const rows = DATA_BINAAN.filter(d=>{
-    const okQ = !q || [d.ini,d.kec,d.kel,d.masalah,d.titik].join(" ").toLowerCase().includes(q);
-    const okK = !fKec || d.kec === fKec;
-    const okS = !fStatus || d.status === fStatus;
-    return okQ && okK && okS;
-  });
-  if(!rows.length){ tbody.innerHTML = `<tr><td colspan="7" class="empty">Tidak ada data yang cocok</td></tr>`; return; }
-  rows.forEach(d=>{
-    const st = d.status==="Selesai"?"low":d.status==="Pendampingan"?"mid":"high";
-    tbody.innerHTML += `<tr>
-      <td><b>${d.ini}</b></td><td>${d.umur} th</td><td>${d.kec}</td><td>${d.kel}</td>
-      <td>${d.titik}</td><td>${d.masalah}</td>
-      <td><span class="pill ${st}">${d.status}</span></td></tr>`;
-  });
-}
-
-function isiFilterKec(){
-  const sel = document.getElementById("filterKec");
-  Object.keys(KECAMATAN).forEach(k=>{
-    const o = document.createElement("option"); o.value=k; o.textContent=k; sel.appendChild(o);
-  });
-}
-
-/* ============================================================
-   5. ADMIN — LOGIN & ARSIP
-============================================================ */
-let isAdmin = false;
-let qArsip = "", fTL = "";
-
-document.getElementById("formLogin").addEventListener("submit", e=>{
-  e.preventDefault();
-  const u = document.getElementById("loginUser").value.trim();
-  const p = document.getElementById("loginPass").value.trim();
-  if(u === ADMIN.user && p === ADMIN.pass){
-    isAdmin = true;
-    document.getElementById("adminLogin").style.display = "none";
-    document.getElementById("adminPanel").style.display = "block";
-    renderArsip();
-    showToast("✅ Login berhasil. Selamat datang, Admin Dinsos!");
-  } else {
-    document.getElementById("loginErr").style.display = "block";
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="7" class="empty">Tidak ada data.</td></tr>';
+    return;
   }
-});
 
-document.getElementById("btnLogout").addEventListener("click", ()=>{
-  isAdmin = false;
-  document.getElementById("adminPanel").style.display = "none";
-  document.getElementById("adminLogin").style.display = "block";
-  document.getElementById("formLogin").reset();
-  document.getElementById("loginErr").style.display = "none";
-});
+  tb.innerHTML = rows.map(d => {
+    const pill = d.status === 'Selesai' ? 'low' : d.status === 'Pendampingan' ? 'mid' : 'high';
+    return `<tr>
+      <td><b>${esc(d.ini)}</b></td>
+      <td>${d.umur}</td>
+      <td>${esc(d.kec)}</td>
+      <td>${esc(d.kel)}</td>
+      <td>${esc(d.titik)}</td>
+      <td>${esc(d.masalah)}</td>
+      <td><span class="pill ${pill}">${esc(d.status)}</span></td>
+    </tr>`;
+  }).join('');
+}
 
-document.getElementById("searchArsip").addEventListener("input", e=>{ qArsip=e.target.value; renderArsip(); });
-document.getElementById("filterTL").addEventListener("change", e=>{ fTL=e.target.value; renderArsip(); });
+function renderArsip() {
+  const tb = document.getElementById('tblArsip');
+  if (!tb) return;
+  const q  = (document.getElementById('searchArsip')?.value || '').toLowerCase();
+  const fl = document.getElementById('filterTL')?.value || '';
 
-function renderArsip(){
-  const tbody = document.getElementById("tblArsip");
-  tbody.innerHTML = "";
-  const arsip = getArsip().slice().reverse(); // terbaru di atas
-  const q = qArsip.toLowerCase();
-  const rows = arsip.filter(a=>{
-    const okQ = !q || [a.nama,a.pelapor,a.alamat,a.masalah,a.kontak].join(" ").toLowerCase().includes(q);
-    const okT = !fTL || (a.tl||"Menunggu") === fTL;
-    return okQ && okT;
+  const rows = ARSIP.filter(a => {
+    const hitQ = !q || [a.nama, a.pelapor, a.alamat, a.masalah, a.kontak]
+      .some(v => String(v || '').toLowerCase().includes(q));
+    return hitQ && (!fl || a.tindakLanjut === fl);
   });
-  if(!rows.length){ tbody.innerHTML = `<tr><td colspan="9" class="empty">Belum ada laporan masuk</td></tr>`; return; }
 
-  rows.forEach(a=>{
-    const idx = getArsip().indexOf(a);
-    const tl = a.tl || "Menunggu";
-    const tlCls = tl==="Selesai"?"low":tl==="Diproses"?"mid":"high";
-    const tgl = a.waktu ? new Date(a.waktu).toLocaleString("id-ID",{dateStyle:"short",timeStyle:"short"}) : "-";
-    tbody.innerHTML += `<tr>
-      <td>${tgl}</td>
-      <td><b>${esc(a.nama)}</b></td>
-      <td>${esc(a.tempatLahir)}, ${esc(a.ttl)}</td>
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="9" class="empty">Belum ada laporan.</td></tr>';
+    return;
+  }
+
+  tb.innerHTML = rows.map(a => {
+    const pill = a.tindakLanjut === 'Selesai' ? 'low' : a.tindakLanjut === 'Diproses' ? 'mid' : 'high';
+    return `<tr>
+      <td>${formatWaktu(a.waktu)}</td>
+      <td>${esc(a.nama)}</td>
+      <td>${esc(a.ttl)}</td>
       <td>${esc(a.alamat)}</td>
       <td>${esc(a.pelapor)}</td>
       <td>${esc(a.kontak)}</td>
       <td>${esc(a.masalah)}</td>
-      <td>
-        <select onchange="ubahTL(${idx}, this.value)" style="padding:6px 8px;border-radius:8px;border:1px solid var(--line);font-size:12px">
-          <option ${tl==="Menunggu"?"selected":""}>Menunggu</option>
-          <option ${tl==="Diproses"?"selected":""}>Diproses</option>
-          <option ${tl==="Selesai"?"selected":""}>Selesai</option>
-        </select>
-        <span class="pill ${tlCls}" style="margin-left:4px">${tl}</span>
-      </td>
-      <td>
-        <button class="btn sm secondary" onclick="lihatDetail(${idx})">Detail</button>
-        <button class="btn sm red" onclick="hapusLaporan(${idx})">Hapus</button>
-      </td>
+      <td><span class="pill ${pill}">${esc(a.tindakLanjut)}</span></td>
+      <td><button class="btn sm secondary" onclick="openDetail('${esc(a.id)}')">Detail</button></td>
     </tr>`;
+  }).join('');
+}
+
+/* ════════ 6. MAP (TANPA LABEL NAMA KELURAHAN) ════════ */
+function warnaJumlah(n) {
+  if (n <= 20) return '#22c55e';
+  if (n <= 40) return '#f59e0b';
+  return '#ef4444';
+}
+
+function renderMapAll() {
+  if (!window.L) return;
+
+  [map, mapFull].forEach(m => {
+    if (!m) return;
+    m.eachLayer(layer => {
+      if (layer instanceof L.CircleMarker) m.removeLayer(layer);
+    });
+  });
+
+  Object.values(KECAMATAN).forEach(info => {
+    const n = info.kelurahan.length;
+    info.kelurahan.forEach((kel, i) => {
+      const jumlah = JUMLAH_KEL[kel] || 0;
+      const angle  = (2 * Math.PI * i) / n;
+      const lat = info.lat + 0.008 * Math.sin(angle);
+      const lng = info.lng + 0.008 * Math.cos(angle);
+
+      const opts = {
+        radius: 8 + Math.min(jumlah / 5, 14),
+        fillColor: warnaJumlah(jumlah),
+        color: '#fff',
+        weight: 2,
+        fillOpacity: 0.9
+      };
+
+      // PENTING: tooltip hanya muncul saat hover, TANPA nama kelurahan
+      const tooltipOpt = { direction: 'top', opacity: 0.95, permanent: false };
+      const tooltipText = `${jumlah} anak`;
+
+      if (map)     L.circleMarker([lat, lng], opts).bindTooltip(tooltipText, tooltipOpt).addTo(map);
+      if (mapFull) L.circleMarker([lat, lng], opts).bindTooltip(tooltipText, tooltipOpt).addTo(mapFull);
+    });
   });
 }
 
-function esc(s){ return (s||"").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function initMaps() {
+  if (!window.L) return;
+  if (!map) {
+    map = L.map('map', { preferCanvas: true }).setView([-6.7200, 108.5550], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap', maxZoom: 18
+    }).addTo(map);
+  }
+  if (!mapFull) {
+    mapFull = L.map('mapFull', { preferCanvas: true }).setView([-6.7200, 108.5550], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap', maxZoom: 18
+    }).addTo(mapFull);
+  }
+}
 
-window.ubahTL = function(idx, val){
-  const arr = getArsip();
-  arr[idx].tl = val;
-  setArsip(arr);
-  renderArsip();
-  showToast("Status tindak lanjut diperbarui: " + val);
-};
-
-window.hapusLaporan = function(idx){
-  if(!confirm("Hapus laporan ini?")) return;
-  const arr = getArsip();
-  arr.splice(idx,1);
-  setArsip(arr);
-  renderArsip(); renderKPI();
-};
-
-window.lihatDetail = function(idx){
-  const a = getArsip()[idx];
-  const tgl = a.waktu ? new Date(a.waktu).toLocaleString("id-ID",{dateStyle:"full",timeStyle:"short"}) : "-";
-  document.getElementById("detailBody").innerHTML = `
-    <div class="detail-row"><b>Waktu Laporan</b><span>${tgl}</span></div>
-    <div class="detail-row"><b>1. Nama Anak</b><span>${esc(a.nama)}</span></div>
-    <div class="detail-row"><b>2. Tempat, Tgl Lahir/Umur</b><span>${esc(a.tempatLahir)}, ${esc(a.ttl)}</span></div>
-    <div class="detail-row"><b>3. Alamat Ditemukan</b><span>${esc(a.alamat)}</span></div>
-    <div class="detail-row"><b>4. Nama Pelapor</b><span>${esc(a.pelapor)}</span></div>
-    <div class="detail-row"><b>5. Kontak Keluarga</b><span>${esc(a.kontak)}</span></div>
-    <div class="detail-row"><b>6. Permasalahan</b><span>${esc(a.masalah)}</span></div>
-    <div class="detail-row"><b>Status Tindak Lanjut</b><span>${esc(a.tl||"Menunggu")}</span></div>
+/* ════════ 7. DETAIL MODAL ════════ */
+function openDetail(id) {
+  const a = ARSIP.find(x => x.id === id);
+  if (!a) return;
+  const el = document.getElementById('detailBody');
+  el.innerHTML = `
+    <div class="detail-row"><b>Waktu Laporan</b><span>${formatWaktu(a.waktu)}</span></div>
+    <div class="detail-row"><b>Nama Anak</b><span>${esc(a.nama)}</span></div>
+    <div class="detail-row"><b>Tempat / TTL</b><span>${esc(a.tempatLahir)} · ${esc(a.ttl)}</span></div>
+    <div class="detail-row"><b>Alamat</b><span>${esc(a.alamat)}</span></div>
+    <div class="detail-row"><b>Pelapor</b><span>${esc(a.pelapor)}</span></div>
+    <div class="detail-row"><b>Kontak</b><span>${esc(a.kontak)}</span></div>
+    <div class="detail-row"><b>Permasalahan</b><span>${esc(a.masalah)}</span></div>
+    <div class="detail-row"><b>Tindak Lanjut</b><span>${esc(a.tindakLanjut)}</span></div>
   `;
-  document.getElementById("detailModal").classList.add("show");
-};
-window.closeDetail = function(){
-  document.getElementById("detailModal").classList.remove("show");
-};
-
-/* ============================================================
-   6. DOWNLOAD WORD & EXCEL
-============================================================ */
-function dataExport(){
-  return getArsip().map((a,i)=>({
-    "No": i+1,
-    "Waktu": a.waktu ? new Date(a.waktu).toLocaleString("id-ID") : "-",
-    "Nama Anak": a.nama,
-    "Tempat Lahir": a.tempatLahir,
-    "Tgl Lahir / Umur": a.ttl,
-    "Alamat Ditemukan": a.alamat,
-    "Nama Pelapor": a.pelapor,
-    "Kontak Keluarga": a.kontak,
-    "Permasalahan": a.masalah,
-    "Tindak Lanjut": a.tl || "Menunggu"
-  }));
+  document.getElementById('detailModal').classList.add('show');
 }
 
-document.getElementById("btnExcel").addEventListener("click", ()=>{
-  const rows = dataExport();
-  if(!rows.length){ showToast("Belum ada data untuk diunduh"); return; }
-  const headers = Object.keys(rows[0]);
-  let csv = "\uFEFF" + headers.join(";") + "\n"; // BOM agar Excel baca UTF-8
-  rows.forEach(r=>{
-    csv += headers.map(h=>`"${(r[h]||"").toString().replace(/"/g,'""')}"`).join(";") + "\n";
+function closeDetail() {
+  document.getElementById('detailModal').classList.remove('show');
+}
+
+/* ════════ 8. NAVIGASI ════════ */
+function switchPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
+  const btn = document.querySelector(`nav button[data-page="${name}"]`);
+  if (btn) btn.classList.add('active');
+
+  // refresh peta saat pindah ke halaman ber-peta
+  if ((name === 'dash' || name === 'titik')) {
+    setTimeout(() => {
+      if (map) map.invalidateSize();
+      if (mapFull) mapFull.invalidateSize();
+    }, 100);
+  }
+}
+
+/* ════════ 9. EVENT HANDLERS ════════ */
+// Nav
+document.querySelectorAll('nav button[data-page]').forEach(b => {
+  b.addEventListener('click', () => switchPage(b.dataset.page));
+});
+
+// Form Login
+document.getElementById('formLogin').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginErr');
+
+  if (u === ADMIN.user && p === ADMIN.pass) {
+    err.style.display = 'none';
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    sessionStorage.setItem('sipintar_admin', '1');
+    refreshSemua({ silent: true }).catch(() => {});
+    toast('✅ Login berhasil');
+  } else {
+    err.style.display = 'block';
+  }
+});
+
+// Auto login jika session ada
+if (sessionStorage.getItem('sipintar_admin') === '1') {
+  document.getElementById('adminLogin').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+}
+
+// Logout
+document.getElementById('btnLogout').addEventListener('click', () => {
+  sessionStorage.removeItem('sipintar_admin');
+  document.getElementById('adminLogin').style.display = 'block';
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('formLogin').reset();
+  toast('Anda telah keluar');
+});
+
+// Filter & search (dengan debounce)
+document.getElementById('searchTitik')?.addEventListener('input', debounce(renderTblTitik, 250));
+document.getElementById('searchData')?.addEventListener('input', debounce(renderTblData, 250));
+document.getElementById('searchArsip')?.addEventListener('input', debounce(renderArsip, 250));
+document.getElementById('filterKec')?.addEventListener('change', renderTblData);
+document.getElementById('filterStatus')?.addEventListener('change', renderTblData);
+document.getElementById('filterTL')?.addEventListener('change', renderArsip);
+
+// Populate filter kecamatan
+(function populateFilterKec() {
+  const sel = document.getElementById('filterKec');
+  if (!sel) return;
+  Object.keys(KECAMATAN).forEach(kec => {
+    const opt = document.createElement('option');
+    opt.value = kec;
+    opt.textContent = kec;
+    sel.appendChild(opt);
   });
-  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
-  unduh(blob, "SI-PINTAR_Arsip_Laporan.csv");
-  showToast("⬇ File Excel (CSV) berhasil diunduh");
-});
+})();
 
-document.getElementById("btnWord").addEventListener("click", ()=>{
-  const rows = dataExport();
-  if(!rows.length){ showToast("Belum ada data untuk diunduh"); return; }
-  const headers = Object.keys(rows[0]);
-  let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
-  <head><meta charset="utf-8"><title>Arsip Laporan SI PINTAR</title></head>
-  <body style="font-family:Calibri">
-  <h2 style="color:#0e7490">SI PINTAR — Arsip Laporan Penemuan Anak</h2>
-  <p>Dinas Sosial Kota Cirebon · Diekspor: ${new Date().toLocaleString("id-ID")}</p>
-  <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-size:11pt">
-    <tr style="background:#0e7490;color:#fff">${headers.map(h=>`<th>${h}</th>`).join("")}</tr>
-    ${rows.map(r=>`<tr>${headers.map(h=>`<td>${esc(r[h])}</td>`).join("")}</tr>`).join("")}
-  </table></body></html>`;
-  const blob = new Blob(["\uFEFF"+html], {type:"application/msword"});
-  unduh(blob, "SI-PINTAR_Arsip_Laporan.doc");
-  showToast("⬇ File Word berhasil diunduh");
-});
-
-function unduh(blob, nama){
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = nama;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
-/* ============================================================
-   7. FORM PENEMUAN → localStorage + Google Sheet
-============================================================ */
+// ════════ SUBMIT FORM (KUNCI: kirim ke server) ════════
 document.getElementById('formPenemuan').addEventListener('submit', async (e) => {
-  e.preventDefault();                          // jangan reload halaman
-
-  const btn  = document.getElementById('btnKirim');
+  e.preventDefault();
   const form = e.target;
+  const btn = document.getElementById('btnKirim');
   const data = Object.fromEntries(new FormData(form).entries());
 
-  // 1) Validasi cepat di browser
+  // 1) Validasi
   const wajib = ['nama','tempatLahir','ttl','alamat','pelapor','kontak','masalah'];
   const kosong = wajib.filter(k => !String(data[k] || '').trim());
   if (kosong.length) {
-    alert(`Belum diisi: ${kosong.join(', ')}`);
+    toast('⚠ Belum diisi: ' + kosong.join(', '));
     return;
   }
 
-  // 2) Nonaktifkan tombol + spinner (cegah double-click)
+  // 2) Cegah double submit
+  const oldText = btn.textContent;
   btn.disabled = true;
-  btn.textContent = 'Mengirim...';
+  btn.innerHTML = '<span class="spinner"></span>Mengirim...';
 
   try {
-    // 3) KIRIM ke Google Sheets (SEMUA user bisa lihat)
+    // 3) KIRIM KE SERVER — SEMUA USER AKAN LIHAT
     await API.submit({ ...data, createdBy: 'publik' });
-
-    alert('✅ Laporan terkirim. Menunggu verifikasi petugas.');
-
+    toast('✅ Laporan terkirim. Menunggu verifikasi petugas.');
     form.reset();
 
-    // 4) Tarik data terbaru supaya dashboard + peta langsung update
-    await refreshSemua();           // fungsi dari PATCH C
-    switchPage('dash');             // pindah halaman ke Dashboard
+    // 4) Refresh data (semua browser lihat ini dalam ≤10 dtk)
+    await refreshSemua({ silent: true });
 
+    // 5) Pindah ke dashboard
+    switchPage('dash');
   } catch (err) {
-    alert('❌ Gagal kirim: ' + err.message);
+    toast('❌ Gagal kirim: ' + err.message, 6000);
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Kirim Laporan';
+    btn.textContent = oldText || 'Kirim Laporan';
   }
 });
 
-/* ============================================================
-   8. NAVIGASI
-============================================================ */
-document.querySelectorAll("nav button").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    document.getElementById("page-"+btn.dataset.page).classList.add("active");
-    window.scrollTo({top:0, behavior:"smooth"});
-    if(btn.dataset.page==="admin" && isAdmin) renderArsip();
-    setTimeout(()=>{
-      if(btn.dataset.page==="dash") map.invalidateSize();
-      if(btn.dataset.page==="titik") mapFull.invalidateSize();
-    }, 150);
+// Export Word
+document.getElementById('btnWord').addEventListener('click', () => {
+  if (!ARSIP.length) return toast('Belum ada data');
+  let html = '<html><head><meta charset="UTF-8"></head><body><h2>Arsip Laporan Masyarakat — SI PINTAR</h2><table border="1" cellpadding="6" style="border-collapse:collapse;font-family:Arial;font-size:12px"><tr><th>Waktu</th><th>Nama</th><th>TTL</th><th>Alamat</th><th>Pelapor</th><th>Kontak</th><th>Masalah</th><th>Status</th></tr>';
+  ARSIP.forEach(a => {
+    html += `<tr><td>${formatWaktu(a.waktu)}</td><td>${esc(a.nama)}</td><td>${esc(a.ttl)}</td><td>${esc(a.alamat)}</td><td>${esc(a.pelapor)}</td><td>${esc(a.kontak)}</td><td>${esc(a.masalah)}</td><td>${esc(a.tindakLanjut)}</td></tr>`;
   });
+  html += '</table></body></html>';
+  const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `Arsip_SIPINTAR_${Date.now()}.doc`; a.click();
+  URL.revokeObjectURL(url);
 });
 
-document.getElementById("searchTitik").addEventListener("input", e=>{ filterTitik=e.target.value; renderTabelTitik(); });
-document.getElementById("searchData").addEventListener("input", e=>{ qData=e.target.value; renderTabelData(); });
-document.getElementById("filterKec").addEventListener("change", e=>{ fKec=e.target.value; renderTabelData(); });
-document.getElementById("filterStatus").addEventListener("change", e=>{ fStatus=e.target.value; renderTabelData(); });
-
-function showToast(msg){
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"), 4200);
-}
-
-let resizeTimer;
-window.addEventListener("resize", ()=>{
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(()=>{
-    if(map) map.invalidateSize();
-    if(mapFull) mapFull.invalidateSize();
-  }, 200);
+// Export Excel
+document.getElementById('btnExcel').addEventListener('click', () => {
+  if (!ARSIP.length) return toast('Belum ada data');
+  let csv = 'Waktu,Nama,TTL,Alamat,Pelapor,Kontak,Masalah,Status\n';
+  ARSIP.forEach(a => {
+    const row = [a.waktu, a.nama, a.ttl, a.alamat, a.pelapor, a.kontak, a.masalah, a.tindakLanjut]
+      .map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',');
+    csv += row + '\n';
+  });
+  const blob = new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `Arsip_SIPINTAR_${Date.now()}.csv`; a.click();
+  URL.revokeObjectURL(url);
 });
 
-/* ============================================================
-   9. INIT
-============================================================ */
-initMaps();
-renderKPI();
-renderTabelKec();
-renderTabelTitik();
-renderTabelData();
-isiFilterKec();
+/* ════════ 10. LIFECYCLE ════════ */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    refreshSemua({ silent: true }).catch(() => {});
+  }
+});
+window.addEventListener('online', () => refreshSemua().catch(() => {}));
+window.addEventListener('beforeunload', stopPolling);
+
+document.addEventListener('DOMContentLoaded', () => {
+  initMaps();
+  renderKpi();
+  renderTblKec();
+  renderTblTitik();
+  renderTblData();
+  renderArsip();
+
+  // SYNC: tarik data dari server + mulai polling
+  refreshSemua().catch(() => {});
+  startPolling();
+});
+
+// expose untuk inline onclick
+window.openDetail = openDetail;
+window.closeDetail = closeDetail;
+window.switchPage = switchPage;
 </script>
 </body>
 </html>

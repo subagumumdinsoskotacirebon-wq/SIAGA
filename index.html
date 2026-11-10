@@ -177,6 +177,26 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
   #map{height:240px} #mapFull{height:240px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+a.btn{display:inline-block;text-align:center}
+.tick{border:2px dashed #0e7490;background:#ecfeff;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.tick .code2{font:800 clamp(22px,5vw,30px)/1.1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;color:#0e7490;overflow-wrap:anywhere;user-select:all}
+.tick p{font-size:13px;color:#155e75}
+.tick .row,.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.tick .warnbox{background:#fef3c7;color:#92400e;border-radius:10px;padding:8px 12px;font-size:12.5px}
+.btn.wa{background:linear-gradient(120deg,#166534,#16a34a);box-shadow:0 6px 16px rgba(22,163,74,.35)}
+.qrbox{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.qrbox canvas{width:min(100%,300px);height:auto;aspect-ratio:1;image-rendering:pixelated;background:#fff;border-radius:12px;border:1px solid var(--line)}
+.qrurl{font:12px ui-monospace,Menlo,Consolas,monospace;color:var(--muted);overflow-wrap:anywhere}
+.res{border:1px solid var(--line);border-radius:14px;background:#fff;padding:16px;display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.res .top{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.res .top b{font:700 16px ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+.trk{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.trk li{border-top:4px solid var(--line);padding-top:6px;font-size:12.5px;color:var(--muted)}
+.trk li.on{border-top-color:var(--brand);color:var(--ink);font-weight:700}
+.msgbox{border-radius:10px;padding:10px 14px;font-size:13px;margin-top:10px}
+.msgbox.bad{background:#fee2e2;color:#991b1b}.msgbox.ok{background:#dcfce7;color:#166534}.msgbox.info{background:#ecfeff;color:#155e75}
+code.tk{font:600 11.5px ui-monospace,Menlo,Consolas,monospace;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -194,6 +214,8 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
     <button data-page="titik">Lokasi Titik Binaan</button>
     <button data-page="data">Data Binaan</button>
     <button data-page="form">Form Penemuan Anak</button>
+    <button data-page="lacak">Lacak Tiket</button>
+    <button data-page="akses">QR &amp; Kontak</button>
     <button data-page="admin" class="nav-admin">Admin</button>
   </nav>
 </header>
@@ -204,7 +226,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
     <h2 class="section">Dashboard Monitoring</h2>
     <p class="sub">Rekap data anak terlantar per kelurahan & kecamatan Kota Cirebon — warna peta sesuai jumlah anak.</p>
     <div class="kpis">
-      <div class="kpi"><div class="v" id="kpiTotal">0</div><div class="l">Total Anak Terdata</div></div>
+      <div class="kpi"><div class="v" id="kpiTotal">0</div><div class="l">Total Anak Terdata</div><div class="l" id="kpiTotalNote" style="margin-top:2px"></div></div>
       <div class="kpi ok"><div class="v" id="kpiKel">0</div><div class="l">Kelurahan Titik Binaan</div></div>
       <div class="kpi warn"><div class="v" id="kpiKec">0</div><div class="l">Kecamatan Terjangkau</div></div>
       <div class="kpi danger"><div class="v" id="kpiLapor">0</div><div class="l">Laporan Masyarakat</div></div>
@@ -289,7 +311,9 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
   <section id="page-form" class="page">
     <h2 class="section">Form Penemuan Anak</h2>
     <p class="sub">Formulir pelaporan masyarakat. Data tersimpan ke arsip Google Sheet Dinsos.</p>
-    <div class="note">Data yang Anda laporkan akan diverifikasi petugas Dinsos Kota Cirebon. Mohon isi dengan sebenar-benarnya.</div>
+    <div class="note">Data yang Anda laporkan akan diverifikasi petugas Dinsos Kota Cirebon. Mohon isi dengan sebenar-benarnya. Setelah terkirim Anda mendapat <b>kode tiket</b> untuk melacak penanganan.</div>
+    <div class="btnrow" style="margin-bottom:14px"><a class="btn wa sm" data-wa="Halo admin SI PINTAR, saya ingin menanyakan laporan anak terlantar." target="_blank" rel="noopener noreferrer">💬 Hubungi admin via WhatsApp <span class="waNum"></span></a></div>
+    <div id="tiketBox" style="max-width:760px"></div>
     <div class="card" style="max-width:760px">
       <form id="formPenemuan">
         <div class="field">
@@ -332,6 +356,46 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
     </div>
   </section>
 
+  <!-- LACAK -->
+  <section id="page-lacak" class="page">
+    <h2 class="section">Lacak Layanan</h2>
+    <p class="sub">Masukkan kode tiket yang Anda terima setelah mengisi Form Penemuan Anak.</p>
+    <div class="card" style="max-width:640px">
+      <form id="formLacak" autocomplete="off">
+        <div class="field"><label>Kode Tiket</label><input id="lcKode" required placeholder="SP-261110-K7M2QX" autocapitalize="characters" spellcheck="false" /></div>
+        <button class="btn" type="submit" id="lcSubmit">Lacak</button>
+      </form>
+      <div id="lcOut" role="status"></div>
+      <div class="btnrow" style="margin-top:14px"><a class="btn wa sm" data-wa="Halo admin SI PINTAR, saya ingin menanyakan status laporan saya." target="_blank" rel="noopener noreferrer">💬 Tanya admin via WhatsApp <span class="waNum"></span></a></div>
+    </div>
+  </section>
+
+  <!-- QR & KONTAK -->
+  <section id="page-akses" class="page">
+    <h2 class="section">QR Code &amp; Kontak Admin</h2>
+    <p class="sub">Pindai QR untuk membuka langsung menu Form Penemuan Anak.</p>
+    <div class="grid2">
+      <div class="card qrbox">
+        <canvas id="qrCanvas" width="296" height="296" role="img" aria-label="QR Code menuju form penemuan anak"></canvas>
+        <div class="qrurl" id="qrUrl"></div>
+        <div class="btnrow" style="justify-content:center">
+          <button class="btn sm" id="btnQrPng" type="button">⬇ Unduh QR (PNG)</button>
+          <button class="btn secondary sm" id="btnQrCopy" type="button">Salin tautan</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Hubungi Admin</h3>
+        <p style="margin-bottom:12px">Untuk laporan mendesak atau pertanyaan, hubungi admin SI PINTAR melalui WhatsApp.</p>
+        <div class="kpi" style="margin-bottom:14px"><div class="v waNum" style="font-size:24px"></div><div class="l">Nomor WhatsApp admin</div></div>
+        <div class="btnrow">
+          <a class="btn wa sm" data-wa="Halo admin SI PINTAR, saya ingin bertanya." target="_blank" rel="noopener noreferrer">💬 Chat admin</a>
+          <button class="btn secondary sm" type="button" onclick="switchPage('form')">Buka form penemuan anak</button>
+          <button class="btn secondary sm" type="button" onclick="switchPage('lacak')">Lacak tiket</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ADMIN -->
   <section id="page-admin" class="page">
     <div id="adminLogin" class="loginbox card">
@@ -350,6 +414,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
       <div class="admin-tabs">
         <button class="admin-tab active" data-tab="arsip">📋 Arsip Laporan</button>
         <button class="admin-tab" data-tab="anak">👦 Kelola Data Anak</button>
+        <button class="admin-tab" data-tab="pengaturan">⚙ Kontak &amp; QR</button>
         <span style="flex:1"></span>
         <span class="badge-login">👤 dinsos</span>
         <button class="btn red sm" id="btnLogout">Keluar</button>
@@ -379,7 +444,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
           <div class="tablewrap" style="max-height:560px">
             <table>
               <thead>
-                <tr><th>Waktu</th><th>Nama Anak</th><th>TTL/Umur</th><th>Alamat</th><th>Pelapor</th><th>Kontak</th><th>Permasalahan</th><th>Tindak Lanjut</th><th>Aksi</th></tr>
+                <tr><th>Waktu</th><th>Tiket</th><th>Nama Anak</th><th>TTL/Umur</th><th>Alamat</th><th>Pelapor</th><th>Kontak</th><th>Permasalahan</th><th>Tindak Lanjut</th><th>Aksi</th></tr>
               </thead>
               <tbody id="tblArsip"></tbody>
             </table>
@@ -455,6 +520,19 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
           </div>
         </div>
       </div>
+
+      <!-- TAB 3: PENGATURAN -->
+      <div id="tab-pengaturan" class="admin-tab-content">
+        <div class="card" style="max-width:640px">
+          <h3>Kontak WhatsApp &amp; QR Code</h3>
+          <form id="formCfg" autocomplete="off">
+            <div class="field"><label>Nomor WhatsApp admin</label><input id="cfWa" required inputmode="tel" placeholder="081312403028" /><small style="color:var(--muted)">Dipakai pada semua tombol WhatsApp. Format 08... atau 628...</small></div>
+            <div class="field"><label>Tautan halaman (untuk QR Code)</label><input id="cfUrl" type="url" placeholder="https://..." /><small style="color:var(--muted)">Kosongkan untuk memakai alamat halaman ini. QR membuka tautan ini pada menu Form.</small></div>
+            <button class="btn" type="submit" id="cfSubmit">Simpan pengaturan</button>
+            <div id="cfMsg" role="status"></div>
+          </form>
+        </div>
+      </div>
     </div>
   </section>
 </main>
@@ -481,18 +559,138 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;lin
    ⬇⬇⬇ ISI URL APPS SCRIPT ANDA DI SINI ⬇⬇⬇
    Contoh: "https://script.google.com/macros/s/AKfycb.../exec"
    ════════════════════════════════════════════════════════════════════ */
-const APPS_SCRIPT_URL = " https://script.google.com/macros/s/AKfycbxyu8-LpHa6gnMT4Bc6WJGxobdVdgoutBsQMzadhs67UsV7SyBH29BxxwSZR9IAmw-Q_w/exec";   // ← ISI DI SINI
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxyu8-LpHa6gnMT4Bc6WJGxobdVdgoutBsQMzadhs67UsV7SyBH29BxxwSZR9IAmw-Q_w/exec";
 
 const ADMIN = { user:"dinsos", pass:"admin123" };
+const DEFAULT_WA = "081312403028";
+
+const KELS = [
+["Kejaksan","Kejaksan"],["Kesenden","Kejaksan"],["Kebonbaru","Kejaksan"],["Sukapura","Kejaksan"],
+["Lemahwungkuk","Lemahwungkuk"],["Panjunan","Lemahwungkuk"],["Kasepuhan","Lemahwungkuk"],["Pegambiran","Lemahwungkuk"],
+["Pekalipan","Pekalipan"],["Pekalangan","Pekalipan"],["Jagasatru","Pekalipan"],["Pulasaren","Pekalipan"],
+["Kesambi","Kesambi"],["Sunyaragi","Kesambi"],["Karyamulya","Kesambi"],["Drajat","Kesambi"],["Pekiringan","Kesambi"],
+["Harjamukti","Harjamukti"],["Kalijaga","Harjamukti"],["Kecapi","Harjamukti"],["Larangan","Harjamukti"],["Argasunya","Harjamukti"]];
+const KEC_LIST = ["Harjamukti","Kesambi","Kejaksan","Lemahwungkuk","Pekalipan"];
+const KEC_OF = Object.fromEntries(KELS);
+const AMBIG = new Set(["HARJAMUKTI","KESAMBI","KEJAKSAN","LEMAHWUNGKUK","PEKALIPAN"]);
+const KAMPUNG = [
+["Harjamukti",["PELANDAKAN","GRENJENG","PENYUKEN","WANACALA","CURUG","KALITANJUNG"]],
+["Kalijaga",["TUGU DALAM","KEDUNG MENJANGAN","KEDUNGWUNGU","KEDUNG WUNGU","PENGAMPAAN","SITOPENG","SITOPEG","SUKET DUWUR","CILERES","LEDENG","KEBON PELOK","GOMBOL GEDE","ANGKASA","MONTANA VILLAGE"]],
+["Argasunya",["CIBOGO","KOPI LUHUR","ARGAPURA","SURAPANDAN","SUMUR PANDAN","KEDUNG MENDENG","KEDUNG KRISIK","DWI PANTARA","NUSALARA","GRIYA BINTANG","SUMUR TETES","KALILUNYU","PANDAN WANGI"]],
+["Kecapi",["DUKUH SEMAR","BALONG"]],
+["Larangan",["KETILANG","GN LAWU","GN AGUNG","PANGRANGO"]],
+["Karyamulya",["SITUGANGGA","KARYA BAKTI","KARYABAKTI","MEKARSICALUNG","SICALUNG","MAJASEM","KANDANG PERAHU","KALIKEBAT","JEMBAR AGUNG","EVAKUASI"]],
+["Kasepuhan",["KESUNEAN","BANJAR MELATI","SITI MULYA","SITIMULYA"]],
+["Lemahwungkuk",["CANGKOL","PENGAMPON"]],
+["Panjunan",["LAYUR","BANDENG","PASEWAN","BENTENG","PESISIR UTARA"]],
+["Pegambiran",["KARANG ANOM","KRIYAN","API API","KARANGDAWA","KEJAWANAN","KARANG MULYA"]],
+["Sunyaragi",["TAMANSARI","KARANG BARU","KARANGBARU","KARANG MALANG"]],
+["Pekiringan",["GUNUNG SARI","AMERA"]],
+["Sukapura",["PANCURAN","SUKASARI","OLAH RAGA","PAMITRAN"]],
+["Kebonbaru",["EMPANG"]],
+["Pekalipan",["KANOMAN","PETRATEAN","ASTANA GARIB","ASTUR"]],
+["Jagasatru",["PEGAJAHAN"]],
+["Pekalangan",["KEBON CAI"]]];
+const LUAR = /\b(KAB|KABUPATEN|JAKARTA|BEKASI|BOYOLALI|TALUN|MUNDU|SUMBER|KEDAWUNG|PANGENAN|KALIWEDI|KARANGSEMBUNG|HAURGEULIS|SAMPIRAN|SIJOPAK|DURAJAYA|TAMBUN|TAMBELANG|PENPEN|PAMENGKANG|KEPONGPONGAN|PRAJAWINAGUN)\b/;
+function normAddr(s){
+  let t = String(s||"").toUpperCase().replace(/[.,;:()\-_\/]/g," ").replace(/\s+/g," ").trim();
+  const fix = [[/HARJAMKTI|HARJAMUTI|\bHJM\b/g,"HARJAMUKTI"],[/\bLMWK\b|LEMAH WUNGKUK/g,"LEMAHWUNGKUK"],[/KESEPUHAN/g,"KASEPUHAN"],[/KEJAKSAAN/g,"KEJAKSAN"],
+    [/PRGAMBIRAN/g,"PEGAMBIRAN"],[/CIPOGO|COBOGO|CIBOG0/g,"CIBOGO"],[/KEBON BARU/g,"KEBONBARU"],[/KARYA MULYA/g,"KARYAMULYA"],[/SURAPNDAN/g,"SURAPANDAN"],
+    [/\bKD MENDENG/g,"KEDUNG MENDENG"],[/\bKAPT\b|\bKAPTEN\b/g,"KAPT"],[/SITUGANGA|SITUGANGGA/g,"SITUGANGGA"],[/\bP GRENJENG|\bPGRENJENG/g,"GRENJENG"],[/\bKE\b/g,"KEL"]];
+  for(const [a,b] of fix) t=t.replace(a,b);
+  return t;
+}
+function classify(addr){
+  const raw=String(addr||"").trim();
+  if(!raw) return {status:"kosong",kel:"",kec:""};
+  const t=normAddr(raw);
+  if(LUAR.test(t)) return {status:"luar",kel:"",kec:""};
+  let best=null;
+  for(const [kel] of KELS){
+    const N=kel.toUpperCase();
+    const re=new RegExp("\\b(?:KEL|KELURAHAN)\\s+(?:KEC\\s+)?"+N+"\\b","g"); let m;
+    while((m=re.exec(t))){ if(!best||m.index>best.i) best={i:m.index,kel}; }
+  }
+  if(best) return {status:"kel",kel:best.kel,kec:KEC_OF[best.kel]};
+  best=null;
+  for(const [kel] of KELS){
+    const N=kel.toUpperCase(); if(AMBIG.has(N)) continue;
+    const re=new RegExp("\\b"+N+"\\b","g"); let m;
+    while((m=re.exec(t))){ if(!best||m.index>best.i) best={i:m.index,kel}; }
+  }
+  if(best) return {status:"kel",kel:best.kel,kec:KEC_OF[best.kel]};
+  best=null;
+  for(const [kel,words] of KAMPUNG) for(const w of words){
+    const re=new RegExp("\\b"+w+"\\b","g"); let m;
+    while((m=re.exec(t))){ if(!best||m.index>best.i) best={i:m.index,kel}; }
+  }
+  if(best) return {status:"kel",kel:best.kel,kec:KEC_OF[best.kel]};
+  best=null;
+  for(const kec of KEC_LIST){
+    const re=new RegExp("\\b"+kec.toUpperCase()+"\\b","g"); let m;
+    while((m=re.exec(t))){ if(!best||m.index>best.i) best={i:m.index,kec}; }
+  }
+  if(best) return {status:"kec",kel:"",kec:best.kec};
+  return {status:"belum",kel:"",kec:""};
+}
+
+
+
+/* Pembuat QR Code mandiri (mode byte, koreksi galat M, versi 1-10) */
+function qrMatrix(text){
+  const ECC=[0,10,16,26,18,24,16,18,22,22,26],NB=[0,1,1,1,2,2,4,4,4,5,5];
+  const data8=Array.from(new TextEncoder().encode(text));
+  const rawMods=v=>{let r=(16*v+128)*v+64;if(v>=2){const n=Math.floor(v/7)+2;r-=(25*n-10)*n-55;if(v>=7)r-=36}return r};
+  let ver=0,ndc=0;
+  for(let v=1;v<=10;v++){ndc=Math.floor(rawMods(v)/8)-ECC[v]*NB[v];const need=4+(v<10?8:16)+8*data8.length;if(need<=ndc*8){ver=v;break}}
+  if(!ver)throw new Error("Teks terlalu panjang untuk QR");
+  const bits=[];const put=(val,len)=>{for(let i=len-1;i>=0;i--)bits.push((val>>>i)&1)};
+  put(4,4);put(data8.length,ver<10?8:16);data8.forEach(b=>put(b,8));
+  put(0,Math.min(4,ndc*8-bits.length));while(bits.length%8)bits.push(0);
+  const cw=[];for(let i=0;i<bits.length;i+=8){let b=0;for(let j=0;j<8;j++)b=(b<<1)|bits[i+j];cw.push(b)}
+  for(let p=0xEC;cw.length<ndc;p^=0xEC^0x11)cw.push(p);
+  const mul=(x,y)=>{let z=0;for(let i=7;i>=0;i--){z=(z<<1)^((z>>>7)*0x11D);z^=((y>>>i)&1)*x}return z&255};
+  const divisor=d=>{const r=new Array(d).fill(0);r[d-1]=1;let root=1;for(let i=0;i<d;i++){for(let j=0;j<d;j++){r[j]=mul(r[j],root);if(j+1<d)r[j]^=r[j+1]}root=mul(root,2)}return r};
+  const rem=(dat,div)=>{const r=new Array(div.length).fill(0);for(const b of dat){const f=b^r.shift();r.push(0);div.forEach((c,i)=>{r[i]^=mul(c,f)})}return r};
+  const nb=NB[ver],el=ECC[ver],raw=Math.floor(rawMods(ver)/8),ns=nb-raw%nb,sl=Math.floor(raw/nb),div=divisor(el),blocks=[];
+  for(let i=0,k=0;i<nb;i++){const dl=sl-el+(i<ns?0:1),dat=cw.slice(k,k+dl);k+=dl;const e=rem(dat,div);if(i<ns)dat.push(0);blocks.push(dat.concat(e))}
+  const all=[];for(let i=0;i<blocks[0].length;i++)blocks.forEach((b,j)=>{if(i!==sl-el||j>=ns)all.push(b[i])});
+  const size=ver*4+17,M=[],F=[];for(let y=0;y<size;y++){M.push(new Array(size).fill(0));F.push(new Array(size).fill(false))}
+  const sf=(x,y,d)=>{M[y][x]=d?1:0;F[y][x]=true};
+  for(let i=0;i<size;i++){sf(6,i,i%2===0);sf(i,6,i%2===0)}
+  for(const[cx,cy]of[[3,3],[size-4,3],[3,size-4]])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){const d=Math.max(Math.abs(dx),Math.abs(dy)),x=cx+dx,y=cy+dy;if(x>=0&&x<size&&y>=0&&y<size)sf(x,y,d!==2&&d!==4)}
+  let al=[];if(ver>1){const n=Math.floor(ver/7)+2,step=Math.ceil((ver*4+4)/(n*2-2))*2;al=[6];for(let p=size-7;al.length<n;p-=step)al.splice(1,0,p)}
+  for(let i=0;i<al.length;i++)for(let j=0;j<al.length;j++){if((i===0&&j===0)||(i===0&&j===al.length-1)||(i===al.length-1&&j===0))continue;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)sf(al[i]+dx,al[j]+dy,Math.max(Math.abs(dx),Math.abs(dy))!==1)}
+  const fmt=mask=>{const d=mask;let r=d;for(let i=0;i<10;i++)r=(r<<1)^((r>>>9)*0x537);const b=((d<<10)|r)^0x5412,g=i=>((b>>>i)&1)===1;
+    for(let i=0;i<=5;i++)sf(8,i,g(i));sf(8,7,g(6));sf(8,8,g(7));sf(7,8,g(8));for(let i=9;i<15;i++)sf(14-i,8,g(i));
+    for(let i=0;i<8;i++)sf(size-1-i,8,g(i));for(let i=8;i<15;i++)sf(8,size-15+i,g(i));sf(8,size-8,true)};
+  fmt(0);
+  if(ver>=7){let r=ver;for(let i=0;i<12;i++)r=(r<<1)^((r>>>11)*0x1F25);const b=(ver<<12)|r;for(let i=0;i<18;i++){const c=((b>>>i)&1)===1,a=size-11+i%3,q=Math.floor(i/3);sf(a,q,c);sf(q,a,c)}}
+  for(let i=0,right=size-1;right>=1;right-=2){if(right===6)right=5;for(let v=0;v<size;v++)for(let j=0;j<2;j++){const x=right-j,up=((right+1)&2)===0,y=up?size-1-v:v;if(!F[y][x]&&i<all.length*8){M[y][x]=(all[i>>>3]>>>(7-(i&7)))&1;i++}}}
+  const mk=(m,x,y)=>[(x+y)%2===0,y%2===0,x%3===0,(x+y)%3===0,(Math.floor(x/3)+Math.floor(y/2))%2===0,x*y%2+x*y%3===0,(x*y%2+x*y%3)%2===0,((x+y)%2+x*y%3)%2===0][m];
+  const apply=m=>{for(let y=0;y<size;y++)for(let x=0;x<size;x++)if(!F[y][x]&&mk(m,x,y))M[y][x]^=1};
+  const pen=()=>{let p=0;for(let y=0;y<size;y++){let run=1;for(let x=1;x<=size;x++){if(x<size&&M[y][x]===M[y][x-1])run++;else{if(run>=5)p+=run-2;run=1}}}
+    for(let x=0;x<size;x++){let run=1;for(let y=1;y<=size;y++){if(y<size&&M[y][x]===M[y-1][x])run++;else{if(run>=5)p+=run-2;run=1}}}
+    for(let y=0;y<size-1;y++)for(let x=0;x<size-1;x++)if(M[y][x]===M[y][x+1]&&M[y][x]===M[y+1][x]&&M[y][x]===M[y+1][x+1])p+=3;
+    let d=0;for(const r of M)for(const c of r)d+=c;p+=Math.floor(Math.abs(d*20-size*size*10)/(size*size))*10;return p};
+  let best=0,bp=1e9;for(let m=0;m<8;m++){apply(m);fmt(m);const p=pen();if(p<bp){bp=p;best=m}apply(m)}
+  apply(best);fmt(best);return M;
+}
+
+
+const KEL_GEO = {"Kejaksan":[-6.706,108.556],"Kesenden":[-6.7105,108.5625],"Kebonbaru":[-6.7095,108.5515],"Sukapura":[-6.7005,108.56],"Lemahwungkuk":[-6.719,108.5735],"Panjunan":[-6.711,108.571],"Kasepuhan":[-6.7265,108.57],"Pegambiran":[-6.7205,108.5785],"Pekalipan":[-6.721,108.565],"Pekalangan":[-6.7165,108.564],"Jagasatru":[-6.7235,108.561],"Pulasaren":[-6.728,108.5665],"Kesambi":[-6.726,108.551],"Sunyaragi":[-6.7385,108.542],"Karyamulya":[-6.712,108.544],"Drajat":[-6.719,108.55],"Pekiringan":[-6.7315,108.546],"Harjamukti":[-6.7485,108.557],"Kalijaga":[-6.7345,108.5585],"Kecapi":[-6.7585,108.549],"Larangan":[-6.7645,108.556],"Argasunya":[-6.7745,108.5725]};
+const KEL_ABBR={Kejaksan:"KJL",Kesenden:"KSD",Kebonbaru:"KBN",Sukapura:"SKP",Lemahwungkuk:"LMW",Panjunan:"PJN",Kasepuhan:"KSP",Pegambiran:"PGM",Pekalipan:"PKN",Pekalangan:"PKG",Jagasatru:"JGS",Pulasaren:"PLS",Kesambi:"KSM",Sunyaragi:"SNY",Karyamulya:"KRM",Drajat:"DRJ",Pekiringan:"PKR",Harjamukti:"HMK",Kalijaga:"KLJ",Kecapi:"KCP",Larangan:"LRN",Argasunya:"ARS"};
+const KEL_ALIAS={"Kesepuhan":"Kasepuhan","Pekalipan Utara":"Pekalipan"};
 
 /* ════════ 1. DATA WILAYAH ════════ */
 const KECAMATAN = {
-  "Harjamukti":   { lat:-6.7450, lng:108.5450, kelurahan:["Kalijaga","Harjamukti","Kecapi","Larangan","Argasunya"] },
-  "Lemahwungkuk": { lat:-6.7190, lng:108.5630, kelurahan:["Pegambiran","Lemahwungkuk","Kesepuhan","Panjunan"] },
-  "Pekalipan":    { lat:-6.7080, lng:108.5720, kelurahan:["Jagasatru","Pulasaren","Pekalipan","Pekalipan Utara"] },
-  "Kejaksan":     { lat:-6.7000, lng:108.5680, kelurahan:["Kejaksan","Kebonbaru","Sukapura","Kesenden"] },
-  "Kesambi":      { lat:-6.7250, lng:108.5380, kelurahan:["Kesambi","Sunyaragi","Drajat","Karyamulya","Pekiringan"] }
+  "Harjamukti":   { lat:-6.7450, lng:108.5450, kelurahan:[] },
+  "Lemahwungkuk": { lat:-6.7190, lng:108.5630, kelurahan:[] },
+  "Pekalipan":    { lat:-6.7080, lng:108.5720, kelurahan:[] },
+  "Kejaksan":     { lat:-6.7000, lng:108.5680, kelurahan:[] },
+  "Kesambi":      { lat:-6.7250, lng:108.5380, kelurahan:[] }
 };
+KELS.forEach(([kel,kec]) => KECAMATAN[kec].kelurahan.push(kel));   // 22 kelurahan resmi
 
 /* ════════ 2. STATE GLOBAL ════════ */
 let ARSIP = [];          // laporan masyarakat (dari Sheets)
@@ -501,6 +699,8 @@ let isFetching = false;
 let pollTimer = null;
 const POLL_MS = 10000;
 let map = null, mapFull = null;
+let CFG = { wa: DEFAULT_WA, url: '' };
+try { const c = JSON.parse(localStorage.getItem('sipintar_cfg')||'null'); if (c) CFG = { wa:c.wa||DEFAULT_WA, url:c.url||'' }; } catch(_) {}
 
 /* ════════ 3. API ════════ */
 const API = {
@@ -567,12 +767,16 @@ function debounce(fn, ms = 300) {
 }
 
 /* ════════ 5. HITUNG JUMLAH PER KELURAHAN (dari ANAK) ════════ */
+function normKel(k) { return KEL_ALIAS[k] || k; }
 function getJumlahKel() {
   const map = {};
   Object.values(KECAMATAN).forEach(k => k.kelurahan.forEach(kel => { map[kel] = 0; }));
-  ANAK.forEach(d => { if (map[d.kel] !== undefined) map[d.kel]++; });
+  ANAK.forEach(d => { const k = normKel(d.kel); if (map[k] !== undefined) map[k]++; });
+  // laporan dari Form Penemuan Anak ikut dihitung berdasarkan kelurahan yang terbaca dari alamat
+  ARSIP.forEach(a => { const k = classify(a.alamat).kel; if (k && map[k] !== undefined) map[k]++; });
   return map;
 }
+function laporanTanpaWilayah() { return ARSIP.filter(a => !classify(a.alamat).kel).length; }
 
 /* ════════ 6. SYNC LAYER ════════ */
 async function refreshSemua({ silent = false } = {}) {
@@ -586,6 +790,7 @@ async function refreshSemua({ silent = false } = {}) {
     const [arsip, anak] = await Promise.all([ API.list('arsip'), API.list('anak') ]);
     ARSIP = arsip;
     ANAK  = anak;
+    API.list('config').then(applyConfig).catch(() => {});
     try {
       localStorage.setItem('sipintar_laporan', JSON.stringify(ARSIP));
       localStorage.setItem('sipintar_anak',    JSON.stringify(ANAK));
@@ -634,6 +839,10 @@ function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = 
 function renderKpi() {
   const el = id => document.getElementById(id);
   if (el('kpiTotal')) el('kpiTotal').textContent = ANAK.length + ARSIP.length;
+  if (el('kpiTotalNote')) {
+    const tw = laporanTanpaWilayah();
+    el('kpiTotalNote').textContent = `${ANAK.length} binaan + ${ARSIP.length} laporan form` + (tw ? ` (${tw} belum terbaca wilayahnya)` : '');
+  }
   if (el('kpiKel'))   el('kpiKel').textContent   = new Set(Object.values(KECAMATAN).flatMap(k=>k.kelurahan)).size;
   if (el('kpiKec'))   el('kpiKec').textContent   = Object.keys(KECAMATAN).length;
   if (el('kpiLapor')) el('kpiLapor').textContent = ARSIP.length;
@@ -701,13 +910,14 @@ function renderArsip() {
   });
 
   if (!rows.length) {
-    tb.innerHTML = '<tr><td colspan="9" class="empty">Belum ada laporan.</td></tr>';
+    tb.innerHTML = '<tr><td colspan="10" class="empty">Belum ada laporan.</td></tr>';
     return;
   }
   tb.innerHTML = rows.map(a => {
     const pill = a.tindakLanjut === 'Selesai' ? 'low' : a.tindakLanjut === 'Diproses' ? 'mid' : 'high';
     return `<tr>
       <td>${formatWaktu(a.waktu)}</td>
+      <td><code class="tk">${esc(a.tiket||'-')}</code></td>
       <td>${esc(a.nama)}</td>
       <td>${esc(a.ttl)}</td>
       <td>${esc(a.alamat)}</td>
@@ -859,16 +1069,16 @@ function renderMapAll() {
     const n = info.kelurahan.length;
     info.kelurahan.forEach((kel, i) => {
       const jumlah = jk[kel] || 0;
-      const angle  = (2 * Math.PI * i) / n;
-      const lat = info.lat + 0.008 * Math.sin(angle);
-      const lng = info.lng + 0.008 * Math.cos(angle);
+      const g = KEL_GEO[kel];                       // titik tengah kelurahan
+      const lat = g ? g[0] : info.lat;
+      const lng = g ? g[1] : info.lng;
       const opts = {
         radius: 8 + Math.min(jumlah / 5, 14),
         fillColor: warnaJumlah(jumlah),
         color: '#fff', weight: 2, fillOpacity: 0.9
       };
       const tOpt = { direction:'top', opacity:.95, permanent:false };
-      const tTxt = `${jumlah} anak`;
+      const tTxt = `${KEL_ABBR[kel] || ""} · ${jumlah} anak`;
       if (map)     L.circleMarker([lat,lng], opts).bindTooltip(tTxt, tOpt).addTo(map);
       if (mapFull) L.circleMarker([lat,lng], opts).bindTooltip(tTxt, tOpt).addTo(mapFull);
     });
@@ -1029,11 +1239,13 @@ document.getElementById('formPenemuan').addEventListener('submit', async (e) => 
   btn.innerHTML = '<span class="spinner"></span>Mengirim...';
 
   try {
-    await API.submit({ ...data, createdBy:'publik' });
-    toast('✅ Laporan terkirim. Menunggu verifikasi petugas.');
+    const tiket = genTiket();
+    await API.submit({ ...data, tiket, createdBy:'publik' });
     form.reset();
-    await refreshSemua({ silent:true });
-    switchPage('dash');
+    let warn = false;
+    try { await refreshSemua({ silent:true }); warn = !ARSIP.some(a => a.tiket === tiket); } catch (_) {}
+    showTiket(tiket, warn);
+    toast('✅ Laporan terkirim. Simpan kode tiket Anda.');
   } catch (err) {
     toast('❌ Gagal kirim: ' + err.message, 6000);
   } finally {
@@ -1045,9 +1257,9 @@ document.getElementById('formPenemuan').addEventListener('submit', async (e) => 
 // Export Word
 document.getElementById('btnWord').addEventListener('click', () => {
   if (!ARSIP.length) return toast('Belum ada data');
-  let html = '<html><head><meta charset="UTF-8"></head><body><h2>Arsip Laporan Masyarakat — SI PINTAR</h2><table border="1" cellpadding="6" style="border-collapse:collapse;font-family:Arial;font-size:12px"><tr><th>Waktu</th><th>Nama</th><th>TTL</th><th>Alamat</th><th>Pelapor</th><th>Kontak</th><th>Masalah</th><th>Status</th></tr>';
+  let html = '<html><head><meta charset="UTF-8"></head><body><h2>Arsip Laporan Masyarakat — SI PINTAR</h2><table border="1" cellpadding="6" style="border-collapse:collapse;font-family:Arial;font-size:12px"><tr><th>Waktu</th><th>Tiket</th><th>Nama</th><th>TTL</th><th>Alamat</th><th>Pelapor</th><th>Kontak</th><th>Masalah</th><th>Status</th></tr>';
   ARSIP.forEach(a => {
-    html += `<tr><td>${formatWaktu(a.waktu)}</td><td>${esc(a.nama)}</td><td>${esc(a.ttl)}</td><td>${esc(a.alamat)}</td><td>${esc(a.pelapor)}</td><td>${esc(a.kontak)}</td><td>${esc(a.masalah)}</td><td>${esc(a.tindakLanjut)}</td></tr>`;
+    html += `<tr><td>${formatWaktu(a.waktu)}</td><td>${esc(a.tiket)}</td><td>${esc(a.nama)}</td><td>${esc(a.ttl)}</td><td>${esc(a.alamat)}</td><td>${esc(a.pelapor)}</td><td>${esc(a.kontak)}</td><td>${esc(a.masalah)}</td><td>${esc(a.tindakLanjut)}</td></tr>`;
   });
   html += '</table></body></html>';
   const blob = new Blob(['\ufeff', html], { type:'application/msword' });
@@ -1060,9 +1272,9 @@ document.getElementById('btnWord').addEventListener('click', () => {
 // Export Excel (CSV)
 document.getElementById('btnExcel').addEventListener('click', () => {
   if (!ARSIP.length) return toast('Belum ada data');
-  let csv = 'Waktu,Nama,TTL,Alamat,Pelapor,Kontak,Masalah,Status\n';
+  let csv = 'Waktu,Tiket,Nama,TTL,Alamat,Pelapor,Kontak,Masalah,Status\n';
   ARSIP.forEach(a => {
-    csv += [a.waktu, a.nama, a.ttl, a.alamat, a.pelapor, a.kontak, a.masalah, a.tindakLanjut]
+    csv += [a.waktu, a.tiket, a.nama, a.ttl, a.alamat, a.pelapor, a.kontak, a.masalah, a.tindakLanjut]
       .map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',') + '\n';
   });
   const blob = new Blob(['\ufeff', csv], { type:'text/csv;charset=utf-8' });
@@ -1070,6 +1282,105 @@ document.getElementById('btnExcel').addEventListener('click', () => {
   const a = document.createElement('a'); a.href = url;
   a.download = `Arsip_SIPINTAR_${Date.now()}.csv`; a.click();
   URL.revokeObjectURL(url);
+});
+
+/* ════════ 13b. TIKET, LACAK, KONTAK, QR ════════ */
+function genTiket() {
+  const AL = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = new Uint32Array(6); crypto.getRandomValues(r);
+  const d = new Date(Date.now() + 7*3600e3).toISOString().slice(2,10).replace(/-/g,'');
+  return 'SP-' + d + '-' + Array.from(r, x => AL[x % AL.length]).join('');
+}
+const waDigits = s => { let d = String(s||'').replace(/\D/g,''); if (d.startsWith('0')) d = '62' + d.slice(1); else if (d.startsWith('8')) d = '62' + d; return d; };
+const waValid  = s => /^62\d{8,13}$/.test(waDigits(s));
+const waHref   = t => 'https://wa.me/' + waDigits(CFG.wa) + '?text=' + encodeURIComponent(t);
+const formUrl  = () => String(CFG.url || location.href).split('#')[0] + '#form';
+function applyConfig(c) {
+  if (Array.isArray(c)) c = c.reduce((o, r) => (o[r.key] = r.value, o), {});
+  if (!c || typeof c !== 'object') return;
+  if (c.wa && waValid(c.wa)) CFG.wa = String(c.wa);
+  if (typeof c.url === 'string' && /^https:\/\/\S+$/.test(c.url)) CFG.url = c.url;
+  try { localStorage.setItem('sipintar_cfg', JSON.stringify(CFG)); } catch (_) {}
+  renderContact();
+}
+function drawQr(cv, text) {
+  const m = qrMatrix(text), q = 4, sc = 8, N = m.length + 2*q; cv.width = cv.height = N*sc;
+  const c = cv.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0,0,cv.width,cv.height); c.fillStyle = '#000';
+  for (let y = 0; y < m.length; y++) for (let x = 0; x < m.length; x++) if (m[y][x]) c.fillRect((x+q)*sc, (y+q)*sc, sc, sc);
+}
+let cfgDirty = false;
+function renderContact() {
+  document.querySelectorAll('.waNum').forEach(e => e.textContent = CFG.wa);
+  document.querySelectorAll('a[data-wa]').forEach(a => { a.href = waHref(a.dataset.wa); });
+  const u = document.getElementById('qrUrl'); if (u) u.textContent = formUrl();
+  const cv = document.getElementById('qrCanvas');
+  if (cv) { try { drawQr(cv, formUrl()); cv.hidden = false; } catch (_) { cv.hidden = true; } }
+  if (!cfgDirty) {
+    const w = document.getElementById('cfWa'), l = document.getElementById('cfUrl');
+    if (w) w.value = CFG.wa; if (l) l.value = CFG.url;
+  }
+}
+async function copyText(t, btn) {
+  const old = btn.textContent;
+  try { await navigator.clipboard.writeText(t); btn.textContent = 'Tersalin'; } catch (_) { btn.textContent = 'Salin manual'; }
+  setTimeout(() => btn.textContent = old, 1800);
+}
+function showTiket(code, warn) {
+  const box = document.getElementById('tiketBox'); if (!box) return;
+  box.innerHTML = `<div class="tick"><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#155e75">Laporan terkirim · kode tiket Anda</div>
+    <div class="code2">${esc(code)}</div>
+    <p>Simpan kode ini untuk melacak penanganan di menu Lacak Tiket. Laporan sudah masuk ke peta dan jumlah Total Anak Terdata (bila kelurahan terbaca dari alamat).</p>
+    ${warn ? '<div class="warnbox">Peringatan: server belum menyimpan kode tiket. Perbarui Google Apps Script dengan Code.gs terbaru agar pelacakan berfungsi.</div>' : ''}
+    <div class="row"><button class="btn sm secondary" type="button" id="tkCopy">Salin kode</button>
+    <button class="btn sm" type="button" id="tkGo">Lacak sekarang</button>
+    <a class="btn wa sm" target="_blank" rel="noopener noreferrer" href="${esc(waHref('Halo admin SI PINTAR, saya baru mengirim laporan dengan kode tiket ' + code + '.'))}">💬 Kabari admin via WhatsApp</a></div></div>`;
+  document.getElementById('tkCopy').onclick = e => copyText(code, e.currentTarget);
+  document.getElementById('tkGo').onclick = () => { switchPage('lacak'); document.getElementById('lcKode').value = code; doLacak(code); };
+  box.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+const pillTL = s => s === 'Selesai' ? 'low' : s === 'Diproses' ? 'mid' : 'high';
+async function doLacak(raw) {
+  const out = document.getElementById('lcOut'), btn = document.getElementById('lcSubmit');
+  const code = String(raw||'').toUpperCase().replace(/\s+/g,'').replace(/[‐-―]/g,'-');
+  const say = (k, t) => { out.innerHTML = `<div class="msgbox ${k}">${esc(t)}</div>`; };
+  if (!/^SP-\d{6}-[A-Z0-9]{6}$/.test(code)) { say('bad', 'Format kode tidak sesuai. Contoh: SP-261110-K7M2QX'); return; }
+  btn.disabled = true; say('info', 'Mencari tiket...');
+  try {
+    let a = ARSIP.find(x => x.tiket === code);
+    if (!a) { await refreshSemua({ silent:true }); a = ARSIP.find(x => x.tiket === code); }
+    if (!a) { say('bad', 'Kode tiket tidak ditemukan. Periksa penulisannya, atau hubungi admin via WhatsApp.'); return; }
+    const st = a.tindakLanjut || 'Menunggu', idx = st === 'Selesai' ? 2 : st === 'Diproses' ? 1 : 0;
+    const k = classify(a.alamat), wil = k.kel ? `${k.kel}, Kec. ${k.kec}` : k.kec ? `Kec. ${k.kec}` : 'Belum terbaca';
+    const ini = String(a.nama||'').split(/\s+/).filter(Boolean).map(w => w[0].toUpperCase() + '.').join('') || '-';
+    out.innerHTML = `<div class="res"><div class="top"><b>${esc(code)}</b><span class="pill ${pillTL(st)}">${esc(st)}</span></div>
+      <ol class="trk">${['Laporan diterima','Diproses petugas','Selesai'].map((s,i)=>`<li class="${i<=idx?'on':''}">${s}</li>`).join('')}</ol>
+      <div class="detail-row"><b>Waktu lapor</b><span>${formatWaktu(a.waktu)}</span></div>
+      <div class="detail-row"><b>Anak</b><span>${esc(ini)}</span></div>
+      <div class="detail-row"><b>Wilayah</b><span>${esc(wil)}</span></div>
+      <div class="btnrow"><a class="btn wa sm" target="_blank" rel="noopener noreferrer" href="${esc(waHref('Halo admin SI PINTAR, saya menanyakan tiket ' + code))}">💬 Tanya admin via WhatsApp</a></div></div>`;
+  } catch (err) { say('bad', 'Gagal mengambil data: ' + err.message); }
+  finally { btn.disabled = false; }
+}
+document.getElementById('formLacak').addEventListener('submit', e => { e.preventDefault(); doLacak(document.getElementById('lcKode').value); });
+document.getElementById('btnQrCopy').addEventListener('click', e => copyText(formUrl(), e.currentTarget));
+document.getElementById('btnQrPng').addEventListener('click', () => {
+  document.getElementById('qrCanvas').toBlob(b => {
+    if (!b) return toast('Gagal membuat PNG');
+    const u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'qr-form-si-pintar.png'; a.click(); URL.revokeObjectURL(u);
+  }, 'image/png');
+});
+document.getElementById('formCfg').addEventListener('input', () => { cfgDirty = true; });
+document.getElementById('formCfg').addEventListener('submit', async e => {
+  e.preventDefault();
+  const msg = document.getElementById('cfMsg'), say = (k, t) => { msg.innerHTML = `<div class="msgbox ${k}">${esc(t)}</div>`; };
+  const wa = document.getElementById('cfWa').value.trim(), url = document.getElementById('cfUrl').value.trim().split('#')[0];
+  if (!waValid(wa)) { say('bad', 'Nomor WhatsApp tidak valid. Contoh: 081312403028 atau 6281312403028.'); return; }
+  if (url && !/^https:\/\/\S+$/.test(url)) { say('bad', 'Tautan halaman harus diawali https://'); return; }
+  const btn = document.getElementById('cfSubmit'); btn.disabled = true;
+  CFG = { wa, url }; try { localStorage.setItem('sipintar_cfg', JSON.stringify(CFG)); } catch (_) {}
+  cfgDirty = false; renderContact();
+  try { await API.post({ type:'config', action:'set', wa, url }); say('ok', 'Pengaturan tersimpan untuk semua pengunjung.'); }
+  catch (err) { say('info', 'Tersimpan di browser ini saja (server belum mendukung pengaturan: ' + err.message + '). Perbarui Apps Script dengan Code.gs terbaru.'); }
+  finally { btn.disabled = false; }
 });
 
 /* ════════ 14. LIFECYCLE ════════ */
@@ -1080,6 +1391,9 @@ window.addEventListener('online',  () => refreshSemua().catch(()=>{}));
 window.addEventListener('beforeunload', stopPolling);
 
 document.addEventListener('DOMContentLoaded', () => {
+  renderContact();
+  { const h = (location.hash||'').slice(1) || new URLSearchParams(location.search).get('page');
+    if (['dash','titik','data','form','lacak','akses','admin'].includes(h)) switchPage(h); }
   initMaps();
   renderKpi();
   renderTblKec();

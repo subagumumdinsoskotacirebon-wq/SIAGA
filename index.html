@@ -1,1 +1,1466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0e7490" />
+<title>SI PINTAR — Dinsos Kota Cirebon</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{
+  --brand:#0e7490; --brand2:#0891b2; --accent:#f59e0b;
+  --bg:#f4f7fa; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
+  --line:#e2e8f0; --ok:#10b981; --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button,input,select,textarea{font-family:inherit;font-size:16px}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:1000;background:linear-gradient(120deg,#0f766e,#0e7490 45%,#0891b2);color:#fff;padding:12px 16px;box-shadow:0 4px 18px rgba(14,116,144,.35)}
+.header-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:18px;letter-spacing:1px;background:#fff;color:#0e7490;padding:6px 12px;border-radius:12px;box-shadow:0 3px 0 rgba(0,0,0,.15);flex-shrink:0}
+.brand-title{line-height:1.25;flex:1;min-width:0}
+.brand-title b{font-size:14.5px;display:block}
+.brand-title span{display:block;font-size:11px;opacity:.9}
+nav{display:flex;gap:6px;margin-top:12px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+nav::-webkit-scrollbar{display:none}
+nav button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap;flex-shrink:0;transition:.2s}
+nav button:hover{background:rgba(255,255,255,.28)}
+nav button.active{background:#fff;color:#0e7490}
+nav button.nav-admin{background:rgba(245,158,11,.25);border-color:rgba(245,158,11,.6)}
+nav button.nav-admin.active{background:var(--accent);color:#451a03}
+
+main{padding:18px 16px;max-width:1400px;margin:0 auto;width:100%}
+.page{display:none;animation:fade .35s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h2.section{font-size:18px;margin-bottom:4px;line-height:1.3}
+.sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--line);box-shadow:0 6px 18px rgba(15,23,42,.05);position:relative;overflow:hidden}
+.kpi::after{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--brand)}
+.kpi .v{font-size:24px;font-weight:800;color:var(--brand);line-height:1.1}
+.kpi .l{font-size:11.5px;color:var(--muted);margin-top:4px}
+.kpi.warn::after{background:var(--accent)} .kpi.warn .v{color:#b45309}
+.kpi.ok::after{background:var(--ok)} .kpi.ok .v{color:#047857}
+.kpi.danger::after{background:#ef4444} .kpi.danger .v{color:#dc2626}
+
+.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+.gridTitik{display:grid;grid-template-columns:1.4fr .6fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:0 6px 18px rgba(15,23,42,.05);min-width:0}
+.card h3{font-size:14.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card h3::before{content:"";width:8px;height:8px;border-radius:3px;background:var(--brand2);flex-shrink:0}
+
+/* MAP */
+#map{height:360px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+#mapFull{height:420px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.map-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+.map-legend i{display:inline-block;width:13px;height:13px;border-radius:4px;margin-right:6px;vertical-align:-2px}
+
+/* SEARCH */
+.searchbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.searchbar input{flex:1 1 200px;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--line);outline:none;transition:.2s;background:#fff}
+.searchbar input:focus{border-color:var(--brand2);box-shadow:0 0 0 4px rgba(8,145,178,.12)}
+.searchbar select{flex:1 1 140px;padding:12px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:14px}
+
+/* TABLE */
+.tablewrap{max-height:460px;overflow:auto;border-radius:12px;border:1px solid var(--line);-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:11px 10px;background:#f1f5f9;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;white-space:nowrap;position:sticky;top:0;z-index:2}
+td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:hover{background:#f8fbfd}
+.pill{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap}
+.pill.low{background:#dcfce7;color:#166534}
+.pill.mid{background:#fef3c7;color:#92400e}
+.pill.high{background:#fee2e2;color:#991b1b}
+.empty{text-align:center;color:var(--muted);padding:30px;font-size:13px}
+
+/* FORM */
+form .field{margin-bottom:15px}
+form label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+form label small{color:var(--muted);font-weight:500}
+form input,form textarea,form select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);outline:none;transition:.2s;background:#fff;font-size:16px}
+form textarea{min-height:90px;resize:vertical}
+form input:focus,form textarea:focus{border-color:var(--brand2);box-shadow:0 0 0 4px rgba(8,145,178,.12)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+
+.btn{background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;border:none;padding:14px 24px;border-radius:12px;font-weight:700;cursor:pointer;transition:.2s;box-shadow:0 6px 16px rgba(8,145,178,.35);flex:1 1 auto;min-width:140px;font-size:14px}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(8,145,178,.45)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn.secondary{background:#e2e8f0;color:#0f172a;box-shadow:none}
+.btn.green{background:linear-gradient(120deg,#047857,#10b981);box-shadow:0 6px 16px rgba(16,185,129,.35)}
+.btn.orange{background:linear-gradient(120deg,#b45309,#f59e0b);box-shadow:0 6px 16px rgba(245,158,11,.35)}
+.btn.red{background:linear-gradient(120deg,#b91c1c,#ef4444);box-shadow:0 6px 16px rgba(239,68,68,.35)}
+.btn.sm{padding:9px 14px;min-width:0;font-size:12.5px;flex:0 0 auto}
+
+/* ADMIN */
+.loginbox{max-width:400px;margin:40px auto}
+.loginbox .icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 10px 24px rgba(8,145,178,.4)}
+.loginbox h2{text-align:center;font-size:18px;margin-bottom:4px}
+.loginbox .sub{text-align:center;margin-bottom:20px}
+.login-err{background:#fee2e2;color:#991b1b;border-radius:10px;padding:10px 14px;font-size:12.5px;margin-bottom:14px;display:none}
+.admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.admin-toolbar .spacer{flex:1}
+.badge-login{font-size:12px;background:#ecfeff;color:#155e75;padding:6px 12px;border-radius:99px;font-weight:700}
+
+/* ADMIN TABS */
+.admin-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;align-items:center;border-bottom:2px solid var(--line);padding-bottom:12px}
+.admin-tab{background:transparent;border:none;padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;color:var(--muted);transition:.2s;flex:0 0 auto;min-width:0;box-shadow:none;font-family:inherit}
+.admin-tab:hover{background:#f1f5f9}
+.admin-tab.active{background:linear-gradient(120deg,#0f766e,#0891b2);color:#fff;box-shadow:0 4px 12px rgba(8,145,178,.35)}
+.admin-tab-content{display:none}
+.admin-tab-content.active{display:block;animation:fade .3s}
+
+.detail-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:4000;display:none;align-items:center;justify-content:center;padding:16px}
+.detail-modal.show{display:flex}
+.detail-box{background:#fff;border-radius:16px;max-width:560px;width:100%;max-height:86vh;overflow:auto;padding:22px;animation:fade .25s}
+.detail-box h3{margin-bottom:14px;font-size:16px;color:var(--brand)}
+.detail-row{display:grid;grid-template-columns:170px 1fr;gap:6px;font-size:13px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.detail-row b{color:var(--muted);font-weight:600}
+@media(max-width:520px){.detail-row{grid-template-columns:1fr}}
+
+.toast{position:fixed;bottom:20px;left:16px;right:16px;background:#0f172a;color:#fff;padding:14px 20px;border-radius:12px;font-size:13.5px;box-shadow:0 12px 30px rgba(0,0,0,.3);opacity:0;transform:translateY(14px);transition:.3s;z-index:5000;pointer-events:none}
+.toast.show{opacity:1;transform:none}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px;line-height:1.6}
+.note{background:#ecfeff;border:1px solid #a5f3fc;color:#155e75;padding:12px 14px;border-radius:12px;font-size:12.5px;margin-bottom:16px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SYNC BADGE */
+.sync-badge{display:none;position:fixed;bottom:80px;right:16px;padding:8px 14px;border-radius:99px;font-size:11px;font-weight:700;z-index:4999;box-shadow:0 4px 12px rgba(0,0,0,.15);pointer-events:none;transition:.3s}
+.sync-badge.show{display:block}
+.sync-badge.ok{background:#dcfce7;color:#166534}
+.sync-badge.err{background:#fee2e2;color:#991b1b}
+
+/* SELECT TINDAK LANJUT */
+.tl-select{appearance:none;-webkit-appearance:none;padding:5px 22px 5px 10px !important;border:none;cursor:pointer;font-weight:700;font-size:11px;border-radius:99px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23334155' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;width:auto !important}
+.tl-select:disabled{opacity:.6;cursor:wait}
+
+@media (max-width:1024px){
+  .grid2{grid-template-columns:1fr}
+  .gridTitik{grid-template-columns:1fr}
+  #map{height:340px} #mapFull{height:400px}
+}
+@media (max-width:640px){
+  main{padding:14px 12px}
+  .brand-title b{font-size:13px}
+  .brand-title span{font-size:10px}
+  .logo{font-size:15px;padding:5px 10px}
+  nav{margin-top:10px;gap:5px}
+  nav button{padding:8px 12px;font-size:12px}
+  h2.section{font-size:16px}
+  .kpi .v{font-size:21px}
+  .card{padding:14px;border-radius:14px}
+  #map{height:300px} #mapFull{height:340px}
+  .searchbar input,.searchbar select{flex:1 1 100%;font-size:14px}
+  .tablewrap{max-height:420px;border-radius:10px}
+  table{font-size:12px;min-width:560px}
+  th,td{padding:9px 8px}
+  .row2{grid-template-columns:1fr}
+  .btn{width:100%;flex:1 1 100%;padding:14px;font-size:15px}
+  .admin-toolbar .btn{width:auto;flex:1 1 calc(50% - 4px)}
+  .admin-tab{padding:8px 12px;font-size:12px}
+}
+@media (max-width:360px){
+  .brand-title span{display:none}
+  .kpis{grid-template-columns:1fr}
+}
+@media (max-height:500px) and (orientation:landscape){
+  #map{height:240px} #mapFull{height:240px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+a.btn{display:inline-block;text-align:center}
+.tick{border:2px dashed #0e7490;background:#ecfeff;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.tick .code2{font:800 clamp(22px,5vw,30px)/1.1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;color:#0e7490;overflow-wrap:anywhere;user-select:all}
+.tick p{font-size:13px;color:#155e75}
+.tick .row,.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.tick .warnbox{background:#fef3c7;color:#92400e;border-radius:10px;padding:8px 12px;font-size:12.5px}
+.btn.wa{background:linear-gradient(120deg,#166534,#16a34a);box-shadow:0 6px 16px rgba(22,163,74,.35)}
+.qrbox{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.qrbox canvas{width:min(100%,300px);height:auto;aspect-ratio:1;image-rendering:pixelated;background:#fff;border-radius:12px;border:1px solid var(--line)}
+.qrurl{font:12px ui-monospace,Menlo,Consolas,monospace;color:var(--muted);overflow-wrap:anywhere}
+.res{border:1px solid var(--line);border-radius:14px;background:#fff;padding:16px;display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.res .top{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.res .top b{font:700 16px ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+.trk{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.trk li{border-top:4px solid var(--line);padding-top:6px;font-size:12.5px;color:var(--muted)}
+.trk li.on{border-top-color:var(--brand);color:var(--ink);font-weight:700}
+.msgbox{border-radius:10px;padding:10px 14px;font-size:13px;margin-top:10px}
+.msgbox.bad{background:#fee2e2;color:#991b1b}.msgbox.ok{background:#dcfce7;color:#166534}.msgbox.info{background:#ecfeff;color:#155e75}
+code.tk{font:600 11.5px ui-monospace,Menlo,Consolas,monospace;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo">SI&nbsp;PINTAR</div>
+    <div class="brand-title">
+      <b>SISTEM INFORMASI PENCEGAHAN DAN PENANGANAN ANAK TERLANTAR</b>
+      <span>Dinas Sosial Kota Cirebon · Peta Sebaran · Pelaporan Masyarakat · Tindak Lanjut Terpadu</span>
+    </div>
+  </div>
+  <nav>
+    <button data-page="dash" class="active">Dashboard</button>
+    <button data-page="titik">Lokasi Titik Binaan</button>
+    <button data-page="data">Data Binaan</button>
+    <button data-page="form">Form Penemuan Anak</button>
+    <button data-page="lacak">Lacak Tiket</button>
+    <button data-page="akses">QR &amp; Kontak</button>
+    <button data-page="admin" class="nav-admin">Admin</button>
+  </nav>
+</header>
+
+<main>
+  <!-- DASHBOARD -->
+  <section id="page-dash" class="page active">
+    <h2 class="section">Dashboard Monitoring</h2>
+    <p class="sub">Rekap data anak terlantar per kelurahan & kecamatan Kota Cirebon — warna peta sesuai jumlah anak.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="v" id="kpiTotal">0</div><div class="l">Total Anak Terdata</div><div class="l" id="kpiTotalNote" style="margin-top:2px"></div></div>
+      <div class="kpi ok"><div class="v" id="kpiKel">0</div><div class="l">Kelurahan Titik Binaan</div></div>
+      <div class="kpi warn"><div class="v" id="kpiKec">0</div><div class="l">Kecamatan Terjangkau</div></div>
+      <div class="kpi danger"><div class="v" id="kpiLapor">0</div><div class="l">Laporan Masyarakat</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Peta Sebaran Kota Cirebon</h3>
+        <div id="map"></div>
+        <div class="map-legend">
+          <span><i style="background:#22c55e"></i>Sedikit (≤ 20)</span>
+          <span><i style="background:#f59e0b"></i>Sedang (21 – 40)</span>
+          <span><i style="background:#ef4444"></i>Banyak (&gt; 40)</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Rekap Per Kecamatan</h3>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Kecamatan</th><th>Kel.</th><th>Total</th><th>Status</th></tr></thead>
+            <tbody id="tblKec"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TITIK BINAAN -->
+  <section id="page-titik" class="page">
+    <h2 class="section">Lokasi Titik Binaan</h2>
+    <p class="sub">Sebaran per kelurahan dengan pewarnaan berdasar jumlah anak. Arahkan kursor untuk detail.</p>
+    <div class="gridTitik">
+      <div class="card">
+        <div id="mapFull"></div>
+        <div class="map-legend">
+          <span><i style="background:#22c55e"></i>Sedikit</span>
+          <span><i style="background:#f59e0b"></i>Sedang</span>
+          <span><i style="background:#ef4444"></i>Banyak</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Ringkasan Wilayah</h3>
+        <div class="searchbar">
+          <input id="searchTitik" type="text" placeholder="Cari kelurahan / kecamatan..." />
+        </div>
+        <div class="tablewrap" style="max-height:340px">
+          <table>
+            <thead><tr><th>Wilayah</th><th>Jumlah</th></tr></thead>
+            <tbody id="tblTitik"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DATA BINAAN -->
+  <section id="page-data" class="page">
+    <h2 class="section">Data Binaan</h2>
+    <p class="sub">Nama anak disamarkan menggunakan inisial demi perlindungan privasi.</p>
+    <div class="searchbar">
+      <input id="searchData" type="text" placeholder="Cari inisial, kelurahan, masalah..." />
+      <select id="filterKec"><option value="">Semua Kecamatan</option></select>
+      <select id="filterStatus">
+        <option value="">Semua Status</option>
+        <option>Dalam Pembinaan</option>
+        <option>Pendampingan</option>
+        <option>Selesai</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="tablewrap" style="max-height:560px">
+        <table>
+          <thead>
+            <tr><th>Inisial</th><th>Umur</th><th>Kecamatan</th><th>Kelurahan</th><th>Titik</th><th>Masalah</th><th>Status</th></tr>
+          </thead>
+          <tbody id="tblData"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORM -->
+  <section id="page-form" class="page">
+    <h2 class="section">Form Penemuan Anak</h2>
+    <p class="sub">Formulir pelaporan masyarakat. Data tersimpan ke arsip Google Sheet Dinsos.</p>
+    <div class="note">Data yang Anda laporkan akan diverifikasi petugas Dinsos Kota Cirebon. Mohon isi dengan sebenar-benarnya. Setelah terkirim Anda mendapat <b>kode tiket</b> untuk melacak penanganan.</div>
+    <div class="btnrow" style="margin-bottom:14px"><a class="btn wa sm" data-wa="Halo admin SI PINTAR, saya ingin menanyakan laporan anak terlantar." target="_blank" rel="noopener noreferrer">💬 Hubungi admin via WhatsApp <span class="waNum"></span></a></div>
+    <div id="tiketBox" style="max-width:760px"></div>
+    <div class="card" style="max-width:760px">
+      <form id="formPenemuan">
+        <div class="field">
+          <label>1. Nama Anak <small>(gunakan inisial bila perlu)</small></label>
+          <input required name="nama" placeholder="Contoh: A.B." />
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>2a. Tempat Lahir</label>
+            <input required name="tempatLahir" placeholder="Contoh: Cirebon" />
+          </div>
+          <div class="field">
+            <label>2b. Tanggal Lahir / Umur</label>
+            <input required name="ttl" placeholder="Contoh: 12-05-2015 / 9 th" />
+          </div>
+        </div>
+        <div class="field">
+          <label>3. Alamat Lengkap Ditemukan</label>
+          <textarea required name="alamat" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan, Kota Cirebon, patokan lokasi..."></textarea>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>4. Nama Pelapor</label>
+            <input required name="pelapor" placeholder="Nama lengkap pelapor" />
+          </div>
+          <div class="field">
+            <label>5. Kontak Keluarga yang Dapat Dihubungi</label>
+            <input required name="kontak" placeholder="No. HP / nama keluarga" />
+          </div>
+        </div>
+        <div class="field">
+          <label>6. Permasalahan Anak Saat Ditemukan</label>
+          <textarea required name="masalah" placeholder="Deskripsikan kondisi & permasalahan anak saat ditemukan..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn" type="submit" id="btnKirim">Kirim Laporan</button>
+          <button class="btn secondary" type="reset">Reset</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- LACAK -->
+  <section id="page-lacak" class="page">
+    <h2 class="section">Lacak Layanan</h2>
+    <p class="sub">Masukkan kode tiket yang Anda terima setelah mengisi Form Penemuan Anak.</p>
+    <div class="card" style="max-width:640px">
+      <form id="formLacak" autocomplete="off">
+        <div class="field"><label>Kode Tiket</label><input id="lcKode" required placeholder="SP-261110-K7M2QX" autocapitalize="characters" spellcheck="false" /></div>
+        <button class="btn" type="submit" id="lcSubmit">Lacak</button>
+      </form>
+      <div id="lcOut" role="status"></div>
+      <div class="btnrow" style="margin-top:14px"><a class="btn wa sm" data-wa="Halo admin SI PINTAR, saya ingin menanyakan status laporan saya." target="_blank" rel="noopener noreferrer">💬 Tanya admin via WhatsApp <span class="waNum"></span></a></div>
+    </div>
+  </section>
+
+  <!-- QR & KONTAK -->
+  <section id="page-akses" class="page">
+    <h2 class="section">QR Code &amp; Kontak Admin</h2>
+    <p class="sub">Pindai QR untuk membuka langsung menu Form Penemuan Anak.</p>
+    <div class="grid2">
+      <div class="card qrbox">
+        <canvas id="qrCanvas" width="296" height="296" role="img" aria-label="QR Code menuju form penemuan anak"></canvas>
+        <div class="qrurl" id="qrUrl"></div>
+        <div class="btnrow" style="justify-content:center">
+          <button class="btn sm" id="btnQrPng" type="button">⬇ Unduh QR (PNG)</button>
+          <button class="btn secondary sm" id="btnQrCopy" type="button">Salin tautan</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Hubungi Admin</h3>
+        <p style="margin-bottom:12px">Untuk laporan mendesak atau pertanyaan, hubungi admin SI PINTAR melalui WhatsApp.</p>
+        <div class="kpi" style="margin-bottom:14px"><div class="v waNum" style="font-size:24px"></div><div class="l">Nomor WhatsApp admin</div></div>
+        <div class="btnrow">
+          <a class="btn wa sm" data-wa="Halo admin SI PINTAR, saya ingin bertanya." target="_blank" rel="noopener noreferrer">💬 Chat admin</a>
+          <button class="btn secondary sm" type="button" onclick="switchPage('form')">Buka form penemuan anak</button>
+          <button class="btn secondary sm" type="button" onclick="switchPage('lacak')">Lacak tiket</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="page-admin" class="page">
+    <div id="adminLogin" class="loginbox card">
+      <div class="icon">🔐</div>
+      <h2>Login Admin</h2>
+      <p class="sub">Khusus petugas Dinsos Kota Cirebon</p>
+      <div class="login-err" id="loginErr">Username atau password salah!</div>
+      <form id="formLogin">
+        <div class="field"><label>Username</label><input required id="loginUser" placeholder="Username" autocomplete="username" /></div>
+        <div class="field"><label>Password</label><input required id="loginPass" type="password" placeholder="Password" autocomplete="current-password" /></div>
+        <button class="btn" type="submit" style="width:100%">Masuk</button>
+      </form>
+    </div>
+
+    <div id="adminPanel" style="display:none">
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="arsip">📋 Arsip Laporan</button>
+        <button class="admin-tab" data-tab="anak">👦 Kelola Data Anak</button>
+        <button class="admin-tab" data-tab="pengaturan">⚙ Kontak &amp; QR</button>
+        <span style="flex:1"></span>
+        <span class="badge-login">👤 dinsos</span>
+        <button class="btn red sm" id="btnLogout">Keluar</button>
+      </div>
+
+      <!-- TAB 1: ARSIP -->
+      <div id="tab-arsip" class="admin-tab-content active">
+        <div class="admin-toolbar">
+          <div>
+            <h2 class="section" style="margin:0">Arsip Laporan Masyarakat</h2>
+            <p class="sub" style="margin:0;font-size:12px">Ubah tindak lanjut lewat dropdown kolom Tindak Lanjut.</p>
+          </div>
+          <div class="spacer"></div>
+          <button class="btn green sm" id="btnWord">⬇ Word</button>
+          <button class="btn orange sm" id="btnExcel">⬇ Excel</button>
+        </div>
+        <div class="searchbar">
+          <input id="searchArsip" type="text" placeholder="Cari nama anak, pelapor, alamat, masalah..." />
+          <select id="filterTL">
+            <option value="">Semua Tindak Lanjut</option>
+            <option>Menunggu</option>
+            <option>Diproses</option>
+            <option>Selesai</option>
+          </select>
+        </div>
+        <div class="card">
+          <div class="tablewrap" style="max-height:560px">
+            <table>
+              <thead>
+                <tr><th>Waktu</th><th>Tiket</th><th>Nama Anak</th><th>TTL/Umur</th><th>Alamat</th><th>Pelapor</th><th>Kontak</th><th>Permasalahan</th><th>Tindak Lanjut</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="tblArsip"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: DATA ANAK -->
+      <div id="tab-anak" class="admin-tab-content">
+        <div class="note">Data anak binaan yang diinput di sini akan <b>langsung muncul di dashboard</b> semua browser dalam ≤10 detik.</div>
+
+        <div class="card" style="margin-bottom:16px">
+          <h3 id="formAnakTitle">➕ Tambah / Edit Data Anak Binaan</h3>
+          <form id="formAnak">
+            <input type="hidden" id="anakEditId" value="" />
+            <div class="row2">
+              <div class="field">
+                <label>Inisial Anak *</label>
+                <input required name="ini" placeholder="Contoh: A.B." maxlength="20" />
+              </div>
+              <div class="field">
+                <label>Umur (tahun) *</label>
+                <input required type="number" name="umur" min="0" max="18" placeholder="Contoh: 10" />
+              </div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label>Kecamatan *</label>
+                <select required name="kec" id="anakKec"></select>
+              </div>
+              <div class="field">
+                <label>Kelurahan *</label>
+                <select required name="kel" id="anakKel"></select>
+              </div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label>Titik Binaan</label>
+                <input name="titik" placeholder="Contoh: Titik Binaan 1" />
+              </div>
+              <div class="field">
+                <label>Status</label>
+                <select name="status">
+                  <option>Dalam Pembinaan</option>
+                  <option>Pendampingan</option>
+                  <option>Selesai</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Masalah / Permasalahan</label>
+              <input name="masalah" placeholder="Contoh: Kurang asuh, anak jalanan, rawan putus sekolah" />
+            </div>
+            <div class="form-actions">
+              <button class="btn" type="submit" id="btnSimpanAnak">Simpan Data Anak</button>
+              <button class="btn secondary" type="button" id="btnResetAnak">Batal / Reset</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Daftar Data Anak Binaan</h3>
+          <div class="searchbar">
+            <input id="searchAnak" type="text" placeholder="Cari inisial, kelurahan, kecamatan..." />
+          </div>
+          <div class="tablewrap" style="max-height:460px">
+            <table>
+              <thead>
+                <tr><th>Inisial</th><th>Umur</th><th>Kecamatan</th><th>Kelurahan</th><th>Titik</th><th>Masalah</th><th>Status</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="tblAnak"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: PENGATURAN -->
+      <div id="tab-pengaturan" class="admin-tab-content">
+        <div class="card" style="max-width:640px">
+          <h3>Kontak WhatsApp &amp; QR Code</h3>
+          <form id="formCfg" autocomplete="off">
+            <div class="field"><label>Nomor WhatsApp admin</label><input id="cfWa" required inputmode="tel" placeholder="081312403028" /><small style="color:var(--muted)">Dipakai pada semua tombol WhatsApp. Format 08... atau 628...</small></div>
+            <div class="field"><label>Tautan halaman (untuk QR Code)</label><input id="cfUrl" type="url" placeholder="https://..." /><small style="color:var(--muted)">Kosongkan untuk memakai alamat halaman ini. QR membuka tautan ini pada menu Form.</small></div>
+            <button class="btn" type="submit" id="cfSubmit">Simpan pengaturan</button>
+            <div id="cfMsg" role="status"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL DETAIL -->
+<div class="detail-modal" id="detailModal">
+  <div class="detail-box">
+    <h3>📋 Detail Laporan</h3>
+    <div id="detailBody"></div>
+    <div style="margin-top:16px;text-align:right">
+      <button class="btn secondary sm" onclick="closeDetail()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<footer>© SI PINTAR — Sistem Informasi Pencegahan dan Penanganan Anak Terlantar · Dinas Sosial Kota Cirebon</footer>
+<div id="toast" class="toast"></div>
+<div id="syncBadge" class="sync-badge"></div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   0. KONFIGURASI — WAJIB DIISI
+   ════════════════════════════════════════════════════════════════════
+   ⬇⬇⬇ ISI URL APPS SCRIPT ANDA DI SINI ⬇⬇⬇
+   Contoh: "https://script.google.com/macros/s/AKfycb.../exec"
+   ════════════════════════════════════════════════════════════════════ */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxyu8-LpHa6gnMT4Bc6WJGxobdVdgoutBsQMzadhs67UsV7SyBH29BxxwSZR9IAmw-Q_w/exec";
+
+const ADMIN = { user:"dinsos", pass:"admin123" };
+const DEFAULT_WA = "081312403028";
+
+const KELS = [
+["Kejaksan","Kejaksan"],["Kesenden","Kejaksan"],["Kebonbaru","Kejaksan"],["Sukapura","Kejaksan"],
+["Lemahwungkuk","Lemahwungkuk"],["Panjunan","Lemahwungkuk"],["Kasepuhan","Lemahwungkuk"],["Pegambiran","Lemahwungkuk"],
+["Pekalipan","Pekalipan"],["Pekalangan","Pekalipan"],["Jagasatru","Pekalipan"],["Pulasaren","Pekalipan"],
+["Kesambi","Kesambi"],["Sunyaragi","Kesambi"],["Karyamulya","Kesambi"],["Drajat","Kesambi"],["Pekiringan","Kesambi"],
+["Harjamukti","Harjamukti"],["Kalijaga","Harjamukti"],["Kecapi","Harjamukti"],["Larangan","Harjamukti"],["Argasunya","Harjamukti"]];
+const KEC_LIST = ["Harjamukti","Kesambi","Kejaksan","Lemahwungkuk","Pekalipan"];
+const KEC_OF = Object.fromEntries(KELS);
+const AMBIG = new Set(["HARJAMUKTI","KESAMBI","KEJAKSAN","LEMAHWUNGKUK","PEKALIPAN"]);
+const KAMPUNG = [
+["Harjamukti",["PELANDAKAN","GRENJENG","PENYUKEN","WANACALA","CURUG","KALITANJUNG"]],
+["Kalijaga",["TUGU DALAM","KEDUNG MENJANGAN","KEDUNGWUNGU","KEDUNG WUNGU","PENGAMPAAN","SITOPENG","SITOPEG","SUKET DUWUR","CILERES","LEDENG","KEBON PELOK","GOMBOL GEDE","ANGKASA","MONTANA VILLAGE"]],
+["Argasunya",["CIBOGO","KOPI LUHUR","ARGAPURA","SURAPANDAN","SUMUR PANDAN","KEDUNG MENDENG","KEDUNG KRISIK","DWI PANTARA","NUSALARA","GRIYA BINTANG","SUMUR TETES","KALILUNYU","PANDAN WANGI"]],
+["Kecapi",["DUKUH SEMAR","BALONG"]],
+["Larangan",["KETILANG","GN LAWU","GN AGUNG","PANGRANGO"]],
+["Karyamulya",["SITUGANGGA","KARYA BAKTI","KARYABAKTI","MEKARSICALUNG","SICALUNG","MAJASEM","KANDANG PERAHU","KALIKEBAT","JEMBAR AGUNG","EVAKUASI"]],
+["Kasepuhan",["KESUNEAN","BANJAR MELATI","SITI MULYA","SITIMULYA"]],
+["Lemahwungkuk",["CANGKOL","PENGAMPON"]],
+["Panjunan",["LAYUR","BANDENG","PASEWAN","BENTENG","PESISIR UTARA"]],
+["Pegambiran",["KARANG ANOM","KRIYAN","API API","KARANGDAWA","KEJAWANAN","KARANG MULYA"]],
+["Sunyaragi",["TAMANSARI","KARANG BARU","KARANGBARU","KARANG MALANG"]],
+["Pekiringan",["GUNUNG SARI","AMERA"]],
+["Sukapura",["PANCURAN","SUKASARI","OLAH RAGA","PAMITRAN"]],
+["Kebonbaru",["EMPANG"]],
+["Pekalipan",["KANOMAN","PETRATEAN","ASTANA GARIB","ASTUR"]],
+["Jagasatru",["PEGAJAHAN"]],
+["Pekalangan",["KEBON CAI"]]];
+const LUAR = /\b(KAB|KABUPATEN|JAKARTA|BEKASI|BOYOLALI|TALUN|MUNDU|SUMBER|KEDAWUNG|PANGENAN|KALIWEDI|KARANGSEMBUNG|HAURGEULIS|SAMPIRAN|SIJOPAK|DURAJAYA|TAMBUN|TAMBELANG|PENPEN|PAMENGKANG|KEPONGPONGAN|PRAJAWINAGUN)\b/;
+function normAddr(s){
+  let t = String(s||"").toUpperCase().replace(/[.,;:()\-_\/]/g," ").replace(/\s+/g," ").trim();
+  const fix = [[/HARJAMKTI|HARJAMUTI|\bHJM\b/g,"HARJAMUKTI"],[/\bLMWK\b|LEMAH WUNGKUK/g,"LEMAHWUNGKUK"],[/KESEPUHAN/g,"KASEPUHAN"],[/KEJAKSAAN/g,"KEJAKSAN"],
+    [/PRGAMBIRAN/g,"PEGAMBIRAN"],[/CIPOGO|COBOGO|CIBOG0/g,"CIBOGO"],[/KEBON BARU/g,"KEBONBARU"],[/KARYA MULYA/g,"KARYAMULYA"],[/SURAPNDAN/g,"SURAPANDAN"],
+    [/\bKD MENDENG/g,"KEDUNG MENDENG"],[/\bKAPT\b|\bKAPTEN\b/g,"KAPT"],[/SITUGANGA|SITUGANGGA/g,"SITUGANGGA"],[/\bP GRENJENG|\bPGRENJENG/g,"GRENJENG"],[/\bKE\b/g,"KEL"]];
+  for(const [a,b] of fix) t=t.replace(a,b);
+  return t;
+}
+function classify(addr){
+  const raw=String(addr||"").trim();
+  if(!raw) return {status:"kosong",kel:"",kec:""};
+  const t=normAddr(raw);
+  if(LUAR.test(t)) return {status:"luar",kel:"",kec:""};
+  let best=null;
+  for(const [kel] of KELS){
+    const N=kel.toUpperCase();
+    const re=new RegExp("\\b(?:KEL|KELURAHAN)\\s+(?:KEC\\s+)?"+N+"\\b","g"); let m;
+    while((m=re.exec(t))){ if(!best||m.index>best.i) best={i:m.index,kel}; }
+  }
+  if(best) return {status:"kel",kel:best.kel,kec:KEC_OF[best.kel]};
+  best=null;
+  for(const [kel] of KELS){
+    const N=kel.toUpperCase(); if(AMBIG.has(N)) continue;
+    const re=new RegExp("\\b"+N+"\\b","g"); let m;
+    while((m=re.exec(t))){ if(!best||m.index>best.i) best={i:m.index,kel}; }
+  }
+  if(best) return {status:"kel",kel:best.kel,kec:KEC_OF[best.kel]};
+  best=null;
+  for(const [kel,words] of KAMPUNG) for(const w of words){
+    const re=new RegExp("\\b"+w+"\\b","g"); let m;
+    while((m=re.exec(t))){ if(!best||m.index>best.i) best={i:m.index,kel}; }
+  }
+  if(best) return {status:"kel",kel:best.kel,kec:KEC_OF[best.kel]};
+  best=null;
+  for(const kec of KEC_LIST){
+    const re=new RegExp("\\b"+kec.toUpperCase()+"\\b","g"); let m;
+    while((m=re.exec(t))){ if(!best||m.index>best.i) best={i:m.index,kec}; }
+  }
+  if(best) return {status:"kec",kel:"",kec:best.kec};
+  return {status:"belum",kel:"",kec:""};
+}
+
+
+
+/* Pembuat QR Code mandiri (mode byte, koreksi galat M, versi 1-10) */
+function qrMatrix(text){
+  const ECC=[0,10,16,26,18,24,16,18,22,22,26],NB=[0,1,1,1,2,2,4,4,4,5,5];
+  const data8=Array.from(new TextEncoder().encode(text));
+  const rawMods=v=>{let r=(16*v+128)*v+64;if(v>=2){const n=Math.floor(v/7)+2;r-=(25*n-10)*n-55;if(v>=7)r-=36}return r};
+  let ver=0,ndc=0;
+  for(let v=1;v<=10;v++){ndc=Math.floor(rawMods(v)/8)-ECC[v]*NB[v];const need=4+(v<10?8:16)+8*data8.length;if(need<=ndc*8){ver=v;break}}
+  if(!ver)throw new Error("Teks terlalu panjang untuk QR");
+  const bits=[];const put=(val,len)=>{for(let i=len-1;i>=0;i--)bits.push((val>>>i)&1)};
+  put(4,4);put(data8.length,ver<10?8:16);data8.forEach(b=>put(b,8));
+  put(0,Math.min(4,ndc*8-bits.length));while(bits.length%8)bits.push(0);
+  const cw=[];for(let i=0;i<bits.length;i+=8){let b=0;for(let j=0;j<8;j++)b=(b<<1)|bits[i+j];cw.push(b)}
+  for(let p=0xEC;cw.length<ndc;p^=0xEC^0x11)cw.push(p);
+  const mul=(x,y)=>{let z=0;for(let i=7;i>=0;i--){z=(z<<1)^((z>>>7)*0x11D);z^=((y>>>i)&1)*x}return z&255};
+  const divisor=d=>{const r=new Array(d).fill(0);r[d-1]=1;let root=1;for(let i=0;i<d;i++){for(let j=0;j<d;j++){r[j]=mul(r[j],root);if(j+1<d)r[j]^=r[j+1]}root=mul(root,2)}return r};
+  const rem=(dat,div)=>{const r=new Array(div.length).fill(0);for(const b of dat){const f=b^r.shift();r.push(0);div.forEach((c,i)=>{r[i]^=mul(c,f)})}return r};
+  const nb=NB[ver],el=ECC[ver],raw=Math.floor(rawMods(ver)/8),ns=nb-raw%nb,sl=Math.floor(raw/nb),div=divisor(el),blocks=[];
+  for(let i=0,k=0;i<nb;i++){const dl=sl-el+(i<ns?0:1),dat=cw.slice(k,k+dl);k+=dl;const e=rem(dat,div);if(i<ns)dat.push(0);blocks.push(dat.concat(e))}
+  const all=[];for(let i=0;i<blocks[0].length;i++)blocks.forEach((b,j)=>{if(i!==sl-el||j>=ns)all.push(b[i])});
+  const size=ver*4+17,M=[],F=[];for(let y=0;y<size;y++){M.push(new Array(size).fill(0));F.push(new Array(size).fill(false))}
+  const sf=(x,y,d)=>{M[y][x]=d?1:0;F[y][x]=true};
+  for(let i=0;i<size;i++){sf(6,i,i%2===0);sf(i,6,i%2===0)}
+  for(const[cx,cy]of[[3,3],[size-4,3],[3,size-4]])for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){const d=Math.max(Math.abs(dx),Math.abs(dy)),x=cx+dx,y=cy+dy;if(x>=0&&x<size&&y>=0&&y<size)sf(x,y,d!==2&&d!==4)}
+  let al=[];if(ver>1){const n=Math.floor(ver/7)+2,step=Math.ceil((ver*4+4)/(n*2-2))*2;al=[6];for(let p=size-7;al.length<n;p-=step)al.splice(1,0,p)}
+  for(let i=0;i<al.length;i++)for(let j=0;j<al.length;j++){if((i===0&&j===0)||(i===0&&j===al.length-1)||(i===al.length-1&&j===0))continue;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)sf(al[i]+dx,al[j]+dy,Math.max(Math.abs(dx),Math.abs(dy))!==1)}
+  const fmt=mask=>{const d=mask;let r=d;for(let i=0;i<10;i++)r=(r<<1)^((r>>>9)*0x537);const b=((d<<10)|r)^0x5412,g=i=>((b>>>i)&1)===1;
+    for(let i=0;i<=5;i++)sf(8,i,g(i));sf(8,7,g(6));sf(8,8,g(7));sf(7,8,g(8));for(let i=9;i<15;i++)sf(14-i,8,g(i));
+    for(let i=0;i<8;i++)sf(size-1-i,8,g(i));for(let i=8;i<15;i++)sf(8,size-15+i,g(i));sf(8,size-8,true)};
+  fmt(0);
+  if(ver>=7){let r=ver;for(let i=0;i<12;i++)r=(r<<1)^((r>>>11)*0x1F25);const b=(ver<<12)|r;for(let i=0;i<18;i++){const c=((b>>>i)&1)===1,a=size-11+i%3,q=Math.floor(i/3);sf(a,q,c);sf(q,a,c)}}
+  for(let i=0,right=size-1;right>=1;right-=2){if(right===6)right=5;for(let v=0;v<size;v++)for(let j=0;j<2;j++){const x=right-j,up=((right+1)&2)===0,y=up?size-1-v:v;if(!F[y][x]&&i<all.length*8){M[y][x]=(all[i>>>3]>>>(7-(i&7)))&1;i++}}}
+  const mk=(m,x,y)=>[(x+y)%2===0,y%2===0,x%3===0,(x+y)%3===0,(Math.floor(x/3)+Math.floor(y/2))%2===0,x*y%2+x*y%3===0,(x*y%2+x*y%3)%2===0,((x+y)%2+x*y%3)%2===0][m];
+  const apply=m=>{for(let y=0;y<size;y++)for(let x=0;x<size;x++)if(!F[y][x]&&mk(m,x,y))M[y][x]^=1};
+  const pen=()=>{let p=0;for(let y=0;y<size;y++){let run=1;for(let x=1;x<=size;x++){if(x<size&&M[y][x]===M[y][x-1])run++;else{if(run>=5)p+=run-2;run=1}}}
+    for(let x=0;x<size;x++){let run=1;for(let y=1;y<=size;y++){if(y<size&&M[y][x]===M[y-1][x])run++;else{if(run>=5)p+=run-2;run=1}}}
+    for(let y=0;y<size-1;y++)for(let x=0;x<size-1;x++)if(M[y][x]===M[y][x+1]&&M[y][x]===M[y+1][x]&&M[y][x]===M[y+1][x+1])p+=3;
+    let d=0;for(const r of M)for(const c of r)d+=c;p+=Math.floor(Math.abs(d*20-size*size*10)/(size*size))*10;return p};
+  let best=0,bp=1e9;for(let m=0;m<8;m++){apply(m);fmt(m);const p=pen();if(p<bp){bp=p;best=m}apply(m)}
+  apply(best);fmt(best);return M;
+}
+
+
+const KEL_GEO = {"Kejaksan":[-6.706,108.556],"Kesenden":[-6.7105,108.5625],"Kebonbaru":[-6.7095,108.5515],"Sukapura":[-6.7005,108.56],"Lemahwungkuk":[-6.719,108.5735],"Panjunan":[-6.711,108.571],"Kasepuhan":[-6.7265,108.57],"Pegambiran":[-6.7205,108.5785],"Pekalipan":[-6.721,108.565],"Pekalangan":[-6.7165,108.564],"Jagasatru":[-6.7235,108.561],"Pulasaren":[-6.728,108.5665],"Kesambi":[-6.726,108.551],"Sunyaragi":[-6.7385,108.542],"Karyamulya":[-6.712,108.544],"Drajat":[-6.719,108.55],"Pekiringan":[-6.7315,108.546],"Harjamukti":[-6.7485,108.557],"Kalijaga":[-6.7345,108.5585],"Kecapi":[-6.7585,108.549],"Larangan":[-6.7645,108.556],"Argasunya":[-6.7745,108.5725]};
+const KEL_ABBR={Kejaksan:"KJL",Kesenden:"KSD",Kebonbaru:"KBN",Sukapura:"SKP",Lemahwungkuk:"LMW",Panjunan:"PJN",Kasepuhan:"KSP",Pegambiran:"PGM",Pekalipan:"PKN",Pekalangan:"PKG",Jagasatru:"JGS",Pulasaren:"PLS",Kesambi:"KSM",Sunyaragi:"SNY",Karyamulya:"KRM",Drajat:"DRJ",Pekiringan:"PKR",Harjamukti:"HMK",Kalijaga:"KLJ",Kecapi:"KCP",Larangan:"LRN",Argasunya:"ARS"};
+const KEL_ALIAS={"Kesepuhan":"Kasepuhan","Pekalipan Utara":"Pekalipan"};
+
+/* ════════ 1. DATA WILAYAH ════════ */
+const KECAMATAN = {
+  "Harjamukti":   { lat:-6.7450, lng:108.5450, kelurahan:[] },
+  "Lemahwungkuk": { lat:-6.7190, lng:108.5630, kelurahan:[] },
+  "Pekalipan":    { lat:-6.7080, lng:108.5720, kelurahan:[] },
+  "Kejaksan":     { lat:-6.7000, lng:108.5680, kelurahan:[] },
+  "Kesambi":      { lat:-6.7250, lng:108.5380, kelurahan:[] }
+};
+KELS.forEach(([kel,kec]) => KECAMATAN[kec].kelurahan.push(kel));   // 22 kelurahan resmi
+
+/* ════════ 2. STATE GLOBAL ════════ */
+let ARSIP = [];          // laporan masyarakat (dari Sheets)
+let ANAK  = [];          // data anak binaan (dari Sheets)
+let isFetching = false;
+let pollTimer = null;
+const POLL_MS = 10000;
+let map = null, mapFull = null;
+let CFG = { wa: DEFAULT_WA, url: '' };
+try { const c = JSON.parse(localStorage.getItem('sipintar_cfg')||'null'); if (c) CFG = { wa:c.wa||DEFAULT_WA, url:c.url||'' }; } catch(_) {}
+
+/* ════════ 3. API ════════ */
+const API = {
+  async list(type = 'arsip') {
+    if (!APPS_SCRIPT_URL) throw new Error('APPS_SCRIPT_URL belum diisi');
+    const url = `${APPS_SCRIPT_URL}?action=list&type=${type}&t=${Date.now()}`;
+    const r = await fetch(url, { cache:'no-store' });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Server error');
+    return j.data;
+  },
+  async post(payload) {
+    if (!APPS_SCRIPT_URL) throw new Error('APPS_SCRIPT_URL belum diisi');
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Server error');
+    return j;
+  },
+  submit(p)           { return this.post({ type:'arsip', action:'create', ...p }); },
+  updateTL(id, tl)    { return this.post({ type:'arsip', action:'update', id, tindakLanjut: tl }); },
+  createAnak(p)       { return this.post({ type:'anak',  action:'create', ...p }); },
+  updateAnak(id, p)   { return this.post({ type:'anak',  action:'update', id, ...p }); },
+  deleteAnak(id)      { return this.post({ type:'anak',  action:'delete', id }); }
+};
+
+/* ════════ 4. UTIL ════════ */
+function toast(msg, timeout = 3500) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), timeout);
+}
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function formatWaktu(iso) {
+  if (!iso) return '-';
+  try {
+    return new Date(iso).toLocaleString('id-ID', {
+      day:'2-digit', month:'short', year:'numeric',
+      hour:'2-digit', minute:'2-digit'
+    });
+  } catch { return '-'; }
+}
+function showSyncBadge(status, msg) {
+  const b = document.getElementById('syncBadge');
+  if (!b) return;
+  b.textContent = msg;
+  b.className = 'sync-badge show ' + status;
+  clearTimeout(b._t);
+  b._t = setTimeout(() => b.classList.remove('show'), 2500);
+}
+function debounce(fn, ms = 300) {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+
+/* ════════ 5. HITUNG JUMLAH PER KELURAHAN (dari ANAK) ════════ */
+function normKel(k) { return KEL_ALIAS[k] || k; }
+function getJumlahKel() {
+  const map = {};
+  Object.values(KECAMATAN).forEach(k => k.kelurahan.forEach(kel => { map[kel] = 0; }));
+  ANAK.forEach(d => { const k = normKel(d.kel); if (map[k] !== undefined) map[k]++; });
+  // laporan dari Form Penemuan Anak ikut dihitung berdasarkan kelurahan yang terbaca dari alamat
+  ARSIP.forEach(a => { const k = classify(a.alamat).kel; if (k && map[k] !== undefined) map[k]++; });
+  return map;
+}
+function laporanTanpaWilayah() { return ARSIP.filter(a => !classify(a.alamat).kel).length; }
+
+/* ════════ 6. SYNC LAYER ════════ */
+async function refreshSemua({ silent = false } = {}) {
+  if (isFetching) return;
+  if (!APPS_SCRIPT_URL) {
+    if (!silent) toast('⚠ APPS_SCRIPT_URL belum diisi. Edit file HTML.');
+    return;
+  }
+  isFetching = true;
+  try {
+    const [arsip, anak] = await Promise.all([ API.list('arsip'), API.list('anak') ]);
+    ARSIP = arsip;
+    ANAK  = anak;
+    API.list('config').then(applyConfig).catch(() => {});
+    try {
+      localStorage.setItem('sipintar_laporan', JSON.stringify(ARSIP));
+      localStorage.setItem('sipintar_anak',    JSON.stringify(ANAK));
+    } catch(_) {}
+
+    renderKpi();
+    renderTblKec();
+    renderTblTitik();
+    renderTblData();
+    renderArsip();
+    renderAnak();
+    renderMapAll();
+
+    if (!silent) {
+      console.log(`✅ Sync OK — ${ARSIP.length} laporan, ${ANAK.length} anak`);
+      showSyncBadge('ok', `✓ ${ARSIP.length} laporan`);
+    }
+    return { arsip, anak };
+  } catch (err) {
+    if (!ARSIP.length) {
+      try {
+        ARSIP = JSON.parse(localStorage.getItem('sipintar_laporan')||'[]');
+        ANAK  = JSON.parse(localStorage.getItem('sipintar_anak')   ||'[]');
+      } catch(_) {}
+    }
+    if (!silent) {
+      console.warn('❌ Sync gagal:', err.message);
+      showSyncBadge('err', '⚠ Offline');
+    }
+    throw err;
+  } finally {
+    isFetching = false;
+  }
+}
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(() => {
+    if (document.visibilityState === 'visible' && navigator.onLine) {
+      refreshSemua({ silent:true }).catch(()=>{});
+    }
+  }, POLL_MS);
+}
+function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+
+/* ════════ 7. RENDER: KPI & TABEL ════════ */
+function renderKpi() {
+  const el = id => document.getElementById(id);
+  if (el('kpiTotal')) el('kpiTotal').textContent = ANAK.length + ARSIP.length;
+  if (el('kpiTotalNote')) {
+    const tw = laporanTanpaWilayah();
+    el('kpiTotalNote').textContent = `${ANAK.length} binaan + ${ARSIP.length} laporan form` + (tw ? ` (${tw} belum terbaca wilayahnya)` : '');
+  }
+  if (el('kpiKel'))   el('kpiKel').textContent   = new Set(Object.values(KECAMATAN).flatMap(k=>k.kelurahan)).size;
+  if (el('kpiKec'))   el('kpiKec').textContent   = Object.keys(KECAMATAN).length;
+  if (el('kpiLapor')) el('kpiLapor').textContent = ARSIP.length;
+}
+
+function renderTblKec() {
+  const tb = document.getElementById('tblKec'); if (!tb) return;
+  const jk = getJumlahKel();
+  tb.innerHTML = Object.entries(KECAMATAN).map(([kec, info]) => {
+    const total  = info.kelurahan.reduce((s,kel)=> s + (jk[kel]||0), 0);
+    const status = total > 40 ? 'high' : total > 20 ? 'mid' : 'low';
+    const label  = total > 40 ? 'Banyak' : total > 20 ? 'Sedang' : 'Sedikit';
+    return `<tr><td><b>${esc(kec)}</b></td><td>${info.kelurahan.length}</td><td>${total}</td><td><span class="pill ${status}">${label}</span></td></tr>`;
+  }).join('');
+}
+
+function renderTblTitik() {
+  const tb = document.getElementById('tblTitik'); if (!tb) return;
+  const q  = (document.getElementById('searchTitik')?.value || '').toLowerCase();
+  const jk = getJumlahKel();
+  const rows = [];
+  Object.entries(KECAMATAN).forEach(([kec, info]) => {
+    info.kelurahan.forEach(kel => {
+      if (q && !(kel.toLowerCase().includes(q) || kec.toLowerCase().includes(q))) return;
+      rows.push(`<tr><td>${esc(kel)} <small style="color:var(--muted)">· ${esc(kec)}</small></td><td><b>${jk[kel]||0}</b></td></tr>`);
+    });
+  });
+  tb.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="2" class="empty">Tidak ada hasil.</td></tr>';
+}
+
+function renderTblData() {
+  const tb = document.getElementById('tblData'); if (!tb) return;
+  const q  = (document.getElementById('searchData')?.value || '').toLowerCase();
+  const fk = document.getElementById('filterKec')?.value || '';
+  const fs = document.getElementById('filterStatus')?.value || '';
+
+  const rows = ANAK.filter(d => {
+    const hitQ = !q || [d.ini, d.kel, d.kec, d.masalah].some(v => String(v).toLowerCase().includes(q));
+    return hitQ && (!fk || d.kec === fk) && (!fs || d.status === fs);
+  });
+
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="7" class="empty">Belum ada data. Tambahkan lewat menu Admin.</td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(d => {
+    const pill = d.status === 'Selesai' ? 'low' : d.status === 'Pendampingan' ? 'mid' : 'high';
+    return `<tr>
+      <td><b>${esc(d.ini)}</b></td><td>${d.umur}</td>
+      <td>${esc(d.kec)}</td><td>${esc(d.kel)}</td>
+      <td>${esc(d.titik)}</td><td>${esc(d.masalah)}</td>
+      <td><span class="pill ${pill}">${esc(d.status)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderArsip() {
+  const tb = document.getElementById('tblArsip'); if (!tb) return;
+  const q  = (document.getElementById('searchArsip')?.value || '').toLowerCase();
+  const fl = document.getElementById('filterTL')?.value || '';
+
+  const rows = ARSIP.filter(a => {
+    const hitQ = !q || [a.nama, a.pelapor, a.alamat, a.masalah, a.kontak].some(v => String(v||'').toLowerCase().includes(q));
+    return hitQ && (!fl || a.tindakLanjut === fl);
+  });
+
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="10" class="empty">Belum ada laporan.</td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(a => {
+    const pill = a.tindakLanjut === 'Selesai' ? 'low' : a.tindakLanjut === 'Diproses' ? 'mid' : 'high';
+    return `<tr>
+      <td>${formatWaktu(a.waktu)}</td>
+      <td><code class="tk">${esc(a.tiket||'-')}</code></td>
+      <td>${esc(a.nama)}</td>
+      <td>${esc(a.ttl)}</td>
+      <td>${esc(a.alamat)}</td>
+      <td>${esc(a.pelapor)}</td>
+      <td>${esc(a.kontak)}</td>
+      <td>${esc(a.masalah)}</td>
+      <td>
+        <select class="tl-select pill ${pill}" data-id="${esc(a.id)}" onchange="ubahTindakLanjut(this)">
+          <option value="Menunggu" ${a.tindakLanjut==='Menunggu'?'selected':''}>Menunggu</option>
+          <option value="Diproses" ${a.tindakLanjut==='Diproses'?'selected':''}>Diproses</option>
+          <option value="Selesai"  ${a.tindakLanjut==='Selesai' ?'selected':''}>Selesai</option>
+        </select>
+      </td>
+      <td><button class="btn sm secondary" onclick="openDetail('${esc(a.id)}')">Detail</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAnak() {
+  const tb = document.getElementById('tblAnak'); if (!tb) return;
+  const q = (document.getElementById('searchAnak')?.value || '').toLowerCase();
+  const rows = ANAK.filter(d => !q || [d.ini, d.kel, d.kec, d.masalah, d.status].some(v => String(v||'').toLowerCase().includes(q)));
+
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="8" class="empty">Belum ada data anak. Tambahkan lewat form di atas.</td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(d => {
+    const pill = d.status === 'Selesai' ? 'low' : d.status === 'Pendampingan' ? 'mid' : 'high';
+    return `<tr>
+      <td><b>${esc(d.ini)}</b></td><td>${d.umur}</td>
+      <td>${esc(d.kec)}</td><td>${esc(d.kel)}</td>
+      <td>${esc(d.titik)}</td><td>${esc(d.masalah)}</td>
+      <td><span class="pill ${pill}">${esc(d.status)}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn sm orange" onclick="editAnak('${esc(d.id)}')">Edit</button>
+        <button class="btn sm red" onclick="hapusAnak('${esc(d.id)}')">Hapus</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ════════ 8. UBAH TINDAK LANJUT ════════ */
+async function ubahTindakLanjut(sel) {
+  const id = sel.dataset.id;
+  const newVal = sel.value;
+  sel.disabled = true;
+  try {
+    await API.updateTL(id, newVal);
+    const row = ARSIP.find(a => a.id === id);
+    if (row) row.tindakLanjut = newVal;
+    sel.classList.remove('low','mid','high');
+    sel.classList.add(newVal === 'Selesai' ? 'low' : newVal === 'Diproses' ? 'mid' : 'high');
+    toast(`✅ Status diubah ke: ${newVal}`);
+  } catch (err) {
+    toast('❌ Gagal update: ' + err.message);
+    sel.value = ARSIP.find(a => a.id === id)?.tindakLanjut || 'Menunggu';
+  } finally {
+    sel.disabled = false;
+  }
+}
+
+/* ════════ 9. FORM DATA ANAK ════════ */
+async function simpanAnak(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form).entries());
+  const editId = document.getElementById('anakEditId').value;
+
+  if (!data.ini || !data.kec || !data.kel) {
+    toast('⚠ Minimal isi: Inisial, Kecamatan, Kelurahan');
+    return;
+  }
+  if (!data.umur || Number(data.umur) < 0) { toast('⚠ Umur tidak valid'); return; }
+
+  const btn = document.getElementById('btnSimpanAnak');
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Menyimpan...';
+
+  try {
+    if (editId) {
+      await API.updateAnak(editId, data);
+      toast('✅ Data anak diperbarui');
+    } else {
+      await API.createAnak(data);
+      toast('✅ Data anak ditambahkan');
+    }
+    form.reset();
+    document.getElementById('anakEditId').value = '';
+    document.getElementById('anakKel').innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+    await refreshSemua({ silent:true });
+  } catch (err) {
+    toast('❌ Gagal simpan: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText || 'Simpan Data Anak';
+  }
+}
+
+function editAnak(id) {
+  const d = ANAK.find(a => a.id === id); if (!d) return;
+  const f = document.getElementById('formAnak');
+  f.ini.value     = d.ini || '';
+  f.umur.value    = d.umur || '';
+  f.kec.value     = d.kec || '';
+  // populate kelurahan dulu
+  const selKel = document.getElementById('anakKel');
+  selKel.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+  (KECAMATAN[d.kec]?.kelurahan || []).forEach(kel => {
+    const o = document.createElement('option'); o.value = kel; o.textContent = kel;
+    selKel.appendChild(o);
+  });
+  f.kel.value     = d.kel || '';
+  f.titik.value   = d.titik || '';
+  f.masalah.value = d.masalah || '';
+  f.status.value  = d.status || 'Dalam Pembinaan';
+  document.getElementById('anakEditId').value = id;
+  document.getElementById('btnSimpanAnak').textContent = 'Update Data Anak';
+  document.getElementById('formAnak').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+async function hapusAnak(id) {
+  const d = ANAK.find(a => a.id === id); if (!d) return;
+  if (!confirm(`Hapus data anak "${d.ini}"?`)) return;
+  try {
+    await API.deleteAnak(id);
+    toast('✅ Data anak dihapus');
+    await refreshSemua({ silent:true });
+  } catch (err) {
+    toast('❌ Gagal hapus: ' + err.message);
+  }
+}
+
+/* ════════ 10. MAP (TANPA NAMA KELURAHAN) ════════ */
+function warnaJumlah(n) {
+  if (n <= 20) return '#22c55e';
+  if (n <= 40) return '#f59e0b';
+  return '#ef4444';
+}
+function renderMapAll() {
+  if (!window.L) return;
+  const jk = getJumlahKel();
+  [map, mapFull].forEach(m => {
+    if (!m) return;
+    m.eachLayer(layer => { if (layer instanceof L.CircleMarker) m.removeLayer(layer); });
+  });
+  Object.values(KECAMATAN).forEach(info => {
+    const n = info.kelurahan.length;
+    info.kelurahan.forEach((kel, i) => {
+      const jumlah = jk[kel] || 0;
+      const g = KEL_GEO[kel];                       // titik tengah kelurahan
+      const lat = g ? g[0] : info.lat;
+      const lng = g ? g[1] : info.lng;
+      const opts = {
+        radius: 8 + Math.min(jumlah / 5, 14),
+        fillColor: warnaJumlah(jumlah),
+        color: '#fff', weight: 2, fillOpacity: 0.9
+      };
+      const tOpt = { direction:'top', opacity:.95, permanent:false };
+      const tTxt = `${KEL_ABBR[kel] || ""} · ${jumlah} anak`;
+      if (map)     L.circleMarker([lat,lng], opts).bindTooltip(tTxt, tOpt).addTo(map);
+      if (mapFull) L.circleMarker([lat,lng], opts).bindTooltip(tTxt, tOpt).addTo(mapFull);
+    });
+  });
+}
+function initMaps() {
+  if (!window.L) return;
+  if (!map) {
+    map = L.map('map', { preferCanvas:true }).setView([-6.7200, 108.5550], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:'© OpenStreetMap', maxZoom:18
+    }).addTo(map);
+  }
+  if (!mapFull) {
+    mapFull = L.map('mapFull', { preferCanvas:true }).setView([-6.7200, 108.5550], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:'© OpenStreetMap', maxZoom:18
+    }).addTo(mapFull);
+  }
+}
+
+/* ════════ 11. DETAIL MODAL ════════ */
+function openDetail(id) {
+  const a = ARSIP.find(x => x.id === id); if (!a) return;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-row"><b>Waktu</b><span>${formatWaktu(a.waktu)}</span></div>
+    <div class="detail-row"><b>Nama Anak</b><span>${esc(a.nama)}</span></div>
+    <div class="detail-row"><b>Tempat / TTL</b><span>${esc(a.tempatLahir)} · ${esc(a.ttl)}</span></div>
+    <div class="detail-row"><b>Alamat</b><span>${esc(a.alamat)}</span></div>
+    <div class="detail-row"><b>Pelapor</b><span>${esc(a.pelapor)}</span></div>
+    <div class="detail-row"><b>Kontak</b><span>${esc(a.kontak)}</span></div>
+    <div class="detail-row"><b>Permasalahan</b><span>${esc(a.masalah)}</span></div>
+    <div class="detail-row"><b>Tindak Lanjut</b><span>${esc(a.tindakLanjut)}</span></div>
+  `;
+  document.getElementById('detailModal').classList.add('show');
+}
+function closeDetail() { document.getElementById('detailModal').classList.remove('show'); }
+
+/* ════════ 12. NAVIGASI ════════ */
+function switchPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name)?.classList.add('active');
+  document.querySelector(`nav button[data-page="${name}"]`)?.classList.add('active');
+  if (name === 'dash' || name === 'titik') {
+    setTimeout(() => {
+      if (map) map.invalidateSize();
+      if (mapFull) mapFull.invalidateSize();
+    }, 100);
+  }
+}
+
+/* ════════ 13. EVENT HANDLERS ════════ */
+// Nav
+document.querySelectorAll('nav button[data-page]').forEach(b => {
+  b.addEventListener('click', () => switchPage(b.dataset.page));
+});
+
+// Login
+document.getElementById('formLogin').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginErr');
+  if (u === ADMIN.user && p === ADMIN.pass) {
+    err.style.display = 'none';
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    sessionStorage.setItem('sipintar_admin', '1');
+    refreshSemua({ silent:true }).catch(()=>{});
+    toast('✅ Login berhasil');
+  } else {
+    err.style.display = 'block';
+  }
+});
+if (sessionStorage.getItem('sipintar_admin') === '1') {
+  document.getElementById('adminLogin').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+}
+document.getElementById('btnLogout').addEventListener('click', () => {
+  sessionStorage.removeItem('sipintar_admin');
+  document.getElementById('adminLogin').style.display = 'block';
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('formLogin').reset();
+  toast('Anda telah keluar');
+});
+
+// Tab admin
+document.querySelectorAll('.admin-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Filter & search
+document.getElementById('searchTitik')?.addEventListener('input', debounce(renderTblTitik, 250));
+document.getElementById('searchData')?.addEventListener('input', debounce(renderTblData, 250));
+document.getElementById('searchArsip')?.addEventListener('input', debounce(renderArsip, 250));
+document.getElementById('searchAnak')?.addEventListener('input', debounce(renderAnak, 250));
+document.getElementById('filterKec')?.addEventListener('change', renderTblData);
+document.getElementById('filterStatus')?.addEventListener('change', renderTblData);
+document.getElementById('filterTL')?.addEventListener('change', renderArsip);
+
+// Populate filter kecamatan
+(function () {
+  const sel = document.getElementById('filterKec');
+  if (!sel) return;
+  Object.keys(KECAMATAN).forEach(kec => {
+    const o = document.createElement('option'); o.value = kec; o.textContent = kec;
+    sel.appendChild(o);
+  });
+})();
+
+// Populate form anak: kecamatan → kelurahan
+(function () {
+  const selKec = document.getElementById('anakKec');
+  const selKel = document.getElementById('anakKel');
+  if (!selKec || !selKel) return;
+  selKec.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+  selKel.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+  Object.keys(KECAMATAN).forEach(kec => {
+    const o = document.createElement('option'); o.value = kec; o.textContent = kec;
+    selKec.appendChild(o);
+  });
+  selKec.addEventListener('change', () => {
+    selKel.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+    (KECAMATAN[selKec.value]?.kelurahan || []).forEach(kel => {
+      const o = document.createElement('option'); o.value = kel; o.textContent = kel;
+      selKel.appendChild(o);
+    });
+  });
+})();
+
+document.getElementById('formAnak')?.addEventListener('submit', simpanAnak);
+document.getElementById('btnResetAnak')?.addEventListener('click', () => {
+  document.getElementById('formAnak').reset();
+  document.getElementById('anakEditId').value = '';
+  document.getElementById('anakKel').innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+  document.getElementById('btnSimpanAnak').textContent = 'Simpan Data Anak';
+});
+
+// SUBMIT FORM LAPORAN MASYARAKAT
+document.getElementById('formPenemuan').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const btn = document.getElementById('btnKirim');
+  const data = Object.fromEntries(new FormData(form).entries());
+
+  const wajib = ['nama','tempatLahir','ttl','alamat','pelapor','kontak','masalah'];
+  const kosong = wajib.filter(k => !String(data[k] || '').trim());
+  if (kosong.length) { toast('⚠ Belum diisi: ' + kosong.join(', ')); return; }
+
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Mengirim...';
+
+  try {
+    const tiket = genTiket();
+    await API.submit({ ...data, tiket, createdBy:'publik' });
+    form.reset();
+    let warn = false;
+    try { await refreshSemua({ silent:true }); warn = !ARSIP.some(a => a.tiket === tiket); } catch (_) {}
+    showTiket(tiket, warn);
+    toast('✅ Laporan terkirim. Simpan kode tiket Anda.');
+  } catch (err) {
+    toast('❌ Gagal kirim: ' + err.message, 6000);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText || 'Kirim Laporan';
+  }
+});
+
+// Export Word
+document.getElementById('btnWord').addEventListener('click', () => {
+  if (!ARSIP.length) return toast('Belum ada data');
+  let html = '<html><head><meta charset="UTF-8"></head><body><h2>Arsip Laporan Masyarakat — SI PINTAR</h2><table border="1" cellpadding="6" style="border-collapse:collapse;font-family:Arial;font-size:12px"><tr><th>Waktu</th><th>Tiket</th><th>Nama</th><th>TTL</th><th>Alamat</th><th>Pelapor</th><th>Kontak</th><th>Masalah</th><th>Status</th></tr>';
+  ARSIP.forEach(a => {
+    html += `<tr><td>${formatWaktu(a.waktu)}</td><td>${esc(a.tiket)}</td><td>${esc(a.nama)}</td><td>${esc(a.ttl)}</td><td>${esc(a.alamat)}</td><td>${esc(a.pelapor)}</td><td>${esc(a.kontak)}</td><td>${esc(a.masalah)}</td><td>${esc(a.tindakLanjut)}</td></tr>`;
+  });
+  html += '</table></body></html>';
+  const blob = new Blob(['\ufeff', html], { type:'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `Arsip_SIPINTAR_${Date.now()}.doc`; a.click();
+  URL.revokeObjectURL(url);
+});
+
+// Export Excel (CSV)
+document.getElementById('btnExcel').addEventListener('click', () => {
+  if (!ARSIP.length) return toast('Belum ada data');
+  let csv = 'Waktu,Tiket,Nama,TTL,Alamat,Pelapor,Kontak,Masalah,Status\n';
+  ARSIP.forEach(a => {
+    csv += [a.waktu, a.tiket, a.nama, a.ttl, a.alamat, a.pelapor, a.kontak, a.masalah, a.tindakLanjut]
+      .map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',') + '\n';
+  });
+  const blob = new Blob(['\ufeff', csv], { type:'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `Arsip_SIPINTAR_${Date.now()}.csv`; a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* ════════ 13b. TIKET, LACAK, KONTAK, QR ════════ */
+function genTiket() {
+  const AL = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = new Uint32Array(6); crypto.getRandomValues(r);
+  const d = new Date(Date.now() + 7*3600e3).toISOString().slice(2,10).replace(/-/g,'');
+  return 'SP-' + d + '-' + Array.from(r, x => AL[x % AL.length]).join('');
+}
+const waDigits = s => { let d = String(s||'').replace(/\D/g,''); if (d.startsWith('0')) d = '62' + d.slice(1); else if (d.startsWith('8')) d = '62' + d; return d; };
+const waValid  = s => /^62\d{8,13}$/.test(waDigits(s));
+const waHref   = t => 'https://wa.me/' + waDigits(CFG.wa) + '?text=' + encodeURIComponent(t);
+const formUrl  = () => String(CFG.url || location.href).split('#')[0] + '#form';
+function applyConfig(c) {
+  if (Array.isArray(c)) c = c.reduce((o, r) => (o[r.key] = r.value, o), {});
+  if (!c || typeof c !== 'object') return;
+  if (c.wa && waValid(c.wa)) CFG.wa = String(c.wa);
+  if (typeof c.url === 'string' && /^https:\/\/\S+$/.test(c.url)) CFG.url = c.url;
+  try { localStorage.setItem('sipintar_cfg', JSON.stringify(CFG)); } catch (_) {}
+  renderContact();
+}
+function drawQr(cv, text) {
+  const m = qrMatrix(text), q = 4, sc = 8, N = m.length + 2*q; cv.width = cv.height = N*sc;
+  const c = cv.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0,0,cv.width,cv.height); c.fillStyle = '#000';
+  for (let y = 0; y < m.length; y++) for (let x = 0; x < m.length; x++) if (m[y][x]) c.fillRect((x+q)*sc, (y+q)*sc, sc, sc);
+}
+let cfgDirty = false;
+function renderContact() {
+  document.querySelectorAll('.waNum').forEach(e => e.textContent = CFG.wa);
+  document.querySelectorAll('a[data-wa]').forEach(a => { a.href = waHref(a.dataset.wa); });
+  const u = document.getElementById('qrUrl'); if (u) u.textContent = formUrl();
+  const cv = document.getElementById('qrCanvas');
+  if (cv) { try { drawQr(cv, formUrl()); cv.hidden = false; } catch (_) { cv.hidden = true; } }
+  if (!cfgDirty) {
+    const w = document.getElementById('cfWa'), l = document.getElementById('cfUrl');
+    if (w) w.value = CFG.wa; if (l) l.value = CFG.url;
+  }
+}
+async function copyText(t, btn) {
+  const old = btn.textContent;
+  try { await navigator.clipboard.writeText(t); btn.textContent = 'Tersalin'; } catch (_) { btn.textContent = 'Salin manual'; }
+  setTimeout(() => btn.textContent = old, 1800);
+}
+function showTiket(code, warn) {
+  const box = document.getElementById('tiketBox'); if (!box) return;
+  box.innerHTML = `<div class="tick"><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#155e75">Laporan terkirim · kode tiket Anda</div>
+    <div class="code2">${esc(code)}</div>
+    <p>Simpan kode ini untuk melacak penanganan di menu Lacak Tiket. Laporan sudah masuk ke peta dan jumlah Total Anak Terdata (bila kelurahan terbaca dari alamat).</p>
+    ${warn ? '<div class="warnbox">Peringatan: server belum menyimpan kode tiket. Perbarui Google Apps Script dengan Code.gs terbaru agar pelacakan berfungsi.</div>' : ''}
+    <div class="row"><button class="btn sm secondary" type="button" id="tkCopy">Salin kode</button>
+    <button class="btn sm" type="button" id="tkGo">Lacak sekarang</button>
+    <a class="btn wa sm" target="_blank" rel="noopener noreferrer" href="${esc(waHref('Halo admin SI PINTAR, saya baru mengirim laporan dengan kode tiket ' + code + '.'))}">💬 Kabari admin via WhatsApp</a></div></div>`;
+  document.getElementById('tkCopy').onclick = e => copyText(code, e.currentTarget);
+  document.getElementById('tkGo').onclick = () => { switchPage('lacak'); document.getElementById('lcKode').value = code; doLacak(code); };
+  box.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+const pillTL = s => s === 'Selesai' ? 'low' : s === 'Diproses' ? 'mid' : 'high';
+/* ── Lacak Tiket (versi diperbaiki): memanggil server langsung, tidak bergantung pada refreshSemua/polling ── */
+const lcNorm = s => String(s == null ? '' : s).toUpperCase().replace(/[^A-Z0-9]/g, '');
+function lcErr(kind, msg, detail) { const e = new Error(msg); e.lc = kind; e.detail = detail || ''; return e; }
+async function lcGet(params, timeoutMs = 25000) {
+  if (!APPS_SCRIPT_URL) throw lcErr('config', 'APPS_SCRIPT_URL belum diisi di file HTML.');
+  const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const url = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + new URLSearchParams({ ...params, t: Date.now() });
+    const r = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+    const txt = await r.text();
+    let j;
+    try { j = JSON.parse(txt); }
+    catch (_) { throw lcErr('notjson', 'Server tidak mengembalikan data yang benar. Pastikan Web App Apps Script sudah di-deploy ulang dengan akses "Siapa saja".', 'HTTP ' + r.status); }
+    return j;
+  } catch (e) {
+    if (e.lc) throw e;
+    if (e.name === 'AbortError') throw lcErr('timeout', 'Server terlalu lama menjawab. Coba lagi beberapa saat.');
+    throw lcErr('network', 'Tidak dapat terhubung ke server. Periksa koneksi internet, lalu coba lagi.', String(e.message || e));
+  } finally { clearTimeout(timer); }
+}
+async function lcGetRetry(params) {
+  try { return await lcGet(params); }
+  catch (e) { if (e.lc !== 'network' && e.lc !== 'timeout') throw e; await new Promise(r => setTimeout(r, 1200)); return await lcGet(params); }
+}
+/* Mengembalikan data laporan, atau null bila kode memang tidak ada. Melempar error dengan pesan jelas bila server bermasalah. */
+async function lcFind(code) {
+  const want = lcNorm(code);
+  // 1) endpoint khusus (Code.gs terbaru): hanya mengembalikan satu laporan
+  try {
+    const j = await lcGetRetry({ action: 'track', code });
+    if (j && j.ok) return j.data || null;
+    if (!(j && /tidak dikenal|unknown|invalid/i.test(String(j.error || '')))) throw lcErr('server', 'Server menolak permintaan: ' + (j && j.error || 'tanpa keterangan'));
+  } catch (e) { if (e.lc && e.lc !== 'server' || (e.lc === 'server')) throw e; }
+  // 2) cadangan: baca daftar arsip lalu cari kodenya (untuk Apps Script lama)
+  const j = await lcGetRetry({ action: 'list', type: 'arsip' });
+  if (!j || !j.ok) throw lcErr('server', 'Server menolak permintaan: ' + (j && j.error || 'tanpa keterangan'));
+  const rows = Array.isArray(j.data) ? j.data : [];
+  let hit = rows.find(r => lcNorm(r.tiket) === want);
+  if (!hit) hit = rows.find(r => Object.values(r).some(v => typeof v === 'string' && lcNorm(v).includes(want)));
+  if (hit) return hit;
+  if (rows.length && !rows.some(r => lcNorm(r.tiket))) {
+    throw lcErr('notiketcol', 'Server belum menyimpan kode tiket (kolom "tiket" kosong di semua laporan). Admin perlu memperbarui Google Apps Script dengan Code.gs terbaru, lalu deploy ulang.');
+  }
+  return null;
+}
+async function doLacak(raw) {
+  const out = document.getElementById('lcOut'), btn = document.getElementById('lcSubmit');
+  const say = (k, t, d) => { out.innerHTML = `<div class="msgbox ${k}">${esc(t)}${d ? `<div style="margin-top:6px;font-size:11.5px;opacity:.8">Detail: ${esc(d)}</div>` : ''}</div>`; };
+  const n = lcNorm(raw), m = /^SP(\d{6})([A-Z0-9]{6})$/.exec(n);
+  if (!m) { say('bad', 'Format kode tidak sesuai. Contoh: SP-261110-K7M2QX'); return; }
+  const code = `SP-${m[1]}-${m[2]}`;
+  document.getElementById('lcKode').value = code;
+  btn.disabled = true; say('info', 'Mencari tiket...');
+  try {
+    const a = await lcFind(code);
+    if (!a) { say('bad', 'Kode tiket tidak ditemukan. Periksa penulisannya, atau hubungi admin via WhatsApp.'); return; }
+    const st = TL_VALID.includes(a.tindakLanjut) ? a.tindakLanjut : 'Menunggu', idx = st === 'Selesai' ? 2 : st === 'Diproses' ? 1 : 0;
+    const k = classify(a.alamat || ''), wil = k.kel ? `${k.kel}, Kec. ${k.kec}` : k.kec ? `Kec. ${k.kec}` : 'Belum terbaca';
+    const ini = String(a.nama || '').split(/\s+/).filter(Boolean).map(w => w[0].toUpperCase() + '.').join('') || '-';
+    out.innerHTML = `<div class="res"><div class="top"><b>${esc(code)}</b><span class="pill ${pillTL(st)}">${esc(st)}</span></div>
+      <ol class="trk">${['Laporan diterima','Diproses petugas','Selesai'].map((s,i)=>`<li class="${i<=idx?'on':''}">${s}</li>`).join('')}</ol>
+      <div class="detail-row"><b>Waktu lapor</b><span>${formatWaktu(a.waktu)}</span></div>
+      <div class="detail-row"><b>Anak</b><span>${esc(ini)}</span></div>
+      <div class="detail-row"><b>Wilayah</b><span>${esc(wil)}</span></div>
+      <div class="btnrow"><a class="btn wa sm" target="_blank" rel="noopener noreferrer" href="${esc(waHref('Halo admin SI PINTAR, saya menanyakan tiket ' + code))}">💬 Tanya admin via WhatsApp</a></div></div>`;
+  } catch (err) {
+    say('bad', err.lc ? err.message : 'Terjadi kesalahan saat melacak tiket. Coba lagi.', err.detail || (err.lc ? '' : String(err && err.message || err)));
+  } finally { btn.disabled = false; }
+}
+const TL_VALID = ['Menunggu', 'Diproses', 'Selesai'];
+document.getElementById('formLacak').addEventListener('submit', e => { e.preventDefault(); doLacak(document.getElementById('lcKode').value); });
+document.getElementById('btnQrCopy').addEventListener('click', e => copyText(formUrl(), e.currentTarget));
+document.getElementById('btnQrPng').addEventListener('click', () => {
+  document.getElementById('qrCanvas').toBlob(b => {
+    if (!b) return toast('Gagal membuat PNG');
+    const u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'qr-form-si-pintar.png'; a.click(); URL.revokeObjectURL(u);
+  }, 'image/png');
+});
+document.getElementById('formCfg').addEventListener('input', () => { cfgDirty = true; });
+document.getElementById('formCfg').addEventListener('submit', async e => {
+  e.preventDefault();
+  const msg = document.getElementById('cfMsg'), say = (k, t) => { msg.innerHTML = `<div class="msgbox ${k}">${esc(t)}</div>`; };
+  const wa = document.getElementById('cfWa').value.trim(), url = document.getElementById('cfUrl').value.trim().split('#')[0];
+  if (!waValid(wa)) { say('bad', 'Nomor WhatsApp tidak valid. Contoh: 081312403028 atau 6281312403028.'); return; }
+  if (url && !/^https:\/\/\S+$/.test(url)) { say('bad', 'Tautan halaman harus diawali https://'); return; }
+  const btn = document.getElementById('cfSubmit'); btn.disabled = true;
+  CFG = { wa, url }; try { localStorage.setItem('sipintar_cfg', JSON.stringify(CFG)); } catch (_) {}
+  cfgDirty = false; renderContact();
+  try { await API.post({ type:'config', action:'set', wa, url }); say('ok', 'Pengaturan tersimpan untuk semua pengunjung.'); }
+  catch (err) { say('info', 'Tersimpan di browser ini saja (server belum mendukung pengaturan: ' + err.message + '). Perbarui Apps Script dengan Code.gs terbaru.'); }
+  finally { btn.disabled = false; }
+});
+
+/* ════════ 14. LIFECYCLE ════════ */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') refreshSemua({ silent:true }).catch(()=>{});
+});
+window.addEventListener('online',  () => refreshSemua().catch(()=>{}));
+window.addEventListener('beforeunload', stopPolling);
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderContact();
+  { const h = (location.hash||'').slice(1) || new URLSearchParams(location.search).get('page');
+    if (['dash','titik','data','form','lacak','akses','admin'].includes(h)) switchPage(h); }
+  initMaps();
+  renderKpi();
+  renderTblKec();
+  renderTblTitik();
+  renderTblData();
+  renderArsip();
+  renderAnak();
+  refreshSemua().catch(()=>{});
+  startPolling();
+});
+
+// expose
+window.openDetail        = openDetail;
+window.closeDetail       = closeDetail;
+window.switchPage        = switchPage;
+window.ubahTindakLanjut  = ubahTindakLanjut;
+window.editAnak          = editAnak;
+window.hapusAnak         = hapusAnak;
+</script>
+</body>
+</html>
 

@@ -559,7 +559,7 @@ code.tk{font:600 11.5px ui-monospace,Menlo,Consolas,monospace;white-space:nowrap
    ⬇⬇⬇ ISI URL APPS SCRIPT ANDA DI SINI ⬇⬇⬇
    Contoh: "https://script.google.com/macros/s/AKfycb.../exec"
    ════════════════════════════════════════════════════════════════════ */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxyu8-LpHa6gnMT4Bc6WJGxobdVdgoutBsQMzadhs67UsV7SyBH29BxxwSZR9IAmw-Q_w/exec";
+const APPS_SCRIPT_URL = "/api/data";   // backend di Vercel (folder api/data.js) — tanpa Google Apps Script
 
 const ADMIN = { user:"dinsos", pass:"admin123" };
 const DEFAULT_WA = "081312403028";
@@ -703,11 +703,15 @@ let CFG = { wa: DEFAULT_WA, url: '' };
 try { const c = JSON.parse(localStorage.getItem('sipintar_cfg')||'null'); if (c) CFG = { wa:c.wa||DEFAULT_WA, url:c.url||'' }; } catch(_) {}
 
 /* ════════ 3. API ════════ */
+function authH() {
+  try { const c = JSON.parse(sessionStorage.getItem('sipintar_cred')||'null'); if (c) return { 'x-admin-user': c.u, 'x-admin-pass': c.p }; } catch (_) {}
+  return {};
+}
 const API = {
   async list(type = 'arsip') {
     if (!APPS_SCRIPT_URL) throw new Error('APPS_SCRIPT_URL belum diisi');
     const url = `${APPS_SCRIPT_URL}?action=list&type=${type}&t=${Date.now()}`;
-    const r = await fetch(url, { cache:'no-store' });
+    const r = await fetch(url, { cache:'no-store', headers: authH() });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const j = await r.json();
     if (!j.ok) throw new Error(j.error || 'Server error');
@@ -717,7 +721,7 @@ const API = {
     if (!APPS_SCRIPT_URL) throw new Error('APPS_SCRIPT_URL belum diisi');
     const r = await fetch(APPS_SCRIPT_URL, {
       method:'POST',
-      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      headers:{ 'Content-Type':'text/plain;charset=utf-8', ...authH() },
       body: JSON.stringify(payload)
     });
     const j = await r.json();
@@ -1148,6 +1152,7 @@ document.getElementById('formLogin').addEventListener('submit', (e) => {
     document.getElementById('adminLogin').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
     sessionStorage.setItem('sipintar_admin', '1');
+    try { sessionStorage.setItem('sipintar_cred', JSON.stringify({ u, p })); } catch (_) {}
     refreshSemua({ silent:true }).catch(()=>{});
     toast('✅ Login berhasil');
   } else {
@@ -1159,7 +1164,8 @@ if (sessionStorage.getItem('sipintar_admin') === '1') {
   document.getElementById('adminPanel').style.display = 'block';
 }
 document.getElementById('btnLogout').addEventListener('click', () => {
-  sessionStorage.removeItem('sipintar_admin');
+  sessionStorage.removeItem('sipintar_admin'); sessionStorage.removeItem('sipintar_cred');
+  refreshSemua({ silent:true }).catch(()=>{});
   document.getElementById('adminLogin').style.display = 'block';
   document.getElementById('adminPanel').style.display = 'none';
   document.getElementById('formLogin').reset();
@@ -1240,10 +1246,10 @@ document.getElementById('formPenemuan').addEventListener('submit', async (e) => 
 
   try {
     const tiket = genTiket();
-    await API.submit({ ...data, masalah: (String(data.masalah||'') + ' [Tiket: ' + tiket + ']').trim(), tiket, createdBy:'publik' });
+    await API.submit({ ...data, tiket, createdBy:'publik' });
     form.reset();
     let warn = false;
-    try { await refreshSemua({ silent:true }); warn = !ARSIP.some(a => a.tiket === tiket || String(a.masalah||'').includes(tiket)); } catch (_) {}
+    try { await refreshSemua({ silent:true }); } catch (_) {}
     showTiket(tiket, warn);
     toast('✅ Laporan terkirim. Simpan kode tiket Anda.');
   } catch (err) {
@@ -1342,7 +1348,7 @@ const pillTL = s => s === 'Selesai' ? 'low' : s === 'Diproses' ? 'mid' : 'high';
 const lcNorm = s => String(s == null ? '' : s).toUpperCase().replace(/[^A-Z0-9]/g, '');
 function lcErr(kind, msg, detail) { const e = new Error(msg); e.lc = kind; e.detail = detail || ''; return e; }
 async function lcGet(params, timeoutMs = 25000) {
-  if (!APPS_SCRIPT_URL) throw lcErr('config', 'APPS_SCRIPT_URL belum diisi di file HTML.');
+  if (!APPS_SCRIPT_URL) throw lcErr('config', 'Alamat server belum diisi di file HTML.');
   const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     const url = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + new URLSearchParams({ ...params, t: Date.now() });
@@ -1350,7 +1356,7 @@ async function lcGet(params, timeoutMs = 25000) {
     const txt = await r.text();
     let j;
     try { j = JSON.parse(txt); }
-    catch (_) { throw lcErr('notjson', 'Server tidak mengembalikan data yang benar. Pastikan Web App Apps Script sudah di-deploy ulang dengan akses "Siapa saja".', 'HTTP ' + r.status); }
+    catch (_) { throw lcErr('notjson', 'Server tidak mengembalikan data yang benar. Pastikan file api/data.js ada di GitHub dan Vercel sudah selesai deploy.', 'HTTP ' + r.status); }
     return j;
   } catch (e) {
     if (e.lc) throw e;
@@ -1379,7 +1385,7 @@ async function lcFind(code) {
   if (!hit) hit = rows.find(r => Object.values(r).some(v => typeof v === 'string' && lcNorm(v).includes(want)));
   if (hit) return hit;
   if (rows.length && !rows.some(r => lcNorm(r.tiket))) {
-    throw lcErr('notiketcol', 'Server belum menyimpan kode tiket (kolom "tiket" kosong di semua laporan). Admin perlu memperbarui Google Apps Script dengan Code.gs terbaru, lalu deploy ulang.');
+    throw lcErr('notiketcol', 'Server belum menyimpan kode tiket. Hubungi admin.');
   }
   return null;
 }
@@ -1427,7 +1433,7 @@ document.getElementById('formCfg').addEventListener('submit', async e => {
   CFG = { wa, url }; try { localStorage.setItem('sipintar_cfg', JSON.stringify(CFG)); } catch (_) {}
   cfgDirty = false; renderContact();
   try { await API.post({ type:'config', action:'set', wa, url }); say('ok', 'Pengaturan tersimpan untuk semua pengunjung.'); }
-  catch (err) { say('info', 'Tersimpan di browser ini saja (server belum mendukung pengaturan: ' + err.message + '). Perbarui Apps Script dengan Code.gs terbaru.'); }
+  catch (err) { say('info', 'Tersimpan di browser ini saja (server belum mendukung pengaturan: ' + err.message + '). Coba lagi atau login ulang.'); }
   finally { btn.disabled = false; }
 });
 

@@ -1240,10 +1240,10 @@ document.getElementById('formPenemuan').addEventListener('submit', async (e) => 
 
   try {
     const tiket = genTiket();
-    await API.submit({ ...data, tiket, createdBy:'publik' });
+    await API.submit({ ...data, masalah: (String(data.masalah||'') + ' [Tiket: ' + tiket + ']').trim(), tiket, createdBy:'publik' });
     form.reset();
     let warn = false;
-    try { await refreshSemua({ silent:true }); warn = !ARSIP.some(a => a.tiket === tiket); } catch (_) {}
+    try { await refreshSemua({ silent:true }); warn = !ARSIP.some(a => a.tiket === tiket || String(a.masalah||'').includes(tiket)); } catch (_) {}
     showTiket(tiket, warn);
     toast('✅ Laporan terkirim. Simpan kode tiket Anda.');
   } catch (err) {
@@ -1463,4 +1463,3 @@ window.hapusAnak         = hapusAnak;
 </script>
 </body>
 </html>
-
